@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -7,6 +8,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BoatMovementV1 : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI debugSpeedText;
+
     [Header("Movement")]
     [SerializeField] private float maxSpeed = 10f;               // Max speed in meters/sec
     [SerializeField] private float throttleForce = 1000f;        // Forward/backward propulsion
@@ -50,14 +53,11 @@ public class BoatMovementV1 : MonoBehaviour
         _rb = GetComponent<Rigidbody>(); // get it from this gameobject
     }
 
-    //private void Update()
-    //{
-    //    // Get input
-    //    _throttle = Input.GetAxis("Vertical");  // W/S or Up/Down Arrow
-    //    //_rudderInput = Input.GetAxis("Horizontal");    // A/D or Left/Right Arrow
-    //    _rudderInput = Input.Ke(KeyCode.A);    // A/D or Left/Right Arrow
-    //}
 
+    private void Update()
+    {
+        debugSpeedText.text = $"Speed: {_rb.linearVelocity.magnitude:0.00} m/s"; //display current speed 
+    }
 
     private void FixedUpdate()
     {
@@ -83,10 +83,19 @@ public class BoatMovementV1 : MonoBehaviour
         if (_rb.linearVelocity.magnitude > maxSpeed)
             _rb.linearVelocity = _rb.linearVelocity.normalized * maxSpeed;
 
+        // Flip rudder force if reversing
+        float directionSign = Mathf.Sign(throttle);
         // Rudder direction
         Vector3 rudderForce = Quaternion.Euler(0f, currentRudderAngle, 0f) * transform.forward;
-        rudderForce *= throttle * turnForceMultiplier;
-        _rb.AddForce(rudderForce, ForceMode.Force);
+
+        if (directionSign < 0)
+        {
+            rudderForce = -rudderForce;  // Flip rudder force when reversing
+        }
+
+        //rudderForce *= throttle * turnForceMultiplier;
+        rudderForce *= Mathf.Abs(throttle) * turnForceMultiplier;
+        _rb.AddForce(rudderForce);
     }
 
     private void ApplyBuoyancy()
@@ -113,17 +122,24 @@ public class BoatMovementV1 : MonoBehaviour
         Vector3 horizontallinearVelocity = _rb.linearVelocity;
         horizontallinearVelocity.y = 0f;
 
-        if (horizontallinearVelocity.sqrMagnitude > 0.1f)
+       //it will have a problem it the boat is still going forwards but the player is pressing teh 'S' to try and go backwards 
+
+        if (Vector3.Dot(transform.forward, _rb.linearVelocity) >= 0)
+        {// align when moving forward
+            //Quaternion targetRotation = Quaternion.LookRotation(horizontallinearVelocity.normalized, Vector3.up);
+            //_rb.MoveRotation(Quaternion.Slerp(_rb.rotation, targetRotation, turnAlignSpeed * Time.fixedDeltaTime));
+
+            if (horizontallinearVelocity.sqrMagnitude > 0.1f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(horizontallinearVelocity.normalized, Vector3.up);
+                _rb.MoveRotation(Quaternion.Slerp(_rb.rotation, targetRotation, turnAlignSpeed * Time.fixedDeltaTime));
+            }
+        }
+        else
         {
-            Quaternion targetRotation = Quaternion.LookRotation(horizontallinearVelocity.normalized, Vector3.up);
+            Quaternion targetRotation = Quaternion.LookRotation(-horizontallinearVelocity.normalized, Vector3.up);
             _rb.MoveRotation(Quaternion.Slerp(_rb.rotation, targetRotation, turnAlignSpeed * Time.fixedDeltaTime));
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, Vector3.forward * 25f);
     }
 
 }
