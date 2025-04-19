@@ -794,7 +794,7 @@ Transform:
   m_GameObject: {fileID: 1135458278}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -15, z: 0}
   m_LocalScale: {x: 50, y: 1, z: 1000}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2567,7 +2567,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8764403748453946098}
-  - component: {fileID: 8764403748454043285}
   - component: {fileID: 8764403748454043284}
   - component: {fileID: 8764403748454043283}
   m_Layer: 0
@@ -2589,10 +2588,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d05267773f7f4f47ba6112e7384d23d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSpeed: 10
   throttleForce: 1000
   maxRudderAngle: 30
   rudderTurnSpeed: 45
   turnForceMultiplier: 10
+  turnAlignSpeed: 2
 --- !u!54 &8764403748454043284
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2615,32 +2616,11 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
---- !u!65 &8764403748454043285
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8764403748454043282}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 9.349455, y: 8.881512, z: 23.79721}
-  m_Center: {x: 0.3098297, y: 6.2061653, z: 2.166916}
 --- !u!1 &8764403748454043286
 GameObject:
   m_ObjectHideFlags: 0
@@ -2886,6 +2866,7 @@ GameObject:
   - component: {fileID: 8764403748453946064}
   - component: {fileID: 8764403748451078902}
   - component: {fileID: 8764403748452044854}
+  - component: {fileID: 8764403748454043377}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -2893,6 +2874,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!64 &8764403748454043377
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8764403748454043376}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300002, guid: 7c7a4d44caacb6f4b9be0c256699803f, type: 3}
 --- !u!1 &8764403748454043378
 GameObject:
   m_ObjectHideFlags: 0
