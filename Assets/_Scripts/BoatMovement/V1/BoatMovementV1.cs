@@ -33,10 +33,18 @@ public class BoatMovementV1 : MonoBehaviour
         // Apply forward force
         Vector3 force = transform.forward * _throttle * throttleForce * Time.fixedDeltaTime;
         _rb.AddForce(force);
+        
+       
 
         // Apply turning torque
-        Vector3 torque = Vector3.up * _turn * turnTorque * Time.fixedDeltaTime;
+        Vector3 torque = Vector3.forward * _turn * turnTorque * Time.fixedDeltaTime;
         _rb.AddTorque(torque);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, Vector3.forward * 25f);
     }
 
 }
