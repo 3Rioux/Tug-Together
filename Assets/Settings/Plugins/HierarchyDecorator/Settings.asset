@@ -25,7 +25,7 @@ MonoBehaviour:
     showAllComponents: 1
     showBreadcrumbs: 1
     instanceBreadcrumbs:
-      show: 1
+      show: 0
       color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
       style: 0
       displayHorizontal: 1
@@ -33,11 +33,11 @@ MonoBehaviour:
       show: 1
       color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
       style: 0
-      displayHorizontal: 0
+      displayHorizontal: 1
   styleData:
-    displayTags: 1
-    displayLayers: 1
-    displayIcons: 1
+    displayTags: 0
+    displayLayers: 0
+    displayIcons: 0
     styles:
     - prefix: =
       noSpaceAfterPrefix: 1
@@ -279,7 +279,7 @@ MonoBehaviour:
         m_FixedHeight: 0
         m_StretchWidth: 1
         m_StretchHeight: 0
-    twoToneBackground: 1
+    twoToneBackground: 0
     lightMode:
       colorOne: {r: 0.8, g: 0.8, b: 0.8, a: 1}
       colorTwo: {r: 0.765, g: 0.765, b: 0.765, a: 1}
@@ -5481,6 +5481,45 @@ MonoBehaviour:
         isBuiltIn: 1
         script: {fileID: 0}
         hasToggle: 1
+      - displayName: CustomButton
+        name: Unity.UI.Shaders.Sample.CustomButton, Unity.UI.Shaders.Sample, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: CustomButton
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: CustomButton
+          m_TextWithWhitespace: "CustomButton\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
+      - displayName: CustomSlider
+        name: Unity.UI.Shaders.Sample.CustomSlider, Unity.UI.Shaders.Sample, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: CustomSlider
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: CustomSlider
+          m_TextWithWhitespace: "CustomSlider\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
+      - displayName: CustomToggle
+        name: Unity.UI.Shaders.Sample.CustomToggle, Unity.UI.Shaders.Sample, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: CustomToggle
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: CustomToggle
+          m_TextWithWhitespace: "CustomToggle\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
       - displayName: DebugUIHandlerCanvas
         name: UnityEngine.Rendering.UI.DebugUIHandlerCanvas, Unity.RenderPipelines.Core.Runtime,
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -5528,6 +5567,19 @@ MonoBehaviour:
           m_Image: {fileID: -4387529911086606607, guid: 0000000000000000d000000000000000, type: 0}
           m_Tooltip: EventSystem
           m_TextWithWhitespace: "EventSystem\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
+      - displayName: GraphicColor
+        name: Unity.UI.Shaders.Sample.GraphicColor, Unity.UI.Shaders.Sample, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: GraphicColor
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: GraphicColor
+          m_TextWithWhitespace: "GraphicColor\u200B"
         shown: 0
         excluded: 0
         isBuiltIn: 1
@@ -5637,6 +5689,19 @@ MonoBehaviour:
         isBuiltIn: 1
         script: {fileID: 0}
         hasToggle: 1
+      - displayName: Meter
+        name: Unity.UI.Shaders.Sample.Meter, Unity.UI.Shaders.Sample, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: Meter
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: Meter
+          m_TextWithWhitespace: "Meter\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
       - displayName: MonoBehaviour
         name: UnityEngine.MonoBehaviour, UnityEngine.CoreModule, Version=0.0.0.0,
           Culture=neutral, PublicKeyToken=null
@@ -5728,6 +5793,19 @@ MonoBehaviour:
         isBuiltIn: 1
         script: {fileID: 0}
         hasToggle: 1
+      - displayName: RangeBar
+        name: Unity.UI.Shaders.Sample.RangeBar, Unity.UI.Shaders.Sample, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: RangeBar
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: RangeBar
+          m_TextWithWhitespace: "RangeBar\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
       - displayName: RawImage
         name: UnityEngine.UI.RawImage, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
           PublicKeyToken=null
@@ -5736,6 +5814,19 @@ MonoBehaviour:
           m_Image: {fileID: 8791087986535517480, guid: 0000000000000000d000000000000000, type: 0}
           m_Tooltip: RawImage
           m_TextWithWhitespace: "RawImage\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 1
+        script: {fileID: 0}
+        hasToggle: 1
+      - displayName: RectTransformSize
+        name: Unity.UI.Shaders.Sample.RectTransformSize, Unity.UI.Shaders.Sample,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        content:
+          m_Text: RectTransformSize
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: RectTransformSize
+          m_TextWithWhitespace: "RectTransformSize\u200B"
         shown: 0
         excluded: 0
         isBuiltIn: 1
@@ -6360,5 +6451,57 @@ MonoBehaviour:
         isBuiltIn: 0
         script: {fileID: 11500000, guid: 7d05267773f7f4f47ba6112e7384d23d, type: 3}
         hasToggle: 1
+      - displayName: ButtonAnimatorController
+        name: ButtonAnimatorController, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        content:
+          m_Text: ButtonAnimatorController
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: ButtonAnimatorController
+          m_TextWithWhitespace: "ButtonAnimatorController\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 0
+        script: {fileID: 11500000, guid: a890d4e5157eb7340a30cffd57fe7054, type: 3}
+        hasToggle: 1
+      - displayName: PauseController
+        name: PauseController, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        content:
+          m_Text: PauseController
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: PauseController
+          m_TextWithWhitespace: "PauseController\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 0
+        script: {fileID: 11500000, guid: b72021c142464e8459deb3d8156a74ca, type: 3}
+        hasToggle: 1
+      - displayName: CreditsController
+        name: CreditsController, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        content:
+          m_Text: CreditsController
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: CreditsController
+          m_TextWithWhitespace: "CreditsController\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 0
+        script: {fileID: 11500000, guid: d158bf6fb6b2252448a263eb78d3b353, type: 3}
+        hasToggle: 1
+      - displayName: CreditsButtonCaller
+        name: CreditsButtonCaller, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+        content:
+          m_Text: CreditsButtonCaller
+          m_Image: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+          m_Tooltip: CreditsButtonCaller
+          m_TextWithWhitespace: "CreditsButtonCaller\u200B"
+        shown: 0
+        excluded: 0
+        isBuiltIn: 0
+        script: {fileID: 11500000, guid: 1bdbfefb1c7091c4b947071a835a2e14, type: 3}
+        hasToggle: 1
     unityVersion: 6000.0.47f1
-    unityCount: 463
+    unityCount: 470
