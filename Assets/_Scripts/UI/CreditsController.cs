@@ -44,16 +44,21 @@ public class CreditsController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+
     public void ShowCredits()
     {
+        // Ignore if creditsCanvas is already active.
+        if (canvasInstance != null)
+        {
+            Debug.Log("Credits already active. Ignoring additional request.");
+            return;
+        }
+
         if (creditsCanvasPrefab == null)
         {
             Debug.LogError("Assign the CreditsCanvas prefab in the inspector");
             return;
         }
-
-        if (canvasInstance != null)
-            Destroy(canvasInstance);
 
         canvasInstance = Instantiate(creditsCanvasPrefab);
         DontDestroyOnLoad(canvasInstance);
