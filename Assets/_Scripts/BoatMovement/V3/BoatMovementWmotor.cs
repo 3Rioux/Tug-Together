@@ -71,8 +71,8 @@ public class BoatMovementWmotor : MonoBehaviour
         Rigidbody.linearVelocity = Quaternion.AngleAxis(Vector3.SignedAngle(Rigidbody.linearVelocity, (movingForward ? 1f : 0f) * transform.forward, Vector3.up) * Drag, Vector3.up) * Rigidbody.linearVelocity;
 
         //camera position
-        Camera.transform.LookAt(transform.position + transform.forward * 6f + transform.up * 2f);
-        Camera.transform.position = Vector3.SmoothDamp(Camera.transform.position, transform.position + transform.forward * -8f + transform.up * 2f, ref CamVel, 0.05f);
+        //Camera.transform.LookAt(transform.position + transform.forward * 6f + transform.up * 2f);
+        //Camera.transform.position = Vector3.SmoothDamp(Camera.transform.position, transform.position + transform.forward * -8f + transform.up * 2f, ref CamVel, 0.05f);
     }
 
 
