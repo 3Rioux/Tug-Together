@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: FadeAnimation
   m_EditorClassIdentifier: 
   wave:
-    upPeriod: 0.5
-    downPeriod: 0.5
+    upPeriod: 0.75
+    downPeriod: 0.75
     amplitude: 1
     upwardCurve:
       serializedVersion: 2
@@ -64,12 +64,12 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    crestWait: 1.75
+    crestWait: 4
     troughWait: 1
     velocity: 1
   waveOffset:
     offsetProvider:
-      enumValue: 5
+      enumValue: 40
       customValue: {fileID: 0}
       useCustom: 0
     uniformity: 0.1

@@ -1,8 +1,8 @@
-// C#
+// Language: C#
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class MenuManager : MonoBehaviour
 {
@@ -11,16 +11,27 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject hostMenu;
     [SerializeField] private GameObject joinMenu;
     [SerializeField] private GameObject optionsMenu;
-    
+
     [Header("Scene Name")]
     [SerializeField] private string gameSceneName = "Gameplay";
 
     [Header("Credits Button")]
     [SerializeField] private Button creditsButton;
 
+    [Header("Input")]
+    [SerializeField] private InputActionReference backActionReference;
+
     private void Awake()
     {
-        // Set up credits button listener
+        if (backActionReference != null)
+        {
+            backActionReference.action.performed += context => OnBackButtonClicked();
+        }
+        else
+        {
+            Debug.LogError("Back action reference not assigned in the inspector.");
+        }
+
         if (creditsButton != null)
         {
             creditsButton.onClick.RemoveAllListeners();
@@ -31,27 +42,34 @@ public class MenuManager : MonoBehaviour
             Debug.LogError("Credits button reference not assigned in the inspector.");
         }
     }
-    
-    private void Start()
+
+    private void OnEnable()
     {
+        backActionReference?.action.Enable();
+
         mainMenu.SetActive(true);
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
         optionsMenu.SetActive(false);
     }
-    
+
+    private void OnDisable()
+    {
+        backActionReference?.action.Disable();
+    }
+
     public void OnHostButtonClicked()
     {
         mainMenu.SetActive(false);
         hostMenu.SetActive(true);
     }
-    
+
     public void OnJoinButtonClicked()
     {
         mainMenu.SetActive(false);
         joinMenu.SetActive(true);
     }
-    
+
     public void OnOptionsButtonClicked()
     {
         mainMenu.SetActive(false);
@@ -60,18 +78,17 @@ public class MenuManager : MonoBehaviour
     
     public void OnBackButtonClicked()
     {
-        hostMenu.SetActive(false);
-        joinMenu.SetActive(false);
-        optionsMenu.SetActive(false);
-        mainMenu.SetActive(true);
+        if (hostMenu != null) hostMenu.SetActive(false);
+        if (joinMenu != null) joinMenu.SetActive(false);
+        if (optionsMenu != null) optionsMenu.SetActive(false);
+        if (mainMenu != null) mainMenu.SetActive(true);
     }
-    
+
     public void OnExitButtonClicked()
     {
         Application.Quit();
     }
 
-    // New method to handle credits button click
     private void OnCreditsButtonClicked()
     {
         if (CreditsController.Instance != null)
