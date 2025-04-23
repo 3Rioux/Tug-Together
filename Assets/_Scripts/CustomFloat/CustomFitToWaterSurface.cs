@@ -11,28 +11,103 @@ public class CustomFitToWaterSurface : MonoBehaviour
     public bool includeDeformation = true;
     public bool excludeSimulation = false;
 
+    [Header("Orientation")]
+    public bool alignToWaterNormal = true;
+    [Range(0f, 10f)] public float orientationSmoothSpeed = 5f;
+
+    private Vector3 previousPosition;
+    [SerializeField] private float pitchAngleMultiplier = 2f;
+    [SerializeField] private float rollAngleMultiplier = 3f;
+
+    
+
     // Internal search params
     WaterSearchParameters searchParameters = new WaterSearchParameters();
     WaterSearchResult searchResult = new WaterSearchResult();
 
+    private void Start()
+    {
+        previousPosition = transform.position;
+    }
+
+
     // Update is called once per frame
     void Update()
     {
-        if (targetSurface != null)
-        {
-            // Build the search parameters
-            searchParameters.startPositionWS = searchResult.candidateLocationWS;
-            searchParameters.targetPositionWS = gameObject.transform.position;
-            searchParameters.error = 0.01f;
-            searchParameters.maxIterations = 8;
-            searchParameters.includeDeformation = includeDeformation;
-            searchParameters.excludeSimulation = excludeSimulation;
+        if (targetSurface == null)
+            return;
 
-            // Do the search
-            if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
+
+        // Build the search parameters
+        searchParameters.startPositionWS = searchResult.candidateLocationWS;
+        searchParameters.targetPositionWS = gameObject.transform.position;
+        searchParameters.error = 0.01f;
+        searchParameters.maxIterations = 8;
+        searchParameters.includeDeformation = includeDeformation;
+        searchParameters.excludeSimulation = excludeSimulation;
+
+        // Do the search
+        if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
+        {
+            //gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
+
+            //Align the boat to the water 
+            if (alignToWaterNormal)
             {
-                gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
+                AlignToWaterNormal(searchResult.normalWS);
             }
+
+            gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
         }
     }
+
+
+
+    /// <summary>
+    /// method to align the gameobject to the water surface with damping 
+    /// </summary>
+    /// <param name="waterNormal"></param>
+    //private void AlignToWaterNormal(float3 waterNormal)
+    //{
+    //    // Maintain yaw, update pitch and roll to match water surface
+    //    Vector3 boatForward = transform.forward;
+    //    Vector3 targetRight = Vector3.Cross(Vector3.up, boatForward);
+    //    Vector3 flattenedForward = Vector3.Cross(targetRight, waterNormal).normalized;
+
+    //    // Compose new rotation
+    //    Quaternion targetRotation = Quaternion.LookRotation(flattenedForward, waterNormal);
+    //    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
+    //}
+
+    private void AlignToWaterNormal(float3 waterNormal)
+    {
+        Vector3 velocity = (transform.position - previousPosition) / Time.deltaTime;
+        previousPosition = transform.position;
+
+
+        // Flatten for horizontal velocity
+        Vector3 localVelocity = transform.InverseTransformDirection(velocity);
+        float forwardSpeed = localVelocity.z;
+        float sideSpeed = localVelocity.x;
+
+        // Simulate pitch (nose up/down from forward acceleration)
+        float pitchAngle = -forwardSpeed * pitchAngleMultiplier;
+
+        // Simulate roll (lean into turns / side drift)
+        float rollAngle = sideSpeed * rollAngleMultiplier;
+
+        Quaternion targetTilt = Quaternion.Euler(pitchAngle, 0f, rollAngle);
+
+        // Base upright rotation from water normal
+        Vector3 forwardProjected = Vector3.ProjectOnPlane(transform.forward, waterNormal).normalized;
+        Quaternion waterAligned = Quaternion.LookRotation(forwardProjected, waterNormal);
+
+        // Combine boat tilt + wave normal
+        Quaternion targetRotation = waterAligned * targetTilt;
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
+
+    }
+
+
 }

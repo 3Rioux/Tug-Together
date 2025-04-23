@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 
@@ -21,6 +22,10 @@ public class TugboatMovement : MonoBehaviour
     [Header("Physics")]
     public float dragWhenNotMoving = 2f;
     public float angularDrag = 2f;
+
+    [Header("Orientation")]
+    public bool alignToWaterNormal = true;
+    [Range(0f, 10f)] public float orientationSmoothSpeed = 5f;
 
     private Rigidbody rb;
     private Vector2 inputVector;
@@ -102,7 +107,21 @@ public class TugboatMovement : MonoBehaviour
 
 
 
+    ///// <summary>
+    ///// method to align the gameobject to the water surface with damping 
+    ///// </summary>
+    ///// <param name="waterNormal"></param>
+    //private void AlignToWaterNormal(float3 waterNormal)
+    //{
+    //    // Maintain yaw, update pitch and roll to match water surface
+    //    Vector3 boatForward = transform.forward;
+    //    Vector3 targetRight = Vector3.Cross(Vector3.up, boatForward);
+    //    Vector3 flattenedForward = Vector3.Cross(targetRight, waterNormal).normalized;
 
+    //    // Compose new rotation
+    //    Quaternion targetRotation = Quaternion.LookRotation(flattenedForward, waterNormal);
+    //    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
+    //}
 
 
 
