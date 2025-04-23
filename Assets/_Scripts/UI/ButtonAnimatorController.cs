@@ -2,7 +2,6 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using FMODUnity;
 
 public class ButtonAnimatorController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {

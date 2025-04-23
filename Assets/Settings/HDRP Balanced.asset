@@ -31,7 +31,7 @@ MonoBehaviour:
     supportVolumetricClouds: 0
     supportLightLayers: 1
     renderingLayerMaskBuffer: 0
-    supportWater: 0
+    supportWater: 1
     waterSimulationResolution: 128
     supportWaterExclusion: 0
     supportWaterDecals: 1
@@ -163,19 +163,19 @@ MonoBehaviour:
       lutFormat: 48
       bufferFormat: 74
     dynamicResolutionSettings:
-      enabled: 0
+      enabled: 1
       useMipBias: 0
-      advancedUpscalersByPriority: 
-      DLSSPerfQualitySetting: 0
+      advancedUpscalersByPriority: 0100
+      DLSSPerfQualitySetting: 2
       DLSSInjectionPoint: 0
       TAAUInjectionPoint: 0
       STPInjectionPoint: 0
       defaultInjectionPoint: 2
       DLSSUseOptimalSettings: 0
       DLSSSharpness: 0
-      FSR2EnableSharpness: 0
+      FSR2EnableSharpness: 1
       FSR2Sharpness: 0
-      FSR2UseOptimalSettings: 0
+      FSR2UseOptimalSettings: 1
       FSR2QualitySetting: 0
       FSR2InjectionPoint: 0
       fsrOverrideSharpness: 0

@@ -32,14 +32,14 @@ MonoBehaviour:
     supportLightLayers: 1
     renderingLayerMaskBuffer: 0
     supportWater: 1
-    waterSimulationResolution: 128
+    waterSimulationResolution: 256
     supportWaterExclusion: 1
     supportWaterDecals: 1
     waterDecalAtlasSize: 1024
     maximumWaterDecalCount: 48
     waterScriptInteractionsMode: 0
     waterFullCPUSimulation: 0
-    supportComputeThickness: 0
+    supportComputeThickness: 1
     computeThicknessResolution: 1
     computeThicknessLayerMask:
       serializedVersion: 2
@@ -64,8 +64,8 @@ MonoBehaviour:
     supportDecalLayers: 1
     supportSurfaceGradient: 0
     decalNormalBufferHP: 0
-    supportHighQualityLineRendering: 0
-    highQualityLineRenderingMemoryBudget: 128
+    supportHighQualityLineRendering: 1
+    highQualityLineRenderingMemoryBudget: 256
     msaaSampleCount: 1
     supportMotionVectors: 1
     supportScreenSpaceLensFlare: 1
@@ -171,9 +171,9 @@ MonoBehaviour:
       TAAUInjectionPoint: 0
       STPInjectionPoint: 0
       defaultInjectionPoint: 2
-      DLSSUseOptimalSettings: 1
+      DLSSUseOptimalSettings: 0
       DLSSSharpness: 0
-      FSR2EnableSharpness: 0
+      FSR2EnableSharpness: 1
       FSR2Sharpness: 0
       FSR2UseOptimalSettings: 1
       FSR2QualitySetting: 0

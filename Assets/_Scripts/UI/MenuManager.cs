@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
@@ -67,6 +68,11 @@ public class MenuManager : MonoBehaviour
             backActionReference.action.performed -= OnBackActionPerformed;
             backActionReference.action.Disable();
         }
+    }
+
+    public void TESTBUTTON()
+    {
+        SceneManager.LoadScene("_Scenes/Gameplay");
     }
 
     private void OnBackActionPerformed(InputAction.CallbackContext context)
