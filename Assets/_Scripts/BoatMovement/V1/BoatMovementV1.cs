@@ -61,7 +61,7 @@ public class BoatMovementV1 : MonoBehaviour
 
     private void FixedUpdate()
     {
-        ApplyBuoyancy();
+        //ApplyBuoyancy();
         ApplyThrustAndSteering();
         AlignWithlinearVelocity();
     }
