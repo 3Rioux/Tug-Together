@@ -12,7 +12,7 @@ public class BoatController : MonoBehaviour
     [SerializeField] private float speed = 10.0f;               //the boats current Speed 
     [SerializeField] private float steerSpeed = 10.0f;          //the boats
     [SerializeField] private float movementThreshold = 5f;      // max boat lean forward /backwards 
-    [SerializeField] private float steeringThreshold = 2.5f;    // max speed 
+    [SerializeField] private float steeringThreshold = 2.5f;    // max resistence 
 
 
     private Rigidbody _rigidbody;                               // this rigid boady
@@ -84,11 +84,11 @@ public class BoatController : MonoBehaviour
         //Debug.Log("Vertical Movement: " + verticalInput);
         movementFactor = Mathf.Lerp(movementFactor, verticalInput, Time.deltaTime / movementThreshold);
 
-        //Move towards the movementFactor * speed 
+        //Move towards the movementFactor * resistence 
         transform.Translate(0, 0, movementFactor * speed);
-        //_rigidbody.MovePosition(new Vector3(0, 0, movementFactor * speed));
+        //_rigidbody.MovePosition(new Vector3(0, 0, movementFactor * resistence));
 
-        // Clamp max speed
+        // Clamp max resistence
         if (_rigidbody.linearVelocity.magnitude > maxSpeed)
             _rigidbody.linearVelocity = _rigidbody.linearVelocity.normalized * maxSpeed;
 

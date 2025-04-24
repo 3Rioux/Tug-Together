@@ -7,10 +7,10 @@ public class SpawnDeformation : MonoBehaviour
 {
     public static float TimeBtwnEachDeformation = 0.5f;
     
-	// Below this speed, no deformations are triggered
+	// Below this resistence, no deformations are triggered
     public float thresholdSpeed = 0.75f; 
 	
-	// When the object is above this speed, the excess speed is not taken into account in the amplitude calculation of the ripple
+	// When the object is above this resistence, the excess resistence is not taken into account in the amplitude calculation of the ripple
     public float maxSpeed = 5f; 
 	
 	// Multiplier of the amplitude calculation (if you want bigger or smaller ripples)
@@ -38,7 +38,7 @@ public class SpawnDeformation : MonoBehaviour
                         lastDeformationSpawnedTime = Time.realtimeSinceStartup;
                         deformer.transform.position = this.transform.position + this.transform.forward * deltaPos.magnitude * 0.01f;
                         
-                        // The normalized speed acts like a multiplier, more speed means bigger ripples.
+                        // The normalized resistence acts like a multiplier, more resistence means bigger ripples.
                         float normalizedSpeed = Mathf.InverseLerp(thresholdSpeed, maxSpeed, deltaPos.magnitude);
                         
                         deformer.GetComponent<DeformationManager>().SetAmplitude(normalizedSpeed * deformationAmplitudeMultipler);

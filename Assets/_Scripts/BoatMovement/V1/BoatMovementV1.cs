@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Tugboat physics controller with rudder-based steering, heading alignment, and max speed
+/// Tugboat physics controller with rudder-based steering, heading alignment, and max resistence
 ///  buoyancy, and wave simulation
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
@@ -11,7 +11,7 @@ public class BoatMovementV1 : MonoBehaviour
     [SerializeField] private TextMeshProUGUI debugSpeedText;
 
     [Header("Movement")]
-    [SerializeField] private float maxSpeed = 10f;               // Max speed in meters/sec
+    [SerializeField] private float maxSpeed = 10f;               // Max resistence in meters/sec
     [SerializeField] private float throttleForce = 1000f;        // Forward/backward propulsion
     //[SerializeField] private float turnTorque = 200f;          // Left/right turning power
     [SerializeField] private float maxRudderAngle = 30f;         // Max rudder angle in degrees
@@ -56,7 +56,7 @@ public class BoatMovementV1 : MonoBehaviour
 
     private void Update()
     {
-        debugSpeedText.text = $"Speed: {_rb.linearVelocity.magnitude:0.00} m/s"; //display current speed 
+        debugSpeedText.text = $"Speed: {_rb.linearVelocity.magnitude:0.00} m/s"; //display current resistence 
     }
 
     private void FixedUpdate()
@@ -79,7 +79,7 @@ public class BoatMovementV1 : MonoBehaviour
         Vector3 propulsion = transform.forward * throttle * throttleForce * Time.fixedDeltaTime;
         _rb.AddForce(propulsion);
 
-        // Clamp max speed
+        // Clamp max resistence
         if (_rb.linearVelocity.magnitude > maxSpeed)
             _rb.linearVelocity = _rb.linearVelocity.normalized * maxSpeed;
 

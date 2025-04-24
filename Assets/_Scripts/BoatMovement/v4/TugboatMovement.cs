@@ -1,14 +1,18 @@
+using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 
 
 /// <summary>
-/// Tugboat controller using Rigidbody, HDRP Water Buoyancy (assumed), and reverse-compatible thrust.
+/// Tugboat controller using Rigidbody, HDRP Custom Water, and reverse-compatible thrust.
 /// Suitable for towing heavy vessels.
+/// https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/water-deform-a-water-surface.html#bow-wave
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class TugboatMovement : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI debugSpeedText;
+
     [Header("Thrust & Speed")]
     public float maxSpeed = 8f;
     public float throttleForce = 2000f;
@@ -23,9 +27,6 @@ public class TugboatMovement : MonoBehaviour
     public float dragWhenNotMoving = 2f;
     public float angularDrag = 2f;
 
-    [Header("Orientation")]
-    public bool alignToWaterNormal = true;
-    [Range(0f, 10f)] public float orientationSmoothSpeed = 5f;
 
     private Rigidbody rb;
     private Vector2 inputVector;
@@ -50,11 +51,18 @@ public class TugboatMovement : MonoBehaviour
     void OnEnable() => controls.Enable();
     void OnDisable() => controls.Disable();
 
+    private void Update()
+    {
+        debugSpeedText.text = $"Speed: {rb.linearVelocity.magnitude:0} m/s"; //display current resistence 
+        //HandleThrottle();
+        //HandleTurning();
+    }
+
     void FixedUpdate()
     {
         HandleThrottle();
         HandleTurning();
-        HandleDrag();
+        //HandleDrag();
     }
 
 
@@ -74,7 +82,7 @@ public class TugboatMovement : MonoBehaviour
         Vector3 force = transform.forward * adjustedForce * Time.fixedDeltaTime;
         rb.AddForce(force, ForceMode.Force);
 
-        // Limit max speed (for tugboat realism)
+        // Limit max resistence (for tugboat realism)
         Vector3 flatVel = rb.linearVelocity;
         flatVel.y = 0f;
         if (flatVel.magnitude > maxSpeed)
@@ -107,21 +115,7 @@ public class TugboatMovement : MonoBehaviour
 
 
 
-    ///// <summary>
-    ///// method to align the gameobject to the water surface with damping 
-    ///// </summary>
-    ///// <param name="waterNormal"></param>
-    //private void AlignToWaterNormal(float3 waterNormal)
-    //{
-    //    // Maintain yaw, update pitch and roll to match water surface
-    //    Vector3 boatForward = transform.forward;
-    //    Vector3 targetRight = Vector3.Cross(Vector3.up, boatForward);
-    //    Vector3 flattenedForward = Vector3.Cross(targetRight, waterNormal).normalized;
-
-    //    // Compose new rotation
-    //    Quaternion targetRotation = Quaternion.LookRotation(flattenedForward, waterNormal);
-    //    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
-    //}
+   
 
 
 

@@ -12,7 +12,7 @@ public class SceneController : MonoBehaviour
     public static SceneController Instance { get; private set; } // SceneController Instance
 
     [SerializeField] private GameObject _fadeCanvasPrefab; // Prefab with Canvas & UI Image
-    [SerializeField] private float _defaultFadeDuration = 1f; // Default fade speed
+    [SerializeField] private float _defaultFadeDuration = 1f; // Default fade resistence
 
     private Material _transitionMaterial; //store current _transitionMaterial
     private GameObject _fadeCanvasInstance; // store the fadeCanvas Prefab instance 

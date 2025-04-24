@@ -49,15 +49,13 @@ public class CustomFitToWaterSurface : MonoBehaviour
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
-            //gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
+            gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
 
             //Align the boat to the water 
             if (alignToWaterNormal)
             {
                 AlignToWaterNormal(searchResult.normalWS);
             }
-
-            gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
         }
     }
 
