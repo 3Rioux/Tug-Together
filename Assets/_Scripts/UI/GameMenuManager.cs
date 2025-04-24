@@ -64,6 +64,12 @@ public class GameMenuManager : MonoBehaviour
 
     private void ProcessBackNavigation()
     {
+        if (!gameMenuPanel.activeSelf && _isPaused)
+        {
+            AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
+        }
+
+        
         // If options panel is visible, process the submenu navigation.
         if (optionsPanel.activeSelf)
         {
@@ -143,10 +149,12 @@ public class GameMenuManager : MonoBehaviour
     {
         if (_isPaused)
             StartCoroutine(ResumeGameCoroutine());
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
     }
 
     public void OnMainMenuButtonClicked()
     {
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
         SceneManager.LoadScene("MainMenu");
         Debug.Log("Returning to main menu.");
     }
@@ -156,14 +164,17 @@ public class GameMenuManager : MonoBehaviour
         gameMenuPanel.SetActive(false);
         optionsPanel.SetActive(true);
         if (settingsMenu != null) settingsMenu.SetActive(true);
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
         if (videoMenu != null) videoMenu.SetActive(false);
         if (audioMenu != null) audioMenu.SetActive(false);
+        
         Debug.Log("Options opened from pause menu.");
     }
 
     public void OnCloseOptionsButtonClicked()
     {
         optionsPanel.SetActive(false);
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
         gameMenuPanel.SetActive(true);
         Debug.Log("Options closed.");
     }
@@ -171,6 +182,7 @@ public class GameMenuManager : MonoBehaviour
     public void OnVideoButtonClicked()
     {
         if (settingsMenu != null) settingsMenu.SetActive(false);
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
         if (videoMenu != null) videoMenu.SetActive(true);
         Debug.Log("Video menu opened.");
     }
@@ -178,6 +190,7 @@ public class GameMenuManager : MonoBehaviour
     public void OnAudioButtonClicked()
     {
         if (settingsMenu != null) settingsMenu.SetActive(false);
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
         if (audioMenu != null) audioMenu.SetActive(true);
         Debug.Log("Audio menu opened.");
     }
