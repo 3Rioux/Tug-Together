@@ -20,6 +20,8 @@ namespace Unity.Multiplayer.Widgets
         [SerializeField, HideInInspector]
         protected Button m_EnterSessionButton;
         
+        protected bool _isJoining;
+        
         public ISession Session { get; set; }
         
         protected virtual void Awake()
@@ -75,10 +77,31 @@ namespace Unity.Multiplayer.Widgets
         {
             return new EnterSessionData { SessionAction = SessionAction.Invalid };
         }
-
+        
+        // csharp
         protected async void EnterSession()
         {
+            // Prevent join if already in progress or joined.
+            if (_isJoining || Session != null)
+                return;
+    
+            _isJoining = true;
+    
+            if (m_EnterSessionButton != null)
+                m_EnterSessionButton.interactable = false;
+    
             await SessionManager.Instance.EnterSession(GetSessionData());
+
+            // Reset _isJoining if the session was not established.
+            _isJoining = false;
+    
+            if (m_EnterSessionButton != null)
+                m_EnterSessionButton.interactable = Session == null;
         }
+        
+        // protected async void EnterSession()
+        // {
+        //     await SessionManager.Instance.EnterSession(GetSessionData());
+        // }
     }
 }

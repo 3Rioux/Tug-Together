@@ -27,7 +27,7 @@ namespace Unity.Multiplayer.Widgets
 
         public void OnSessionJoined()
         {
-            m_Text.text = Session?.Code != null ? "<size=30><+fade><+char>" + Session.Code : k_NoCode;
+            m_Text.text = Session?.Code != null ? "<size=30><+fade>" + Session.Code : k_NoCode;
             m_CopyCodeButton.gameObject.SetActive(true);
 
             CanvasGroup canvasGroup = m_CopyCodeButton.GetComponent<CanvasGroup>();
@@ -36,7 +36,7 @@ namespace Unity.Multiplayer.Widgets
                 canvasGroup = m_CopyCodeButton.gameObject.AddComponent<CanvasGroup>();
             }
             canvasGroup.alpha = 0f;
-            StartCoroutine(WaitAndFade(canvasGroup, 1f, 1f, 1f)); // Wait 1 second then fade in over 1 second.
+            StartCoroutine(WaitAndFade(canvasGroup, .5f, 1f, 1f)); // Wait 1 second then fade in over 1 second.
         }
 
         public void OnSessionLeft()

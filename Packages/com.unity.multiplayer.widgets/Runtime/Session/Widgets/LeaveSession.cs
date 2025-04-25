@@ -29,7 +29,7 @@ namespace Unity.Multiplayer.Widgets
         public void OnSessionLeft()
         {
             SessionLeft.Invoke();
-            SceneManager.LoadScene("MainMenu");
+            //SceneManager.LoadScene("MainMenu");
             SetButtonActive();
         }
 

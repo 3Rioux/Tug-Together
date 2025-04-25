@@ -72,7 +72,8 @@ public class MenuManager : MonoBehaviour
 
     public void TESTBUTTON()
     {
-        SceneManager.LoadScene("_Scenes/Gameplay");
+        //SceneManager.LoadScene("_Scenes/MainMenu");
+        //Debug.Log("TESTBUTTON");
     }
 
     private void OnBackActionPerformed(InputAction.CallbackContext context)

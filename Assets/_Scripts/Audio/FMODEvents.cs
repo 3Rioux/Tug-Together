@@ -18,7 +18,7 @@ public class FMODEvents : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogError("Multiple instances of FMODEvents detected. Destroying duplicate.");
+            //Debug.LogError("Multiple instances of FMODEvents detected. Destroying duplicate.");
             Destroy(gameObject);
             return;
         }

@@ -66,7 +66,7 @@ namespace Unity.Multiplayer.Widgets
         
         internal void Init(string playerName, string playerId, Configuration configuration)
         {
-            PlayerNameText.text = playerName;
+            PlayerNameText.text = "<+fade>" + playerName;
             PlayerId = playerId;
             m_Configuration = configuration;
             
