@@ -17,14 +17,10 @@ public class TugTowSystem : MonoBehaviour
 
     [Header("Rope Visual")]
     public LineRenderer ropeRenderer;
-    public GameObject chainLinkPrefab;
     public int ropeSegments = 10;
     public AnimationCurve ropeSag = AnimationCurve.EaseInOut(0, 0, 1, -0.3f);
 
-    [Header("Chain Link Visual")]
-    public ChainLinkRopeRenderer chainRenderer;
 
-    private List<Transform> chainLinks = new();
     private ConfigurableJoint joint;
     private bool isAttached = false; // allow re-attaching and detattaching
 
@@ -53,9 +49,6 @@ public class TugTowSystem : MonoBehaviour
                 Detach();
             }
         }
-
-        if (isAttached && chainRenderer != null)
-            chainRenderer.UpdateChainLinkPositions();
 
         if (isAttached && towedObject)
         {
