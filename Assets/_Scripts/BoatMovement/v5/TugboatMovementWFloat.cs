@@ -16,6 +16,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     [Header("Thrust & Speed")]
     public float maxSpeed = 8f;
+    //public float boostMaxSpeed = 100f;
     public float throttleForce = 2000f;
     public float throttleForceMultiplier = 10f;
     public float reverseThrottleFactor = 0.5f;    // Less power in reverse
