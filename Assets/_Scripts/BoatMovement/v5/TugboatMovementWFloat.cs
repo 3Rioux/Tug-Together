@@ -28,7 +28,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     [Header("Physics")]
     public float dragWhenNotMoving = 2f;
-    public float angularDrag = 2f;
+    public float angularDrag = 0.5f;
 
     [Space(10)]
     [Header("Float")]
@@ -75,7 +75,10 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void Update()
     {
-        debugSpeedText.text = $"Speed: {rb.linearVelocity.magnitude:0} m/s"; //display current resistence 
+        float speed = (rb.linearVelocity.magnitude) - 10;
+        if(speed <= 0.4) { speed = 0; }
+        //debugSpeedText.text = $"Speed: "+ (rb.linearVelocity.magnitude:0) - 10 + "m/s"; //display current resistence 
+        debugSpeedText.text = $"Speed: "+ speed.ToString("0") + "m/s"; //display current resistence 
        
        
     }
