@@ -17,6 +17,7 @@ public class TugboatMovementWFloat : MonoBehaviour
     [Header("Thrust & Speed")]
     public float maxSpeed = 8f;
     public float throttleForce = 2000f;
+    public float throttleForceMultiplier = 10f;
     public float reverseThrottleFactor = 0.5f;    // Less power in reverse
     public float accelerationSmoothing = 2f;
 
@@ -119,7 +120,7 @@ public class TugboatMovementWFloat : MonoBehaviour
         currentThrottle = Mathf.MoveTowards(currentThrottle, targetThrottle, accelerationSmoothing * Time.fixedDeltaTime);
 
         // Throttle adjusted for direction
-        float adjustedForce = throttleForce * currentThrottle;
+        float adjustedForce = throttleForce * currentThrottle * throttleForceMultiplier;
         if (currentThrottle < 0)
             adjustedForce *= reverseThrottleFactor;
 

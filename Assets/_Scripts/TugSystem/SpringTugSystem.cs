@@ -1,3 +1,4 @@
+using GogoGaga.OptimizedRopesAndCables;
 using TMPro;
 using UnityEngine;
 
@@ -5,7 +6,10 @@ using UnityEngine;
 public class SpringTugSystem : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI distanceText;
+
+
     [SerializeField] private SpringJoint springJoint;
+    [SerializeField] private Rope visualRope;
 
     [SerializeField] private Transform attachPoint;
 
@@ -17,9 +21,19 @@ public class SpringTugSystem : MonoBehaviour
 
     private void Update()
     {
-        //Vector3.Distance(transform.position, attachPoint.position);
+        float distance = Vector3.Distance(transform.position, attachPoint.position);
 
-        distanceText.text = Vector3.Distance(transform.position, attachPoint.position).ToString();
+        if (distance >= springJoint.maxDistance)
+        {
+            //set to max lenght to simulate tention 
+            visualRope.ropeLength = springJoint.maxDistance;
+        }
+        else
+        {
+            visualRope.ropeLength = distance;
+        }
+
+        distanceText.text = distance.ToString()+ " m";
     }
 
 
