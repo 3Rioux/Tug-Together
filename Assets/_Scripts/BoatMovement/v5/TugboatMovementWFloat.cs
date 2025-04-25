@@ -16,7 +16,9 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     [Header("Thrust & Speed")]
     public float maxSpeed = 8f;
+    //public float boostMaxSpeed = 100f;
     public float throttleForce = 2000f;
+    public float throttleForceMultiplier = 10f;
     public float reverseThrottleFactor = 0.5f;    // Less power in reverse
     public float accelerationSmoothing = 2f;
 
@@ -26,7 +28,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     [Header("Physics")]
     public float dragWhenNotMoving = 2f;
-    public float angularDrag = 2f;
+    public float angularDrag = 0.5f;
 
     [Space(10)]
     [Header("Float")]
@@ -64,7 +66,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
         controls = new BoatInputActions();
         controls.Boat.Move.performed += ctx => inputVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Move.canceled += _ => inputVector = Vector2.zero;
+        controls.Boat.Move.canceled += _ => inputVector = Vector2.zero; // remove this to enable Toggle speed 
     }
 
 
@@ -73,8 +75,21 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void Update()
     {
-        debugSpeedText.text = $"Speed: {rb.linearVelocity.magnitude:0} m/s"; //display current resistence 
+        float speed = (rb.linearVelocity.magnitude) - 10;
+        if(speed <= 0.4) { speed = 0; }
+        //debugSpeedText.text = $"Speed: "+ (rb.linearVelocity.magnitude:0) - 10 + "m/s"; //display current resistence 
+        debugSpeedText.text = $"Speed: "+ speed.ToString("0") + "m/s"; //display current resistence 
        
+       
+    }
+
+    void FixedUpdate()
+    {
+        HandleThrottle();
+        HandleTurning();
+        //HandleDrag();
+
+
         if (targetSurface == null)
             return;
 
@@ -90,17 +105,8 @@ public class TugboatMovementWFloat : MonoBehaviour
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
-            gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
-
-            
+            gameObject.transform.position = searchResult.projectedPositionWS;
         }
-    }
-
-    void FixedUpdate()
-    {
-        HandleThrottle();
-        HandleTurning();
-        //HandleDrag();
 
         //Align the boat to the water 
         if (alignToWaterNormal)
@@ -119,7 +125,7 @@ public class TugboatMovementWFloat : MonoBehaviour
         currentThrottle = Mathf.MoveTowards(currentThrottle, targetThrottle, accelerationSmoothing * Time.fixedDeltaTime);
 
         // Throttle adjusted for direction
-        float adjustedForce = throttleForce * currentThrottle;
+        float adjustedForce = throttleForce * currentThrottle * throttleForceMultiplier;
         if (currentThrottle < 0)
             adjustedForce *= reverseThrottleFactor;
 
