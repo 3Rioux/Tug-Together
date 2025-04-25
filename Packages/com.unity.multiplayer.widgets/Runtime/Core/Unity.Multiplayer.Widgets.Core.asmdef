@@ -1,0 +1,35 @@
+{
+    "name": "Unity.Multiplayer.Widgets.Core",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Core",
+        "Unity.Services.Authentication",
+        "Unity.Services.Vivox"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.services.vivox",
+            "expression": "",
+            "define": "VIVOX_AVAILABLE"
+        },
+        {
+            "name": "com.unity.netcode.gameobjects",
+            "expression": "2.0.0-exp.5",
+            "define": "NGO_2_AVAILABLE"
+        },
+        {
+            "name": "com.unity.netcode",
+            "expression": "",
+            "define": "NETCODE_FOR_ENTITIES_AVAILABLE"
+        }
+    ],
+    "noEngineReferences": false
+}

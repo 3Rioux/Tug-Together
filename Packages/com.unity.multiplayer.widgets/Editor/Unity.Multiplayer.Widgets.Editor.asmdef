@@ -1,0 +1,69 @@
+{
+    "name": "Unity.Multiplayer.Widgets.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Multiplayer.Widgets.UGUI",
+        "Unity.Services.Multiplayer",
+        "Unity.TextMeshPro",
+        "Unity.Multiplayer.Widgets.Core",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.Multiplayer.Widgets.Session",
+        "Unity.Multiplayer.Widgets.Vivox",
+        "Unity.Multiplayer.Center.Common",
+        "Unity.Services.Vivox",
+        "Unity.Multiplayer.Center.Integrations"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.multiplayer.center",
+            "expression": "",
+            "define": "MULTIPLAYER_CENTER_AVAILABLE"
+        },
+        {
+            "name": "com.unity.multiplayer.center",
+            "expression": "0.3.0",
+            "define": "MULTIPLAYER_CENTER_ANALYTICS_AVAILABLE"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.4.0",
+            "define": "NEW_INPUT_SYSTEM_INSTALLED"
+        },
+        {
+            "name": "com.unity.netcode.gameobjects",
+            "expression": "",
+            "define": "NETCODE_FOR_GAMEOBJECTS_INSTALLED"
+        },
+        {
+            "name": "com.unity.services.vivox",
+            "expression": "",
+            "define": "VIVOX_AVAILABLE"
+        },
+        {
+            "name": "com.unity.netcode.gameobjects",
+            "expression": "2.0.0",
+            "define": "NGO_2_AVAILABLE"
+        },
+        {
+            "name": "com.unity.netcode",
+            "expression": "1.3.2",
+            "define": "NETCODE_FOR_ENTITIES_INSTALLED"
+        },
+        {
+            "name": "com.unity.multiplayer.center.quickstart",
+            "expression": "1.0.0",
+            "define": "COMBINED_NETCODE_QUICKSTART_AVAILABLE"
+        }
+    ],
+    "noEngineReferences": false
+}

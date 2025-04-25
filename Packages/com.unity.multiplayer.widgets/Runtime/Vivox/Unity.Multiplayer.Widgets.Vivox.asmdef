@@ -1,0 +1,29 @@
+{
+    "name": "Unity.Multiplayer.Widgets.Vivox",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Services.Multiplayer",
+        "Unity.Services.Core",
+        "Unity.Services.Authentication",
+        "Unity.Multiplayer.Widgets.Core",
+        "Unity.Services.Vivox",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "VIVOX_AVAILABLE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.services.vivox",
+            "expression": "",
+            "define": "VIVOX_AVAILABLE"
+        }
+    ],
+    "noEngineReferences": false
+}
