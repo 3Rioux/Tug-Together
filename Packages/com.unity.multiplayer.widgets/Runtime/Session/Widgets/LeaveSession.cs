@@ -1,8 +1,6 @@
-using System;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -41,7 +39,8 @@ namespace Unity.Multiplayer.Widgets
         
         void SetButtonActive()
         {
-            m_Button.interactable = Session != null;
+            //m_Button.interactable = Session != null;
+            m_Button.interactable = true;
         }
         
         async void Leave()

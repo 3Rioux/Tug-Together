@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -72,7 +73,7 @@ public class MenuManager : MonoBehaviour
 
     public void TESTBUTTON()
     {
-        //SceneManager.LoadScene("_Scenes/MainMenu");
+
         //Debug.Log("TESTBUTTON");
     }
 
@@ -100,35 +101,34 @@ public class MenuManager : MonoBehaviour
         {
             AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
         }
-        
-        // If video or audio panel is active, return to options default.
+
         if (videoMenu != null && videoMenu.activeSelf)
         {
             videoMenu.SetActive(false);
-            if (settingsMenu != null) settingsMenu.SetActive(true);
+            settingsMenu?.SetActive(true);
             return;
         }
         if (audioMenu != null && audioMenu.activeSelf)
         {
             audioMenu.SetActive(false);
-            if (settingsMenu != null) settingsMenu.SetActive(true);
+            settingsMenu?.SetActive(true);
             return;
         }
 
-        // If options container (default settings) is active, go back to main menu.
         if (optionsContainer != null && optionsContainer.activeSelf)
         {
             optionsContainer.SetActive(false);
-            if (mainMenu != null) mainMenu.SetActive(true);
+            mainMenu?.SetActive(true);
             return;
         }
 
-        // If host or join menu is active, go back to main menu.
         if ((hostMenu != null && hostMenu.activeSelf) || (joinMenu != null && joinMenu.activeSelf))
         {
-            if (hostMenu != null) hostMenu.SetActive(false);
-            if (joinMenu != null) joinMenu.SetActive(false);
-            if (mainMenu != null) mainMenu.SetActive(true);
+            //NetworkManager.Singleton.Shutdown();
+            hostMenu?.SetActive(false);
+            joinMenu?.SetActive(false);
+            mainMenu?.SetActive(true);
+            //SceneManager.LoadScene("MainMenu");
         }
     }
 
