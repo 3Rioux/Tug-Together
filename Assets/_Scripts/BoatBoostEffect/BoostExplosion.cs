@@ -150,7 +150,7 @@ public class BoostExplosion : MonoBehaviour
         Debug.Log($"Explosion triggered in direction: {direction}");
         // Example: GetComponent<Rigidbody>().AddForce(direction * forceAmount, ForceMode.Impulse);
         
-        rb.AddExplosionForce(explosionForce * 2f, direction, explosionRadius);
+        rb.AddExplosionForce(explosionForce * 2f, direction, explosionRadius, 3.0f);
 
         //Cooldown + energy refill
         canBoost = false;

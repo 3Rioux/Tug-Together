@@ -66,7 +66,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
         controls = new BoatInputActions();
         controls.Boat.Move.performed += ctx => inputVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Move.canceled += _ => inputVector = Vector2.zero;
+        controls.Boat.Move.canceled += _ => inputVector = Vector2.zero; // remove this to enable Toggle speed 
     }
 
 
@@ -77,6 +77,16 @@ public class TugboatMovementWFloat : MonoBehaviour
     {
         debugSpeedText.text = $"Speed: {rb.linearVelocity.magnitude:0} m/s"; //display current resistence 
        
+       
+    }
+
+    void FixedUpdate()
+    {
+        HandleThrottle();
+        HandleTurning();
+        //HandleDrag();
+
+
         if (targetSurface == null)
             return;
 
@@ -92,17 +102,8 @@ public class TugboatMovementWFloat : MonoBehaviour
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
-            gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
-
-            
+            gameObject.transform.position = searchResult.projectedPositionWS;
         }
-    }
-
-    void FixedUpdate()
-    {
-        HandleThrottle();
-        HandleTurning();
-        //HandleDrag();
 
         //Align the boat to the water 
         if (alignToWaterNormal)
