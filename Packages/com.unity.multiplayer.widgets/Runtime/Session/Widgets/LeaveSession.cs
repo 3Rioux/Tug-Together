@@ -2,6 +2,7 @@ using System;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -28,6 +29,7 @@ namespace Unity.Multiplayer.Widgets
         public void OnSessionLeft()
         {
             SessionLeft.Invoke();
+            SceneManager.LoadScene("MainMenu");
             SetButtonActive();
         }
 

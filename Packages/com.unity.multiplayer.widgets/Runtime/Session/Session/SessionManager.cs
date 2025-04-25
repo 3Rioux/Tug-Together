@@ -230,7 +230,7 @@ namespace Unity.Multiplayer.Widgets
             ActiveSession.Changed += m_WidgetEventDispatcher.OnSessionChanged;
             ActiveSession.StateChanged += m_WidgetEventDispatcher.OnSessionStateChanged;
             ActiveSession.PlayerJoined += m_WidgetEventDispatcher.OnPlayerJoinedSession;
-            ActiveSession.PlayerLeft += m_WidgetEventDispatcher.OnPlayerLeftSession;
+            ActiveSession.PlayerLeaving += m_WidgetEventDispatcher.OnPlayerLeftSession;
             ActiveSession.SessionPropertiesChanged += m_WidgetEventDispatcher.OnSessionPropertiesChanged;
             ActiveSession.PlayerPropertiesChanged += m_WidgetEventDispatcher.OnPlayerPropertiesChanged;
             ActiveSession.RemovedFromSession += m_WidgetEventDispatcher.OnRemovedFromSession;
@@ -244,7 +244,7 @@ namespace Unity.Multiplayer.Widgets
             ActiveSession.Changed -= m_WidgetEventDispatcher.OnSessionChanged;
             ActiveSession.StateChanged -= m_WidgetEventDispatcher.OnSessionStateChanged;
             ActiveSession.PlayerJoined -= m_WidgetEventDispatcher.OnPlayerJoinedSession;
-            ActiveSession.PlayerLeft -= m_WidgetEventDispatcher.OnPlayerLeftSession;
+            ActiveSession.PlayerLeaving -= m_WidgetEventDispatcher.OnPlayerLeftSession;
             ActiveSession.SessionPropertiesChanged -= m_WidgetEventDispatcher.OnSessionPropertiesChanged;
             ActiveSession.PlayerPropertiesChanged -= m_WidgetEventDispatcher.OnPlayerPropertiesChanged;
             ActiveSession.RemovedFromSession -= m_WidgetEventDispatcher.OnRemovedFromSession;

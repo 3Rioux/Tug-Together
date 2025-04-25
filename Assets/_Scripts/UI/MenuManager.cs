@@ -85,6 +85,12 @@ public class MenuManager : MonoBehaviour
     {
         ExecuteBackNavigation();
     }
+    
+    public void OnButtonBackSessionClick()
+    {
+        // NetworkManager.Instance = null;
+        // SceneManager.LoadScene("MainMenu");
+    }
 
     // Consolidates back navigation logic:
     private void ExecuteBackNavigation()
