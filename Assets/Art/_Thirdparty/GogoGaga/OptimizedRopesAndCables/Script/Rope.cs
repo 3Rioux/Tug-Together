@@ -23,7 +23,8 @@ namespace GogoGaga.OptimizedRopesAndCables
 
         [Tooltip("The rope will end at this point")]
         [SerializeField] private Transform endPoint;
-        public Transform EndPoint => endPoint;
+        //public Transform EndPoint => endPoint;
+        public Transform EndPoint { get => endPoint; set => endPoint = value; }
 
         [Header("Rope Settings")]
         [Tooltip("How many points should the rope have, 2 would be a triangle with straight lines, 100 would be a very flexible rope with many parts")]
@@ -74,7 +75,9 @@ namespace GogoGaga.OptimizedRopesAndCables
         
         
         public bool IsPrefab => gameObject.scene.rootCount == 0;
-        
+
+       
+
         private void Start()
         {
             InitializeLineRenderer();
