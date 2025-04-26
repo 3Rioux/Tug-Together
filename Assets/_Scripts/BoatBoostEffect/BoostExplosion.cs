@@ -25,7 +25,7 @@ public class BoostExplosion : MonoBehaviour
 
 
     private Rigidbody rb;
-    private BoatInputActions _controller;
+    private BoatInputActions controls;
     private AudioSource _audioSource;
     private TugboatMovementWFloat _movementScript;
 
@@ -54,24 +54,24 @@ public class BoostExplosion : MonoBehaviour
 
     private void OnEnable()
     {
-        _controller = new BoatInputActions();
-        _controller.Boat.Enable();
+        controls = new BoatInputActions();
+        controls.Boat.Enable();
 
         // Register event handlers
-        _controller.Boat.BoostRight.performed += OnBoostRight;
-        _controller.Boat.BoostLeft.performed += OnBoostLeft;
-        _controller.Boat.BoostNormal.performed += OnBoostNormal;
+        controls.Boat.BoostRight.performed += OnBoostRight;
+        controls.Boat.BoostLeft.performed += OnBoostLeft;
+        controls.Boat.BoostNormal.performed += OnBoostNormal;
 
     }
 
     private void OnDisable()
     {
         // Unregister event handlers
-        _controller.Boat.BoostRight.performed -= OnBoostRight;
-        _controller.Boat.BoostLeft.performed -= OnBoostLeft;
-        _controller.Boat.BoostNormal.performed -= OnBoostNormal;
+        controls.Boat.BoostRight.performed -= OnBoostRight;
+        controls.Boat.BoostLeft.performed -= OnBoostLeft;
+        controls.Boat.BoostNormal.performed -= OnBoostNormal;
         // Disable the action map
-        _controller.Boat.Disable();
+        controls.Boat.Disable();
 
     }
 
