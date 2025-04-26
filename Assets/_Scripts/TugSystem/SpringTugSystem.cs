@@ -276,12 +276,15 @@ public class SpringTugSystem : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, ropeAttachPoint.position);
+        if (springJoint != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(transform.position, currentClosestAttachPoint.position);
 
-        Gizmos.DrawSphere(ropeAttachPoint.position, 0.1f);
-        Gizmos.color = Color.cyan;
-        if (springJoint != null) Gizmos.DrawSphere(springJoint.connectedAnchor, 5f);
+            Gizmos.DrawSphere(currentClosestAttachPoint.position, 0.1f);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawSphere(springJoint.connectedAnchor, 5f);
+        }
     }
 
 }

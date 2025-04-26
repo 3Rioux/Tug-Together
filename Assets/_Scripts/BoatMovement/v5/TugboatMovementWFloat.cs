@@ -26,6 +26,12 @@ public class TugboatMovementWFloat : MonoBehaviour
     public float turnTorque = 1500f;
     public float turnResponsiveness = 3f;
 
+    [Header("Camera Settings")]
+    [SerializeField] private Transform cameraRig; // Drag your CameraRig here in Inspector
+    [SerializeField] private float lookSensitivity = 1.5f;
+    [SerializeField] private float minPitch = -30f;
+    [SerializeField] private float maxPitch = 60f;
+
     [Header("Physics")]
     public float dragWhenNotMoving = 2f;
     public float angularDrag = 0.5f;
@@ -51,7 +57,10 @@ public class TugboatMovementWFloat : MonoBehaviour
 
 
     private Rigidbody rb;
-    private Vector2 inputVector;
+    private Vector2 moveVector;
+    private Vector2 lookVector;
+    private float yaw;
+    private float pitch;
     private float targetThrottle;
     private float currentThrottle;
 
@@ -65,10 +74,14 @@ public class TugboatMovementWFloat : MonoBehaviour
         rb.angularDamping = angularDrag;
 
         controls = new BoatInputActions();
-        controls.Boat.Move.performed += ctx => inputVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Move.canceled += _ => inputVector = Vector2.zero; // remove this to enable Toggle speed 
+        //Movement input
+        controls.Boat.Move.performed += ctx => moveVector = ctx.ReadValue<Vector2>();
+        controls.Boat.Move.canceled += _ => moveVector = Vector2.zero; // remove this to enable Toggle speed 
+        
+        //Look input
+        controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
+        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
     }
-
 
     void OnEnable() => controls.Enable();
     void OnDisable() => controls.Disable();
@@ -78,9 +91,18 @@ public class TugboatMovementWFloat : MonoBehaviour
         float speed = (rb.linearVelocity.magnitude) - 10;
         if(speed <= 0.4) { speed = 0; }
         //debugSpeedText.text = $"Speed: "+ (rb.linearVelocity.magnitude:0) - 10 + "m/s"; //display current resistence 
-        debugSpeedText.text = $"Speed: "+ speed.ToString("0") + "m/s"; //display current resistence 
-       
-       
+        debugSpeedText.text = $"Speed: "+ speed.ToString("0") + "m/s"; //display current resistence   
+
+        //look Controls:
+        if (lookVector != Vector2.zero)
+        {
+            yaw += lookVector.x * lookSensitivity * Time.deltaTime;
+            pitch -= lookVector.y * lookSensitivity * Time.deltaTime;
+            pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+            cameraRig.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        }
+
     }
 
     void FixedUpdate()
@@ -118,7 +140,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void HandleThrottle()
     {
-        float vertical = inputVector.y;
+        float vertical = moveVector.y;
         targetThrottle = vertical;
 
         // Smoothing for gradual thrust changes (prevents jerky trailer movement)
@@ -144,7 +166,7 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void HandleTurning()
     {
-        float turnInput = inputVector.x;
+        float turnInput = moveVector.x;
 
         // Only allow turn input when there is forward/reverse motion
         if (Mathf.Abs(currentThrottle) > 0.05f)
