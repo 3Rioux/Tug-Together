@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -154,6 +155,7 @@ public class GameMenuManager : MonoBehaviour
 
     public void OnMainMenuButtonClicked()
     {
+        DOTween.KillAll();
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
         SceneManager.LoadScene("MainMenu");
         Debug.Log("Returning to main menu.");

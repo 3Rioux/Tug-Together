@@ -88,6 +88,11 @@ namespace GogoGaga.OptimizedRopesAndCables
                 currentVelocity = Vector3.zero;
                 SetSplinePoint(); // Ensure initial spline point is set correctly
             }
+            
+            if(endPoint == null)
+            {
+                endPoint = startPoint;
+            }
         }
 
         private void OnValidate()

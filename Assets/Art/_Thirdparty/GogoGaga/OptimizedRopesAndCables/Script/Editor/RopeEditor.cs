@@ -20,7 +20,16 @@ namespace GogoGaga.OptimizedRopesAndCables
 
         private void OnEnable()
         {
-            component = (Rope)target;
+            if (target == null || !target)
+                return;
+
+            component = target as Rope;
+            if (component == null)
+            {
+                Debug.LogError("Target is not a Rope component.");
+                return;
+            }
+
             startPoint = serializedObject.FindProperty("startPoint");
             midPoint = serializedObject.FindProperty("midPoint");
             endPoint = serializedObject.FindProperty("endPoint");
@@ -55,7 +64,7 @@ namespace GogoGaga.OptimizedRopesAndCables
                 }
             }
 
-            serializedObject.ApplyModifiedProperties(); // Apply changes
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void Label()

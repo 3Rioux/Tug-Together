@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,19 +22,19 @@ public class MenuManager : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button creditsButton;
 
-    [Header("Input")]
-    [SerializeField] private InputActionReference backActionReference;
+    // [Header("Input")]
+    // [SerializeField] private InputActionReference backActionReference;
 
     private void Awake()
     {
-        if (backActionReference != null)
-        {
-            backActionReference.action.performed += OnBackActionPerformed;
-        }
-        else
-        {
-            Debug.LogError("Back action reference not assigned in the inspector.");
-        }
+        // if (backActionReference != null)
+        // {
+        //     backActionReference.action.performed += OnBackActionPerformed;
+        // }
+        // else
+        // {
+        //     Debug.LogError("Back action reference not assigned in the inspector.");
+        // }
 
         if (creditsButton != null)
         {
@@ -48,7 +49,7 @@ public class MenuManager : MonoBehaviour
 
     private void OnEnable()
     {
-        backActionReference?.action.Enable();
+        // backActionReference?.action.Enable();
 
         // Start with main menu visible. All others are hidden.
         mainMenu.SetActive(true);
@@ -62,25 +63,20 @@ public class MenuManager : MonoBehaviour
         if (audioMenu != null) audioMenu.SetActive(false);
     }
 
-    private void OnDisable()
-    {
-        if (backActionReference != null)
-        {
-            backActionReference.action.performed -= OnBackActionPerformed;
-            backActionReference.action.Disable();
-        }
-    }
+    // private void OnDisable()
+    // {
+    //     if (backActionReference != null)
+    //     {
+    //         backActionReference.action.performed -= OnBackActionPerformed;
+    //         backActionReference.action.Disable();
+    //     }
+    // }
 
-    public void TESTBUTTON()
-    {
-
-        //Debug.Log("TESTBUTTON");
-    }
-
-    private void OnBackActionPerformed(InputAction.CallbackContext context)
-    {
-        ExecuteBackNavigation();
-    }
+    // private void OnBackActionPerformed(InputAction.CallbackContext context)
+    // {
+    //
+    //     ExecuteBackNavigation();
+    // }
 
     // This method can be assigned to UI back buttons.
     public void OnBackButtonClick()
@@ -88,10 +84,11 @@ public class MenuManager : MonoBehaviour
         ExecuteBackNavigation();
     }
     
-    public void OnButtonBackSessionClick()
+    public void OnProceedButtonClick()
     {
-        // NetworkManager.Instance = null;
-        // SceneManager.LoadScene("MainMenu");
+        DOTween.KillAll();
+        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Tutorial", LoadSceneMode.Single);
+
     }
 
     // Consolidates back navigation logic:
@@ -124,11 +121,9 @@ public class MenuManager : MonoBehaviour
 
         if ((hostMenu != null && hostMenu.activeSelf) || (joinMenu != null && joinMenu.activeSelf))
         {
-            //NetworkManager.Singleton.Shutdown();
             hostMenu?.SetActive(false);
             joinMenu?.SetActive(false);
             mainMenu?.SetActive(true);
-            //SceneManager.LoadScene("MainMenu");
         }
     }
 

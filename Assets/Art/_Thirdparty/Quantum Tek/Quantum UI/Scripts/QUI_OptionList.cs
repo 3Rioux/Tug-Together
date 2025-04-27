@@ -44,5 +44,10 @@ namespace QuantumTek.QuantumUI
             SetOption(optionIndex);
             onChangeOption.Invoke(optionIndex);
         }
+        
+        public string GetCurrentOption()
+        {
+            return option;
+        }
     }
 }
