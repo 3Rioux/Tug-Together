@@ -215,6 +215,7 @@ public class SpringTugSystem : MonoBehaviour
     private void FindVisibleHooks()
     {
         visibleHooks.Clear();
+
         Camera mainCam = Camera.main;
 
         foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
