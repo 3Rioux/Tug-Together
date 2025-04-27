@@ -1,6 +1,7 @@
 using GogoGaga.OptimizedRopesAndCables;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,22 +25,38 @@ public class SpringTugSystem : MonoBehaviour
     [SerializeField] private float distanceToTowedObject;
     [SerializeField] private LineRenderer lineRenderer;
 
+    [Header("Aim Settings ")]
+    [SerializeField] private bool isAimMode = false; // bool to stop the auto target closest hook code
+    [SerializeField] private List<Transform> visibleHooks = new List<Transform>();
+    [SerializeField] private float hookSwitchCooldown = 1f; // Cooldown in seconds
+    [SerializeField] private CinemachineCamera aimCamera; // aim Camera 
+   // [SerializeField] private CinemachineCamera followCamera; // normal Camera (Dont need to disable I just set teh AIm cam priority to be 1 higher than follow cam)
+    private float lastHookSwitchTime = 0f; // Time when the last switch happened
+    private Vector2 lookVector;
+
     private BoatInputActions controls;
     private bool isAttached = false; // allow re-attaching and detattaching
 
     //Visualise attach points 
     private Transform currentClosestAttachPoint;
-    private int currentClosestPointIndex; // store teh index of the closes point !!! dont like this !!!
+    public int selectedHookIndex; // store teh index of the closes point !!! dont like this !!!
     private Transform lastClosestAttachPoint;
 
     // Different material for highlight
     [SerializeField] private Material highlightMaterial;
     [SerializeField] private Material defaultMaterial;
 
+
+    
+
     private void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
-       
+        if (aimCamera != null)
+        {
+            aimCamera.gameObject.SetActive(false);// off by default 
+        }
+
         // springJoint.autoConfigureConnectedAnchor = false;
         //springJoint.connectedAnchor = ropeAttachPoint.position;
     }
@@ -51,12 +68,20 @@ public class SpringTugSystem : MonoBehaviour
 
         // Register event handlers
         controls.Boat.Hook.performed += OnHookTriggered;
+        controls.Boat.AimHook.performed += OnAimTriggered;
+        controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
+        controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
+
+        //cam look 
+        controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
+        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
     }
 
     private void OnDisable()
     {
         // Unregister event handlers
         controls.Boat.Hook.performed -= OnHookTriggered;
+        controls.Boat.AimHook.performed -= OnHookTriggered;
 
         // Disable the action map
         controls.Boat.Disable();
@@ -71,23 +96,60 @@ public class SpringTugSystem : MonoBehaviour
         //Display the distance between the Player and the Barge (For tweeking sprint settings)
         distanceText.text = distanceToTowedObject.ToString() + " m";
 
+        // ===Hooking Mechanic=== 
+        if (distanceToTowedObject <= maxTowDistance) {
 
-        //if we are close enough to hook show clossest hook point 
-        if (towedObject != null && distanceToTowedObject <= maxTowDistance)
-        {
-            UpdateClosestAttachPoint();
+            //Aim Mode 
+            if (isAimMode && visibleHooks.Count > 0)
+            {
+                //Logic to determine the closest hook to the camera center 
+                FindVisibleHooks();
 
-            lineRenderer.enabled = true;
+                //lock to camera to the hooks and when the player moves they mouse it will lock onto the next hook in that direction 
+                SelectClosestVisibleHook();
+
+                aimCamera.gameObject.SetActive(true);// turn on aim cam if aiming 
+
+                //Switch aim hook after cooldown
+                if (lookVector.magnitude > 2f && Time.time >= lastHookSwitchTime + hookSwitchCooldown)
+                {
+                    // Example: if mouse moved right, select next hook
+                    if (lookVector.x > 2f)
+                    {
+                        SelectNextHook(1);
+                        lastHookSwitchTime = Time.time; // Reset cooldown
+                    }
+                    else if (lookVector.x < -2f)
+                    {
+                        SelectNextHook(-1);
+                        lastHookSwitchTime = Time.time; // Reset cooldown
+                    }
+                }
+            }
+            else if (towedObject != null)
+            { //if we are close enough to hook show clossest hook point && that we are NOT in Aim mode 
+                UpdateClosestAttachPoint();
+
+                lineRenderer.enabled = true;
+                aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
+
+            }
 
             //draw a line 
             lineRenderer.SetPosition(0, transform.position);
             lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
-        }else
+
+        }
+        else
         {
             //reset when out of range 
             lineRenderer.enabled = false;
             SetAttachPointHighlight(currentClosestAttachPoint, false);
+            aimCamera.gameObject.SetActive(false);// turn off aim when out of range  aiming  
         }
+
+
+        
 
         //Only update the rope length if we are attached 
         if (isAttached)
@@ -104,6 +166,8 @@ public class SpringTugSystem : MonoBehaviour
         }
 
         
+
+
     }
 
     /// <summary>
@@ -118,6 +182,119 @@ public class SpringTugSystem : MonoBehaviour
         }else
         {
             Attach();
+        }
+    }
+
+
+    /// <summary>
+    /// Method to aim the camera towards the hookable object and allow the user to aim at the Hook they want to connect to 
+    /// </summary>
+    /// <param name="context"></param>
+    private void OnAimTriggered(InputAction.CallbackContext context)
+    {
+        //check if we are close enough to hook to the barge 
+        if (distanceToTowedObject > maxTowDistance)
+        {
+            //aimCamera.enabled = false;
+            isAimMode = false; //jsut to be safe 
+            return;
+        }
+
+        isAimMode = true;
+
+        //toggle the Aim Camera:
+        aimCamera.gameObject.SetActive(true);// turn off aim when not aiming  
+
+        //Logic to determine the closest hook to the camera center 
+        FindVisibleHooks();
+
+        //lock to camera to the hooks and when the player moves they mouse it will lock onto the next hook in that direction 
+        SelectClosestVisibleHook();
+    }
+
+    private void FindVisibleHooks()
+    {
+        visibleHooks.Clear();
+        Camera mainCam = Camera.main;
+
+        foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
+        {
+            if (hook.CompareTag("AttachPoint"))
+            {
+                Vector3 viewportPos = mainCam.WorldToViewportPoint(hook.position);
+
+                bool isVisible = viewportPos.z > 0 &&
+                                 viewportPos.x > 0 && viewportPos.x < 1 &&
+                                 viewportPos.y > 0 && viewportPos.y < 1;
+
+                if (isVisible)
+                {
+                    visibleHooks.Add(hook);
+                }
+            }
+        }
+    }
+
+    
+
+    private void SelectClosestVisibleHook()
+    {
+        if (visibleHooks.Count == 0)
+        {
+            isAimMode = false;
+            return;
+        }
+
+        Camera mainCam = Camera.main;
+        Vector2 screenCenter = new Vector2(0.5f, 0.5f);
+
+        float closestDistance = Mathf.Infinity;
+        Transform closestHook = null;
+
+        foreach (Transform hook in visibleHooks)
+        {
+            Vector3 viewportPos = mainCam.WorldToViewportPoint(hook.position);// get teh position of the hook 
+            Vector2 viewport2D = new Vector2(viewportPos.x, viewportPos.y);
+
+            float distance = Vector2.Distance(screenCenter, viewport2D);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestHook = hook;
+            }
+        }
+
+        currentClosestAttachPoint = closestHook;
+        HighlightSelectedHook();
+
+        // Now lock camera to point at selected hook
+        //aimCamera.LookAt = currentClosestAttachPoint;
+    }
+
+    private void SelectNextHook(int direction)
+    {
+        if (visibleHooks.Count == 0)
+            return;
+
+        selectedHookIndex += direction;
+
+        if (selectedHookIndex >= visibleHooks.Count)
+            selectedHookIndex = 0;
+        if (selectedHookIndex < 0)
+            selectedHookIndex = visibleHooks.Count - 1;
+
+        currentClosestAttachPoint = visibleHooks[selectedHookIndex];
+        aimCamera.LookAt = visibleHooks[selectedHookIndex].gameObject.transform;
+
+        HighlightSelectedHook();
+    }
+
+    private void HighlightSelectedHook()
+    {
+        foreach (Transform hook in visibleHooks)
+        {
+            SetAttachPointHighlight(hook, hook == currentClosestAttachPoint);
         }
     }
 
@@ -222,7 +399,7 @@ public class SpringTugSystem : MonoBehaviour
                 {  
                     closestDistance = distance;
                     closestPoint = towPoint;
-                    currentClosestPointIndex = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList.IndexOf(closestPoint);
+                    selectedHookIndex = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList.IndexOf(closestPoint);
                 }
             }
         }
