@@ -1,6 +1,7 @@
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering.HighDefinition;
 
 
@@ -88,20 +89,20 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void Update()
     {
-        float speed = (rb.linearVelocity.magnitude) - 10;
+        float speed = (rb.linearVelocity.magnitude) - 10; // -10 because the water adds a -10 to the y axis 
         if(speed <= 0.4) { speed = 0; }
         //debugSpeedText.text = $"Speed: "+ (rb.linearVelocity.magnitude:0) - 10 + "m/s"; //display current resistence 
         debugSpeedText.text = $"Speed: "+ speed.ToString("0") + "m/s"; //display current resistence   
 
-        //look Controls:
-        if (lookVector != Vector2.zero)
-        {
-            yaw += lookVector.x * lookSensitivity * Time.deltaTime;
-            pitch -= lookVector.y * lookSensitivity * Time.deltaTime;
-            pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+        ////look Controls:
+        //if (lookVector != Vector2.zero)
+        //{
+        //    yaw += lookVector.x * lookSensitivity * Time.deltaTime;
+        //    pitch -= lookVector.y * lookSensitivity * Time.deltaTime;
+        //    pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-            cameraRig.rotation = Quaternion.Euler(pitch, yaw, 0f);
-        }
+        //    cameraRig.rotation = Quaternion.Euler(pitch, yaw, 0f);
+        //}
 
     }
 
@@ -220,6 +221,9 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     }
 
-
+    private void OnApplicationFocus(bool focus)
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
 
 }
