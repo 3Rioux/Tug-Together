@@ -131,7 +131,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Crouch"",
                     ""type"": ""Button"",
                     ""id"": ""27c5f898-bc57-4ee1-8800-db469aca5fe3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -158,7 +158,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Next"",
                     ""type"": ""Button"",
                     ""id"": ""b7230bb6-fc9b-4f52-8b25-f5e19cb2c2ba"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -167,7 +167,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Sprint"",
                     ""type"": ""Button"",
                     ""id"": ""641cd816-40e6-41b4-8c3d-04687c349290"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -203,6 +203,15 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Hook"",
                     ""type"": ""Button"",
                     ""id"": ""53ce25c2-1b10-4b4d-8b38-a4fd82b60b1f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AimHook"",
+                    ""type"": ""Button"",
+                    ""id"": ""a699ab68-850c-4748-b556-44e73110a4c1"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -638,6 +647,17 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Hook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5ce108d7-862e-437f-83dc-f814c2dd1081"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""AimHook"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -720,6 +740,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         m_Boat_BoostLeft = m_Boat.FindAction("BoostLeft", throwIfNotFound: true);
         m_Boat_BoostNormal = m_Boat.FindAction("BoostNormal", throwIfNotFound: true);
         m_Boat_Hook = m_Boat.FindAction("Hook", throwIfNotFound: true);
+        m_Boat_AimHook = m_Boat.FindAction("AimHook", throwIfNotFound: true);
     }
 
     ~@BoatInputActions()
@@ -813,6 +834,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Boat_BoostLeft;
     private readonly InputAction m_Boat_BoostNormal;
     private readonly InputAction m_Boat_Hook;
+    private readonly InputAction m_Boat_AimHook;
     /// <summary>
     /// Provides access to input actions defined in input action map "Boat".
     /// </summary>
@@ -876,6 +898,10 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Boat/Hook".
         /// </summary>
         public InputAction @Hook => m_Wrapper.m_Boat_Hook;
+        /// <summary>
+        /// Provides access to the underlying input action "Boat/AimHook".
+        /// </summary>
+        public InputAction @AimHook => m_Wrapper.m_Boat_AimHook;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -941,6 +967,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @Hook.started += instance.OnHook;
             @Hook.performed += instance.OnHook;
             @Hook.canceled += instance.OnHook;
+            @AimHook.started += instance.OnAimHook;
+            @AimHook.performed += instance.OnAimHook;
+            @AimHook.canceled += instance.OnAimHook;
         }
 
         /// <summary>
@@ -991,6 +1020,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @Hook.started -= instance.OnHook;
             @Hook.performed -= instance.OnHook;
             @Hook.canceled -= instance.OnHook;
+            @AimHook.started -= instance.OnAimHook;
+            @AimHook.performed -= instance.OnAimHook;
+            @AimHook.canceled -= instance.OnAimHook;
         }
 
         /// <summary>
@@ -1187,5 +1219,12 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHook(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AimHook" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAimHook(InputAction.CallbackContext context);
     }
 }
