@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6288295876420269126}
   m_Layer: 0
   m_Name: Cube.010
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 3252111564312063937}
   m_Layer: 0
   m_Name: Cube.012
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 357740339600648373}
   m_Layer: 0
   m_Name: Cube.003
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 6102969414193558358}
   m_Layer: 0
   m_Name: Torus.003
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -412,7 +412,7 @@ GameObject:
   - component: {fileID: 3554031394690770400}
   m_Layer: 0
   m_Name: BezierCurve
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -498,7 +498,7 @@ GameObject:
   - component: {fileID: 2700546450598002467}
   m_Layer: 0
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -584,7 +584,7 @@ GameObject:
   - component: {fileID: 8644949354916773999}
   m_Layer: 0
   m_Name: Cube.011
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -670,7 +670,7 @@ GameObject:
   - component: {fileID: 2949834042437919828}
   m_Layer: 0
   m_Name: Cube.009
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1009,7 +1009,7 @@ GameObject:
   - component: {fileID: 6124117753819570148}
   m_Layer: 0
   m_Name: Torus.004
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1127,7 +1127,7 @@ GameObject:
   - component: {fileID: 4374834719727304380}
   m_Layer: 0
   m_Name: Cube.017
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1235,7 +1235,7 @@ GameObject:
   - component: {fileID: 2515934284250039016}
   m_Layer: 0
   m_Name: Torus.006
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1321,7 +1321,7 @@ GameObject:
   - component: {fileID: 4311753897849558965}
   m_Layer: 0
   m_Name: Cube.007
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1407,7 +1407,7 @@ GameObject:
   - component: {fileID: 6514751330739323433}
   m_Layer: 0
   m_Name: Cube.008
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1493,7 +1493,7 @@ GameObject:
   - component: {fileID: 5569680095702062193}
   m_Layer: 0
   m_Name: Cube.006
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2396,7 +2396,7 @@ GameObject:
   - component: {fileID: 6353655580451915323}
   m_Layer: 0
   m_Name: TugboatV2WTowSystemV2-Current (1)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2467,6 +2467,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cae55719299fab942bd7ef219baf3bdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugOn: 0
   rightBootsPoint: {fileID: 8599911318709521881}
   leftBootsPoint: {fileID: 5699721608111362725}
   normalBootsPoint: {fileID: 6101319950562952097}
@@ -2488,7 +2489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3628027182
+  GlobalObjectIdHash: 3936122634
   InScenePlacedSourceGlobalObjectIdHash: 3388310723
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2563,6 +2564,10 @@ MonoBehaviour:
   maxTowDistance: 65
   distanceToTowedObject: 0
   lineRenderer: {fileID: 0}
+  mainCam: {fileID: 608640269536138460}
+  aimColliderLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
   isAimMode: 0
   visibleHooks: []
   hookSwitchCooldown: 0.5
@@ -2753,7 +2758,7 @@ GameObject:
   - component: {fileID: 4923385592157880632}
   m_Layer: 0
   m_Name: Torus.005
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2837,7 +2842,7 @@ GameObject:
   - component: {fileID: 3500501921623031285}
   m_Layer: 0
   m_Name: BoatParts
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2921,7 +2926,7 @@ GameObject:
   - component: {fileID: 1405843675772257603}
   m_Layer: 0
   m_Name: Cube.001
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3007,7 +3012,7 @@ GameObject:
   - component: {fileID: 8016377517396332477}
   m_Layer: 0
   m_Name: Cube.002
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3253,7 +3258,7 @@ GameObject:
   - component: {fileID: 8257960285475082369}
   m_Layer: 0
   m_Name: Torus.039
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3372,7 +3377,7 @@ GameObject:
   - component: {fileID: 6962850872034259236}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3498,7 +3503,7 @@ GameObject:
   - component: {fileID: 494864360960194862}
   m_Layer: 0
   m_Name: Torus.001
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

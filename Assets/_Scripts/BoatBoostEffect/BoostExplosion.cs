@@ -6,6 +6,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(TugboatMovementWFloat))]
 public class BoostExplosion : MonoBehaviour
 {
+    [SerializeField] private bool debugOn = false; // bool to turn debug on / off depending on if im working on this script 
+
     [Header("Boost Explosion Settings")]
     [SerializeField] private Transform rightBootsPoint;
     [SerializeField] private Transform leftBootsPoint;
@@ -146,7 +148,7 @@ public class BoostExplosion : MonoBehaviour
         //_movementScript.maxSpeed = _movementScript.boostMaxSpeed;
         _movementScript.maxSpeed *= 3;
 
-        Debug.Log($"Explosion triggered in direction: {direction}");
+        if(debugOn) Debug.Log($"Explosion triggered in direction: {direction}");
         // Example: GetComponent<Rigidbody>().AddForce(direction * forceAmount, ForceMode.Impulse);
         
         rb.AddExplosionForce(explosionForce * 2f, direction, explosionRadius, 3.0f);
@@ -158,7 +160,7 @@ public class BoostExplosion : MonoBehaviour
 
     private void PlayDepletedFeedback()
     {
-        Debug.Log("Energy is depleted!");
+        if (debugOn) Debug.Log("Energy is depleted!");
         if (_audioSource && outOfEnergyClip) _audioSource.PlayOneShot(outOfEnergyClip);
         if (energyDepletedVFX)
         {
@@ -182,8 +184,10 @@ public class BoostExplosion : MonoBehaviour
 
         if (energyBar != null) energyBar.value = cooldownDuration;
         canBoost = true;
-        Debug.Log("Energy refilled. Boost ready!");
+        if (debugOn) Debug.Log("Energy refilled. Boost ready!");
     }
+
+
     //private IEnumerator RefillEnergy()
     //{
     //    Debug.Log("Energy depleted. Refilling...");
@@ -192,11 +196,14 @@ public class BoostExplosion : MonoBehaviour
     //    Debug.Log("Energy refilled. Boost ready!");
     //}
 
-    //private void OnDrawGizmosSelected()
-    //{
-    //    Gizmos.DrawSphere(leftBootsPoint.position, explosionRadius);
-    //    Gizmos.DrawSphere(rightBootsPoint.position, explosionRadius);
-    //    Gizmos.DrawSphere(normalBootsPoint.position, explosionRadius);
+    private void OnDrawGizmosSelected()
+    {
+        if (debugOn)
+        {
+            Gizmos.DrawSphere(leftBootsPoint.position, explosionRadius);
+            Gizmos.DrawSphere(rightBootsPoint.position, explosionRadius);
+            Gizmos.DrawSphere(normalBootsPoint.position, explosionRadius);
+        }
 
-    //}
+    }
 }
