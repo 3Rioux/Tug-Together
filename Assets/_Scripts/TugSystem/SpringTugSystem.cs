@@ -28,7 +28,8 @@ public class SpringTugSystem : MonoBehaviour
     [SerializeField] private LineRenderer lineRenderer;
 
     [Header("Aim Settings ")]
-    [SerializeField] private Camera mainCam;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private Transform inViewRayPointOrigin;
     [SerializeField] private LayerMask aimColliderLayerMask = new LayerMask();//the layer the player will hit (i want to ignore the player layer) (Cant hit itself with a ray)
     [SerializeField] private bool isAimMode = false; // bool to stop the auto target closest hook code
     [SerializeField] private List<Transform> visibleHooks = new List<Transform>();
@@ -146,10 +147,17 @@ public class SpringTugSystem : MonoBehaviour
 
             }
 
-            //draw a line 
-            lineRenderer.SetPosition(0, transform.position);
-            lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
-
+            if (!isAttached)
+            {
+                //draw a line 
+                lineRenderer.SetPosition(0, transform.position);
+                lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
+            }
+            else
+            {
+                //reset attached
+                lineRenderer.enabled = false;
+            }
         }
         else
         {
@@ -224,7 +232,7 @@ public class SpringTugSystem : MonoBehaviour
         SelectClosestVisibleHook();
     }
 
-   
+
 
     /// <summary>
     /// Finds and saves the hooks the player can "see" thus hook onto. Saves into List visibleHooks that is used by the Aim. (For now)
@@ -233,78 +241,74 @@ public class SpringTugSystem : MonoBehaviour
     {
         visibleHooks.Clear();
 
-        //int visibleCollisionHookPoint = Physics.OverlapSphereNonAlloc(transform.position, maxTowDistance, _colliders, aimColliderLayerMask);
+        // Use the provided camera, or fall back to Camera.main if none set.
+        Camera cam = playerCamera != null ? playerCamera : Camera.main;
+        Vector3 camPosition = cam.transform.position;
 
-        //for (int i = 0; i < visibleCollisionHookPoint; i++)
-        //{
-        //    visibleHooks.Add(_colliders[i].transform);
-        //}
+        foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
+        {
+            // Convert the hookpoint's position to viewport space.
+            Vector3 viewportPos = cam.WorldToViewportPoint(hook.position);
 
-        //visibleHooks.Clear();
+            // Check if the hookpoint is in front of the camera and inside the viewport.
+            bool inViewport = viewportPos.z > 0 &&
+                              viewportPos.x > 0 && viewportPos.x < 1 &&
+                              viewportPos.y > 0 && viewportPos.y < 1;
 
-        //Camera mainCam = Camera.main;
+            if (!inViewport)
+                continue;
 
-        //foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
-        //{
-        //    if (hook.CompareTag("AttachPoint"))
-        //    {
-        //        Vector3 viewportPos = mainCam.WorldToViewportPoint(hook.position);
+            // Perform a raycast from the camera to the hookpoint.
+            //Vector3 direction = hook.position - inViewRayPointOrigin.position;
+            Vector3 direction = hook.position - camPosition;
+            RaycastHit hit;
 
-        //        bool isVisible = viewportPos.z > 0 &&
-        //                         viewportPos.x > 0 && viewportPos.x < 1 &&
-        //                         viewportPos.y > 0 && viewportPos.y < 1;
+            // Draw the ray in red with a duration of 0.5 seconds.
+            //Debug.DrawRay(camPosition, direction, Color.red, 1f);
 
-        //        if (isVisible)
-        //        {
-        //            visibleHooks.Add(hook);
-        //        }
-        //    }
-        //}
+            // if(Physics.Linecast(camPosition, direction, out hit))
+            if (Physics.Raycast(camPosition, direction, out hit))
+            {
+                Debug.DrawRay(camPosition, direction, Color.magenta, 1f);
+                if (hit.collider == null)
+                {
+                    if(hit.transform.CompareTag("HookPoint"))
+                    {
+                        // Draw the ray in red with a duration of 0.5 seconds.
+                        Debug.DrawRay(camPosition, direction, Color.green, 1f);
+                        visibleHooks.Add(hook);
+                    }else
+                    {
+                        Debug.DrawRay(camPosition, direction, Color.green, 1f);
+                    }
+                }else
+                {
+                    Debug.Log("Failled collision");
+                }
+            }
+
+            //// Using the occlusionMask can help to filter what objects to hit.
+            //if (Physics.Raycast(camPosition, direction, out hit, 100f, aimColliderLayerMask))
+            //{
+            //    // If the object hit is our hookpoint, then nothing is occluding it.
+            //    if (hit.transform.tag == "HookPoint")
+            //    {
+            //        visibleHooks.Add(hook);
+            //    }
+            //    else
+            //    {
+            //        // Draw the ray in red with a duration of 0.5 seconds.
+            //        Debug.DrawRay(camPosition, direction, Color.red, 1f);
+            //    }
+            //}
+            //else
+            //{
+            //    // If the raycast didn't hit anything, the hookpoint is unobstructed.
+            //    visibleHooks.Add(hook);
+            //}
 
 
-
-        //Debug.Log("---Finding Hooks True---");
-        //visibleHooks.Clear();
-
-        //Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
-
-        //foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
-        //{
-        //    if (hook.CompareTag("AttachPoint"))
-        //    {
-        //        Vector3 viewportPos = mainCam.WorldToViewportPoint(hook.position);
-
-        //        bool isInView = viewportPos.z > 0 &&
-        //                         viewportPos.x > 0 && viewportPos.x < 1 &&
-        //                         viewportPos.y > 0 && viewportPos.y < 1;
-
-        //        if (isInView)
-        //        {
-        //            Vector3 directionToHook = (hook.position - mainCam.transform.position).normalized;
-        //            float distanceToHook = Vector3.Distance(mainCam.transform.position, hook.position);
-
-        //            //Create a ray from camera to hook 
-        //            Ray ray = new Ray(mainCam.transform.position, hook.position);
-
-
-        //            if (Physics.Raycast(ray, out RaycastHit rcHit, 999f, aimColliderLayerMask))
-        //            {
-        //                if (rcHit.transform.tag == "AttachPoint")
-        //                {
-        //                    // Direct hit to hook: visible
-        //                    visibleHooks.Add(hook);
-        //                }
-        //                else
-        //                {
-        //                    Debug.Log("Aim Hook Not in view");
-        //                }
-        //            }else
-        //            {
-        //                Debug.LogWarning("Aim Hook Not in view Raycast failled?");
-        //            }
-        //        }
-        //    }
-        //}
+        }
     }
 
     private void OnDrawGizmos()
