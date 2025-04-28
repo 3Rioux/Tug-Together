@@ -908,7 +908,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8681815465168164506
 Transform:
   m_ObjectHideFlags: 0
@@ -1593,8 +1593,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2686402839582843489}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0105976425, y: 0.9884987, z: -0.08328207, w: -0.12578644}
-  m_LocalPosition: {x: 1.1100006, y: 16.869999, z: -0.91999817}
+  m_LocalRotation: {x: 0.17193419, y: -0.000000006080351, z: 0.0000000010612233, w: 0.9851085}
+  m_LocalPosition: {x: 0, y: 28.54235, z: -62.433018}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1632,10 +1632,10 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 500
-  field of view: 60.000004
+  far clip plane: 2000
+  field of view: 60
   orthographic: 0
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -1852,7 +1852,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2869152099034925587}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15212333, y: 0.00000019662943, z: -0.00000003026415, w: 0.98836154}
+  m_LocalRotation: {x: 0.17193416, y: -0.0000000060803496, z: 0.0000000010612228, w: 0.9851085}
   m_LocalPosition: {x: 0, y: 28.54235, z: -62.433018}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
@@ -1885,8 +1885,8 @@ MonoBehaviour:
   Lens:
     FieldOfView: 60
     OrthographicSize: 5
-    NearClipPlane: 0.3
-    FarClipPlane: 500
+    NearClipPlane: 0.1
+    FarClipPlane: 2000
     Dutch: 0
     ModeOverride: 0
     PhysicalProperties:
@@ -1978,16 +1978,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Composition:
-    ScreenPosition: {x: -0.00000020116568, y: 0.000000007450581}
+    ScreenPosition: {x: 0, y: 0}
     DeadZone:
-      Enabled: 1
+      Enabled: 0
       Size: {x: 0.1, y: 0.1}
     HardLimits:
       Enabled: 0
       Size: {x: 0.8, y: 0.8}
       Offset: {x: 0, y: 0}
   CenterOnActivate: 1
-  TargetOffset: {x: 0, y: 0, z: 0}
+  TargetOffset: {x: 0, y: -2, z: 2}
   Damping: {x: 0.5, y: 0.5}
   Lookahead:
     Enabled: 0
@@ -2452,7 +2452,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 2
+  m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
 --- !u!114 &7837050178514738804
