@@ -89,6 +89,12 @@ public class SpringTugSystem : MonoBehaviour
 
     private void Update()
     {
+        if (towedObject == null)
+        {
+            Debug.LogError("towedObject is not assigned. Please assign it in the inspector.");
+            return;
+        }
+        
         
         //Visual Rope Length
         distanceToTowedObject = Vector3.Distance(transform.position, towedObject.position);

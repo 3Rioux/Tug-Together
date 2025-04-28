@@ -1,5 +1,7 @@
+using System;
 using TMPro;
 using Unity.Mathematics;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.HighDefinition;
@@ -11,7 +13,7 @@ using UnityEngine.Rendering.HighDefinition;
 /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/water-deform-a-water-surface.html#bow-wave
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class TugboatMovementWFloat : MonoBehaviour
+public class TugboatMovementWFloat : NetworkBehaviour
 {
     [SerializeField] private TextMeshProUGUI debugSpeedText;
 
@@ -84,15 +86,43 @@ public class TugboatMovementWFloat : MonoBehaviour
         controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
     }
 
+    private void Start()
+    {
+        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
+        if (targetSurface == null)
+        {
+            GameObject ocean = GameObject.Find("Ocean");
+            if (ocean != null)
+            {
+                targetSurface = ocean.GetComponent<WaterSurface>();
+                if (targetSurface == null)
+                    Debug.LogError("WaterSurface component not found on object Ocean", this);
+            }
+            else
+            {
+                Debug.LogError("Ocean game object not found", this);
+            }
+        }
+    }
+
     void OnEnable() => controls.Enable();
     void OnDisable() => controls.Disable();
 
     private void Update()
     {
-        float speed = (rb.linearVelocity.magnitude) - 10; // -10 because the water adds a -10 to the y axis 
-        if(speed <= 0.4) { speed = 0; }
-        //debugSpeedText.text = $"Speed: "+ (rb.linearVelocity.magnitude:0) - 10 + "m/s"; //display current resistence 
-        debugSpeedText.text = $"Speed: "+ speed.ToString("0") + "m/s"; //display current resistence   
+        if (!IsOwner)
+        {
+            return;
+        }
+        
+        if (debugSpeedText == null)
+        {
+            Debug.LogWarning("debugSpeedText is not assigned in the inspector.");
+            return;
+        }
+        float speed = rb.linearVelocity.magnitude - 10f;
+        if (speed <= 0.4f) speed = 0f;
+        debugSpeedText.text = $"Speed: {speed:0}m/s";  
 
         ////look Controls:
         //if (lookVector != Vector2.zero)
@@ -108,6 +138,9 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     void FixedUpdate()
     {
+
+        
+        
         HandleThrottle();
         HandleTurning();
         //HandleDrag();
