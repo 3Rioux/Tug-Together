@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Collider))] // needs a collider of any kind attached 
 public class UnitHealthController : MonoBehaviour
 {
     [Header("Player Health Bar: ")]
