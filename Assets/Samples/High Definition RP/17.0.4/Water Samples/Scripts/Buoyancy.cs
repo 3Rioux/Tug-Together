@@ -51,6 +51,8 @@ public class Buoyancy : MonoBehaviour
   
     void Start()
     {
+        targetSurface = GameObject.Find("Ocean")?.GetComponent<WaterSurface>();
+        
         rigidbodyComponent = this.GetComponent<Rigidbody>();
         
         // The script doesn't use ridigbody's gravity nor drag. 
