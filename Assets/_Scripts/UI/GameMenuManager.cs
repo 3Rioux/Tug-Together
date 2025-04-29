@@ -1,3 +1,4 @@
+// C#
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -18,6 +19,9 @@ public class GameMenuManager : MonoBehaviour
     [Header("Input")]
     [SerializeField] private InputActionReference backActionReference;
     [SerializeField] private InputActionReference pauseActionReference; // Pause action binding
+
+    [Header("Blur Effect")]
+    [SerializeField] private UIBlurController blurController; // Reference to the UIBlurController
 
     // Duration for the close animation before deactivating the panel.
     [SerializeField] private float closeAnimationDuration = 0.5f;
@@ -70,11 +74,8 @@ public class GameMenuManager : MonoBehaviour
             AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
         }
 
-        
-        // If options panel is visible, process the submenu navigation.
         if (optionsPanel.activeSelf)
         {
-            // If video submenu is active, close it and show settings.
             if (videoMenu != null && videoMenu.activeSelf)
             {
                 videoMenu.SetActive(false);
@@ -83,7 +84,6 @@ public class GameMenuManager : MonoBehaviour
                 Debug.Log("Video menu closed, returning to settings.");
                 return;
             }
-            // If audio submenu is active, close it and show settings.
             if (audioMenu != null && audioMenu.activeSelf)
             {
                 audioMenu.SetActive(false);
@@ -92,7 +92,6 @@ public class GameMenuManager : MonoBehaviour
                 Debug.Log("Audio menu closed, returning to settings.");
                 return;
             }
-            // If settings submenu is active, close options and return to pause menu.
             if (settingsMenu != null && settingsMenu.activeSelf)
             {
                 optionsPanel.SetActive(false);
@@ -105,7 +104,6 @@ public class GameMenuManager : MonoBehaviour
 
     void OnPausePerformed(InputAction.CallbackContext context)
     {
-        // Prevent pause toggle if the options panel is active.
         if (optionsPanel.activeSelf)
             return;
         TogglePause();
@@ -126,18 +124,27 @@ public class GameMenuManager : MonoBehaviour
     {
         if (_isPaused)
             return;
+
         if (_anim != null)
             _anim.PlayOpenAnimation();
+
+        // Call UIBlurController to apply blur on pause.
+        if (blurController != null)
+            blurController.ApplyPauseBlur();
+
         _isPaused = true;
         gameMenuPanel.SetActive(true);
         Debug.Log("Game paused.");
     }
 
-    // Use coroutine to delay deactivation until the closing animation completes.
     public IEnumerator ResumeGameCoroutine()
     {
         if (_anim != null)
             _anim.PlayCloseAnimation();
+
+        // Call UIBlurController to remove blur when resuming.
+        if (blurController != null)
+            blurController.RemovePauseBlur();
 
         yield return new WaitForSeconds(closeAnimationDuration);
 
@@ -169,7 +176,7 @@ public class GameMenuManager : MonoBehaviour
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
         if (videoMenu != null) videoMenu.SetActive(false);
         if (audioMenu != null) audioMenu.SetActive(false);
-        
+
         Debug.Log("Options opened from pause menu.");
     }
 
