@@ -109,55 +109,64 @@ public class SpringTugSystem : MonoBehaviour
         distanceText.text = distanceToTowedObject.ToString() + " m";
 
         // ===Hooking Mechanic=== 
-        if (distanceToTowedObject <= maxTowDistance) {
+        //Aim Mode 
+        if (isAimMode && visibleHooks.Count > 0)
+        {
+            //Logic to determine the closest hook to the camera center 
+            FindVisibleHooks();
 
-            //Aim Mode 
-            if (isAimMode && visibleHooks.Count > 0)
+            //lock to camera to the hooks and when the player moves they mouse it will lock onto the next hook in that direction 
+            SelectClosestVisibleHook();
+
+            aimCamera.gameObject.SetActive(true);// turn on aim cam if aiming 
+
+            // Now lock camera to point at selected hook
+            aimCamera.LookAt = visibleHooks[selectedHookIndex].gameObject.transform;
+
+            //Switch aim hook after cooldown
+            if (lookVector.magnitude > 2f && Time.time >= lastHookSwitchTime + hookSwitchCooldown)
             {
-                //Logic to determine the closest hook to the camera center 
-                FindVisibleHooks();
-
-                //lock to camera to the hooks and when the player moves they mouse it will lock onto the next hook in that direction 
-                SelectClosestVisibleHook();
-
-                aimCamera.gameObject.SetActive(true);// turn on aim cam if aiming 
-
-                //Switch aim hook after cooldown
-                if (lookVector.magnitude > 2f && Time.time >= lastHookSwitchTime + hookSwitchCooldown)
+                // Example: if mouse moved right, select next hook
+                if (lookVector.x > 2f)
                 {
-                    // Example: if mouse moved right, select next hook
-                    if (lookVector.x > 2f)
-                    {
-                        SelectNextHook(1);
-                        lastHookSwitchTime = Time.time; // Reset cooldown
-                    }
-                    else if (lookVector.x < -2f)
-                    {
-                        SelectNextHook(-1);
-                        lastHookSwitchTime = Time.time; // Reset cooldown
-                    }
+                    SelectNextHook(1);
+                    lastHookSwitchTime = Time.time; // Reset cooldown
+                }
+                else if (lookVector.x < -2f)
+                {
+                    SelectNextHook(-1);
+                    lastHookSwitchTime = Time.time; // Reset cooldown
                 }
             }
-            else if (towedObject != null)
+        }
+
+
+        //Auto Mode (Only active while close)
+        if (distanceToTowedObject <= maxTowDistance) {
+
+            
+            if (towedObject != null && !isAimMode)
             { //if we are close enough to hook show clossest hook point && that we are NOT in Aim mode 
                 UpdateClosestAttachPoint();
 
                 lineRenderer.enabled = true;
                 aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
 
-            }
-
-            if (!isAttached)
-            {
                 //draw a line 
                 lineRenderer.SetPosition(0, transform.position);
                 lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
+
             }
-            else
-            {
-                //reset attached
-                lineRenderer.enabled = false;
-            }
+
+            //if (!isAttached)
+            //{
+                
+            //}
+            //else
+            //{
+            //    //reset attached
+            //    lineRenderer.enabled = false;
+            //}
         }
         else
         {
@@ -270,70 +279,26 @@ public class SpringTugSystem : MonoBehaviour
             if (Physics.Raycast(camPosition, direction, out hit))
             {
                 Debug.DrawRay(camPosition, direction, Color.magenta, 1f);
-                if (hit.collider == null)
+                if (hit.collider != null)
                 {
-                    if(hit.transform.CompareTag("HookPoint"))
+                    if(hit.collider.gameObject.CompareTag("AttachPoint"))
                     {
                         // Draw the ray in red with a duration of 0.5 seconds.
                         Debug.DrawRay(camPosition, direction, Color.green, 1f);
                         visibleHooks.Add(hook);
                     }else
                     {
-                        Debug.DrawRay(camPosition, direction, Color.green, 1f);
+                        Debug.DrawRay(camPosition, direction, Color.red, 1f);
                     }
                 }else
                 {
-                    Debug.Log("Failled collision");
+                    Debug.Log($"Failled collision = {hit.collider.tag}");
                 }
             }
+        }//end foreach
 
-            //// Using the occlusionMask can help to filter what objects to hit.
-            //if (Physics.Raycast(camPosition, direction, out hit, 100f, aimColliderLayerMask))
-            //{
-            //    // If the object hit is our hookpoint, then nothing is occluding it.
-            //    if (hit.transform.tag == "HookPoint")
-            //    {
-            //        visibleHooks.Add(hook);
-            //    }
-            //    else
-            //    {
-            //        // Draw the ray in red with a duration of 0.5 seconds.
-            //        Debug.DrawRay(camPosition, direction, Color.red, 1f);
-            //    }
-            //}
-            //else
-            //{
-            //    // If the raycast didn't hit anything, the hookpoint is unobstructed.
-            //    visibleHooks.Add(hook);
-            //}
-
-
-        }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (springJoint != null)
-        {
-            Gizmos.color = Color.black;
-            Gizmos.DrawSphere(transform.position, maxTowDistance);
-
-            foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
-            {              
-                Gizmos.DrawLine(transform.position, hook.position);
-            }
-
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLine(transform.position, currentClosestAttachPoint.position);
-
-           
-            Gizmos.DrawSphere(currentClosestAttachPoint.position, 0.1f);
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(springJoint.connectedAnchor, 5f);
-
-          
-        }
-    }
 
     private void SelectClosestVisibleHook()
     {
@@ -343,7 +308,9 @@ public class SpringTugSystem : MonoBehaviour
             return;
         }
 
-        Camera mainCam = Camera.main;
+        // Use the provided camera, or fall back to Camera.main if none set.
+        Camera cam = playerCamera != null ? playerCamera : Camera.main;
+        Vector3 camPosition = cam.transform.position;
         Vector2 screenCenter = new Vector2(0.5f, 0.5f);
 
         float closestDistance = Mathf.Infinity;
@@ -351,7 +318,7 @@ public class SpringTugSystem : MonoBehaviour
 
         foreach (Transform hook in visibleHooks)
         {
-            Vector3 viewportPos = mainCam.WorldToViewportPoint(hook.position);// get teh position of the hook 
+            Vector3 viewportPos = cam.WorldToViewportPoint(hook.position);// get teh position of the hook 
             Vector2 viewport2D = new Vector2(viewportPos.x, viewportPos.y);
 
             float distance = Vector2.Distance(screenCenter, viewport2D);
@@ -365,9 +332,6 @@ public class SpringTugSystem : MonoBehaviour
 
         currentClosestAttachPoint = closestHook;
         HighlightSelectedHook();
-
-        // Now lock camera to point at selected hook
-        //aimCamera.LookAt = currentClosestAttachPoint;
     }
 
     private void SelectNextHook(int direction)
@@ -549,6 +513,30 @@ public class SpringTugSystem : MonoBehaviour
     }
 
 
-    
+
+    private void OnDrawGizmos()
+    {
+        if (springJoint != null)
+        {
+            Gizmos.color = Color.black;
+            //Gizmos.DrawSphere(transform.position, maxTowDistance);
+
+            //foreach (Transform hook in towedObject.GetComponent<TowableObjectController>().TowPointList)
+            //{              
+            //    Gizmos.DrawLine(transform.position, hook.position);
+            //}
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(transform.position, currentClosestAttachPoint.position);
+
+
+            Gizmos.DrawSphere(currentClosestAttachPoint.position, 0.1f);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawSphere(springJoint.connectedAnchor, 5f);
+
+
+        }
+    }
+
 
 }
