@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using Unity.Cinemachine;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,6 +16,10 @@ using UnityEngine.Rendering.HighDefinition;
 [RequireComponent(typeof(Rigidbody))]
 public class StrippedTubBoatMovement : NetworkBehaviour
 {
+    [Header("Camera")]
+    [SerializeField] private CinemachineCamera freeLookCamera;
+
+    
     [Header("Thrust & Speed")]
     [Tooltip("Sets the capped forward speed in meters per second.")]
     public float maxSpeed = 8f;
@@ -126,6 +131,9 @@ public class StrippedTubBoatMovement : NetworkBehaviour
 
     private void Start()
     {
+        // freeLookCamera.gameObject.SetActive(IsOwner);
+        freeLookCamera.Priority = IsOwner ? 10 : 0;
+        
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
         if (targetSurface == null)
         {

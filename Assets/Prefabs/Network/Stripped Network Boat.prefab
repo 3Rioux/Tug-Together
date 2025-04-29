@@ -1366,7 +1366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5ede582eab822e4ab05a6a5defb4d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scaleMode: 0
+  scaleMode: 1
   regionSize: {x: 16, y: 15.986677}
   amplitude: 1
   surfaceFoamDimmer: 1
@@ -1409,13 +1409,12 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4413221829003116054}
-  - {fileID: 6491912378031204595}
   - {fileID: 5772891113537931270}
   - {fileID: 6868310503804118999}
-  - {fileID: 2455566008152518586}
   - {fileID: 9138512392648273221}
   - {fileID: 1687069186997993573}
   - {fileID: 6175379670386225237}
+  - {fileID: 8717846368156402179}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &8914624983750079492
@@ -1457,7 +1456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1118793909
+  GlobalObjectIdHash: 1916215615
   InScenePlacedSourceGlobalObjectIdHash: 1916215615
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1483,6 +1482,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  freeLookCamera: {fileID: 425555568709107034}
   maxSpeed: 30
   throttleForce: 2000
   throttleForceMultiplier: 200
@@ -1490,7 +1490,7 @@ MonoBehaviour:
   accelerationSmoothing: 1
   turnTorque: 150000
   turnResponsiveness: 4
-  cameraRig: {fileID: 0}
+  cameraRig: {fileID: 5772891113537931270}
   lookSensitivity: 1.5
   minPitch: -30
   maxPitch: 60
@@ -1531,7 +1531,7 @@ MonoBehaviour:
   RotationMaxInterpolationTime: 0.1
   ScaleLerpSmoothing: 1
   ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
+  AuthorityMode: 1
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
   SyncPositionX: 1
@@ -1540,9 +1540,9 @@ MonoBehaviour:
   SyncRotAngleX: 1
   SyncRotAngleY: 1
   SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
@@ -1567,7 +1567,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkRigidbodyBaseExpanded: 0
-  UseRigidBodyForMotion: 0
+  UseRigidBodyForMotion: 1
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
 --- !u!1 &5351905387030694204
@@ -1846,10 +1846,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   volumeAnchorOverride: {fileID: 0}
-  antialiasing: 0
+  antialiasing: 3
   SMAAQuality: 2
-  dithering: 0
-  stopNaNs: 0
+  dithering: 1
+  stopNaNs: 1
   taaSharpenStrength: 0.5
   TAAQuality: 1
   taaSharpenMode: 0
@@ -1896,7 +1896,7 @@ MonoBehaviour:
   fidelityFX2SuperResolutionSharpening: 0
   fsrOverrideSharpness: 0
   fsrSharpness: 0.92
-  exposureTarget: {fileID: 0}
+  exposureTarget: {fileID: 4917318672047762209}
   materialMipBias: 0
   m_RenderingPathCustomFrameSettings:
     bitDatas:
@@ -2039,7 +2039,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6868310503804118999}
   m_Layer: 3
-  m_Name: BoatParts
+  m_Name: Mesh
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2197,7 +2197,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3471425851147049643}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7952497460151462655
+--- !u!1 &7255193846760279053
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2205,29 +2205,53 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2455566008152518586}
+  - component: {fileID: 8717846368156402179}
+  - component: {fileID: 3877778065263894345}
   m_Layer: 3
-  m_Name: MotorPoint
+  m_Name: Foam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2455566008152518586
+--- !u!4 &8717846368156402179
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7952497460151462655}
+  m_GameObject: {fileID: 7255193846760279053}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.5, z: -9}
+  m_LocalPosition: {x: 0, y: -1.14, z: 1.6676693}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3471425851147049643}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3877778065263894345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7255193846760279053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0050ecd2d32680645848edd91f37442d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleMode: 1
+  regionSize: {x: 14.8606415, y: 26.363598}
+  amplitude: 2
+  surfaceFoamDimmer: 1
+  deepFoamDimmer: 1
+  resolution: {x: 256, y: 256}
+  updateMode: 0
+  material: {fileID: -876546973899608171, guid: 7e2c0d424490bfc4698c37245b8c63ed, type: 3}
+  type: 3
+  texture: {fileID: 0}
+  m_Version: 2
 --- !u!1 &8061730426302555112
 GameObject:
   m_ObjectHideFlags: 0
@@ -2314,111 +2338,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &8283176281255543842
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6491912378031204595}
-  - component: {fileID: 7609470361296097663}
-  - component: {fileID: 8081520983903633155}
-  m_Layer: 3
-  m_Name: Aim Camera
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &6491912378031204595
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8283176281255543842}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.010597642, y: 0.9884987, z: -0.08328207, w: -0.12578644}
-  m_LocalPosition: {x: 1.1100006, y: 16.869999, z: -0.91999817}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3471425851147049643}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7609470361296097663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8283176281255543842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Priority:
-    Enabled: 1
-    m_Value: 1
-  OutputChannel: 1
-  StandbyUpdate: 2
-  m_StreamingVersion: 20241001
-  m_LegacyPriority: 0
-  Target:
-    TrackingTarget: {fileID: 5772891113537931270}
-    LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 1
-  Lens:
-    FieldOfView: 60.000004
-    OrthographicSize: 10
-    NearClipPlane: 0.1
-    FarClipPlane: 500
-    Dutch: 0
-    ModeOverride: 0
-    PhysicalProperties:
-      GateFit: 2
-      SensorSize: {x: 21.946, y: 16.002}
-      LensShift: {x: 0, y: 0}
-      FocusDistance: 10
-      Iso: 200
-      ShutterSpeed: 0.005
-      Aperture: 16
-      BladeCount: 5
-      Curvature: {x: 2, y: 11}
-      BarrelClipping: 0.25
-      Anamorphism: 0
-  BlendHint: 0
---- !u!114 &8081520983903633155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8283176281255543842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f38bda98361e1de48a4ca2bd86ea3c17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Composition:
-    ScreenPosition: {x: 0, y: 0}
-    DeadZone:
-      Enabled: 1
-      Size: {x: 0.05, y: 0.05}
-    HardLimits:
-      Enabled: 0
-      Size: {x: 0.8, y: 0.8}
-      Offset: {x: 0, y: 0}
-  CenterOnActivate: 1
-  TargetOffset: {x: 0, y: 0, z: 0}
-  Damping: {x: 0.5, y: 0.5}
-  Lookahead:
-    Enabled: 0
-    Time: 0
-    Smoothing: 0
-    IgnoreY: 0
 --- !u!1 &8299988871792957977
 GameObject:
   m_ObjectHideFlags: 0
