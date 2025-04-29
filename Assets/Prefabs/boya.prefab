@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 1552751972470285057}
   - component: {fileID: 7208452568371959842}
   - component: {fileID: 5239865198724462430}
+  - component: {fileID: 1721853616007944572}
+  - component: {fileID: 7531419502178670033}
   m_Layer: 0
   m_Name: boya
   m_TagString: Untagged
@@ -28,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 50, y: 50, z: 50}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -86,3 +88,55 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!54 &1721853616007944572
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3264210139413198350}
+  serializedVersion: 4
+  m_Mass: 5
+  m_Drag: 0.1
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &7531419502178670033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3264210139413198350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46ac0167a5a305c4aa16c4bfd5aed746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetSurface: {fileID: 0}
+  includeDeformation: 1
+  sphereRadiusApproximation: 0.25
+  waveForceMultiplier: 1
+  currentSpeedMultiplier: 0
+  dragMultiplier: 1
+  defaultRigidbodyDrag: 0.1
+  underwaterRigidbodyAngularDrag: 1
+  overwaterRigidbodyAngularDrag: 0.05
+  surfaceTensionDamping: 10
+  applyForceWithRandomOffset: 0
+  isWaterSurfaceACustomMesh: 0
+  drawDebug: 0

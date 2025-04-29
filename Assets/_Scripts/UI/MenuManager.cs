@@ -11,31 +11,34 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject hostMenu;
     [SerializeField] private GameObject joinMenu;
-    // Options container that holds the options menus
+    [SerializeField] private GameObject tutorialMenu;
+    [SerializeField] private GameObject createMenu;
     [SerializeField] private GameObject optionsContainer;
 
-    // Options submenu panels:
-    [SerializeField] private GameObject settingsMenu; // Default options panel
+    [Header("Options Submenus")]
+    [SerializeField] private GameObject settingsMenu;
     [SerializeField] private GameObject videoMenu;
     [SerializeField] private GameObject audioMenu;
 
     [Header("Buttons")]
     [SerializeField] private Button creditsButton;
 
-    // [Header("Input")]
-    // [SerializeField] private InputActionReference backActionReference;
+    private enum MenuState
+    {
+        Main,
+        Host,
+        Join,
+        Options,
+        VideoSettings,
+        AudioSettings,
+        Tutorial,
+        Create
+    }
+
+    private MenuState currentState = MenuState.Main;
 
     private void Awake()
     {
-        // if (backActionReference != null)
-        // {
-        //     backActionReference.action.performed += OnBackActionPerformed;
-        // }
-        // else
-        // {
-        //     Debug.LogError("Back action reference not assigned in the inspector.");
-        // }
-
         if (creditsButton != null)
         {
             creditsButton.onClick.RemoveAllListeners();
@@ -49,132 +52,174 @@ public class MenuManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // backActionReference?.action.Enable();
+        SwitchToState(MenuState.Main);
+    }
 
-        // Start with main menu visible. All others are hidden.
-        mainMenu.SetActive(true);
+    // Keep your existing FMOD sound methods
+    private void ClickSound()
+    {
+        // FMOD sound trigger (do not modify)
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+    }
+
+    private void BackSound()
+    {
+        // FMOD sound trigger (do not modify)
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
+    }
+
+    private void SwitchToState(MenuState newState)
+    {
+        // Hide all panels first
+        mainMenu.SetActive(false);
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
         optionsContainer.SetActive(false);
+        if (tutorialMenu != null) tutorialMenu.SetActive(false);
 
-        // Within the options container, default to the settings menu and hide submenus.
-        if (settingsMenu != null) settingsMenu.SetActive(true);
+        // For options submenus, ensure they're all hidden initially
+        if (settingsMenu != null) settingsMenu.SetActive(false);
         if (videoMenu != null) videoMenu.SetActive(false);
         if (audioMenu != null) audioMenu.SetActive(false);
+
+        // Activate panels based on new state
+        switch (newState)
+        {
+            case MenuState.Main:
+                mainMenu.SetActive(true);
+                break;
+
+            case MenuState.Host:
+                hostMenu.SetActive(true);
+                if (createMenu != null) createMenu.SetActive(true);
+                if (tutorialMenu != null) tutorialMenu.SetActive(false);
+                break;
+
+            case MenuState.Join:
+                joinMenu.SetActive(true);
+                break;
+
+            case MenuState.Options:
+                optionsContainer.SetActive(true);
+                if (settingsMenu != null) settingsMenu.SetActive(true);
+                break;
+
+            case MenuState.VideoSettings:
+                optionsContainer.SetActive(true);
+                if (videoMenu != null) videoMenu.SetActive(true);
+                break;
+
+            case MenuState.AudioSettings:
+                optionsContainer.SetActive(true);
+                if (audioMenu != null) audioMenu.SetActive(true);
+                break;
+
+            case MenuState.Tutorial:
+                hostMenu.SetActive(true);
+                if (tutorialMenu != null) tutorialMenu.SetActive(true);
+                if (createMenu != null) createMenu.SetActive(false);
+                break;
+            
+            case MenuState.Create:
+                hostMenu.SetActive(true);
+                if (createMenu != null) createMenu.SetActive(true);
+                if (tutorialMenu != null) tutorialMenu.SetActive(false);
+                break;
+        }
+
+        currentState = newState;
     }
 
-    // private void OnDisable()
-    // {
-    //     if (backActionReference != null)
-    //     {
-    //         backActionReference.action.performed -= OnBackActionPerformed;
-    //         backActionReference.action.Disable();
-    //     }
-    // }
-
-    // private void OnBackActionPerformed(InputAction.CallbackContext context)
-    // {
-    //
-    //     ExecuteBackNavigation();
-    // }
-
-    // This method can be assigned to UI back buttons.
     public void OnBackButtonClick()
     {
         ExecuteBackNavigation();
     }
-    
+
     public void OnProceedButtonClick()
     {
+        ClickSound();
+        SwitchToState(MenuState.Tutorial);
+    }
+    
+    public void OnTutorialYesButtonClick()
+    {
+        ClickSound();
         DOTween.KillAll();
         NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Tutorial", LoadSceneMode.Single);
-
     }
 
-    // Consolidates back navigation logic:
+    public void OnTutorialNoButtonClick()
+    {
+        ClickSound();
+        DOTween.KillAll();
+        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Levels/Level1", LoadSceneMode.Single);
+    }
+
     private void ExecuteBackNavigation()
     {
-        if (!mainMenu.activeSelf)
+        if (currentState != MenuState.Main)
         {
-            AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
+            BackSound();
         }
 
-        if (videoMenu != null && videoMenu.activeSelf)
+        switch (currentState)
         {
-            videoMenu.SetActive(false);
-            settingsMenu?.SetActive(true);
-            return;
-        }
-        if (audioMenu != null && audioMenu.activeSelf)
-        {
-            audioMenu.SetActive(false);
-            settingsMenu?.SetActive(true);
-            return;
-        }
+            case MenuState.VideoSettings:
+            case MenuState.AudioSettings:
+                SwitchToState(MenuState.Options);
+                break;
 
-        if (optionsContainer != null && optionsContainer.activeSelf)
-        {
-            optionsContainer.SetActive(false);
-            mainMenu?.SetActive(true);
-            return;
-        }
-
-        if ((hostMenu != null && hostMenu.activeSelf) || (joinMenu != null && joinMenu.activeSelf))
-        {
-            hostMenu?.SetActive(false);
-            joinMenu?.SetActive(false);
-            mainMenu?.SetActive(true);
+            case MenuState.Options:
+            case MenuState.Host:
+            case MenuState.Join:
+            case MenuState.Create:
+                SwitchToState(MenuState.Main);
+                break;
+            case MenuState.Tutorial:
+                SwitchToState(MenuState.Create);
+                break;
         }
     }
 
     public void OnHostButtonClicked()
     {
-        mainMenu.SetActive(false);
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
-        hostMenu.SetActive(true);
+        ClickSound();
+        SwitchToState(MenuState.Host);
     }
 
     public void OnJoinButtonClicked()
     {
-        mainMenu.SetActive(false);
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
-        joinMenu.SetActive(true);
+        ClickSound();
+        SwitchToState(MenuState.Join);
     }
 
     public void OnOptionsButtonClicked()
     {
-        mainMenu.SetActive(false);
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
-        optionsContainer.SetActive(true);
-        // Default to settingsMenu active; hide video and audio panels.
-        if (settingsMenu != null) settingsMenu.SetActive(true);
-        if (videoMenu != null) videoMenu.SetActive(false);
-        if (audioMenu != null) audioMenu.SetActive(false);
+        ClickSound();
+        SwitchToState(MenuState.Options);
     }
 
     public void OnVideoButtonClicked()
     {
-        if (settingsMenu != null) settingsMenu.SetActive(false);
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
-        if (videoMenu != null) videoMenu.SetActive(true);
+        ClickSound();
+        SwitchToState(MenuState.VideoSettings);
     }
 
     public void OnAudioButtonClicked()
     {
-        if (settingsMenu != null) settingsMenu.SetActive(false);
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
-        if (audioMenu != null) audioMenu.SetActive(true);
+        ClickSound();
+        SwitchToState(MenuState.AudioSettings);
     }
 
     public void OnExitButtonClicked()
     {
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        ClickSound();
         Application.Quit();
     }
 
     private void OnCreditsButtonClicked()
     {
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        ClickSound();
         if (CreditsController.Instance != null)
             CreditsController.Instance.ShowCredits();
         else
