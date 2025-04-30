@@ -5,6 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.SceneManagement;
 
 
 /// <summary>
@@ -91,10 +92,10 @@ public class TugboatMovementWFloat : MonoBehaviour
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
         if (targetSurface == null)
         {
-            GameObject ocean = GameObject.Find("Ocean");
+            WaterSurface ocean = GameObject.FindFirstObjectByType<WaterSurface>();
             if (ocean != null)
             {
-                targetSurface = ocean.GetComponent<WaterSurface>();
+                targetSurface = ocean;//.GetComponent<WaterSurface>();
                 if (targetSurface == null)
                     Debug.LogError("WaterSurface component not found on object Ocean", this);
             }
@@ -110,13 +111,13 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void Update()
     {
-
-        
         if (debugSpeedText == null)
         {
-            Debug.LogWarning("debugSpeedText is not assigned in the inspector.");
+            //Debug.LogWarning("debugSpeedText is not assigned in the inspector.");
             return;
         }
+
+
         float speed = rb.linearVelocity.magnitude - 10f;
         if (speed <= 0.4f) speed = 0f;
         debugSpeedText.text = $"Speed: {speed:0}m/s";  
@@ -256,7 +257,11 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void OnApplicationFocus(bool focus)
     {
+        if(SceneManager.GetActiveScene().name != "MainMenu")
         Cursor.lockState = CursorLockMode.Locked;
+        
     }
 
+
+   
 }

@@ -1163,7 +1163,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 291402038}
-    PlayerPrefab: {fileID: 0}
+    PlayerPrefab: {fileID: 7866790935086965507, guid: 47fefbda8b3b5ee4683eaaee8a4efe53, type: 3}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 97826ba786913cf46b5c3588489ca552, type: 2}
@@ -5126,6 +5126,50 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 991710528020756657, guid: 82b7ab72f850b6349a5d228dac56b53f, type: 3}
   m_PrefabInstance: {fileID: 8926839781904267591}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1311046386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1311046388}
+  - component: {fileID: 1311046387}
+  m_Layer: 0
+  m_Name: WidgetEventDispatcher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1311046387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1311046386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 318dc804b7b04630a9ed534a2243e51f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1311046388
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1311046386}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1312827026
 GameObject:
   m_ObjectHideFlags: 0
@@ -9540,3 +9584,4 @@ SceneRoots:
   - {fileID: 442443376}
   - {fileID: 142997245}
   - {fileID: 1740849184}
+  - {fileID: 1311046388}

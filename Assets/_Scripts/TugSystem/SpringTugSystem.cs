@@ -123,7 +123,7 @@ public class SpringTugSystem : MonoBehaviour
     {
         if (towedObject == null)
         {
-            Debug.LogError("towedObject is not assigned. Please assign it in the inspector.");
+            //Debug.LogError("towedObject is not assigned. Please assign it in the inspector.");
             return;
         }
         
