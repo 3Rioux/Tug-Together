@@ -6,6 +6,7 @@ using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Windows;
 
 
 public class SpringTugSystem : MonoBehaviour
@@ -29,14 +30,27 @@ public class SpringTugSystem : MonoBehaviour
 
     [Header("Aim Settings ")]
     [SerializeField] private Camera playerCamera;
-    [SerializeField] private Transform inViewRayPointOrigin;
+    [SerializeField] private Transform cameraFollowPoint;
+    [SerializeField] private Transform cameraAimFollowPoint;
     [SerializeField] private LayerMask aimColliderLayerMask = new LayerMask();//the layer the player will hit (i want to ignore the player layer) (Cant hit itself with a ray)
     [SerializeField] private bool isAimMode = false; // bool to stop the auto target closest hook code
     [SerializeField] private List<Transform> visibleHooks = new List<Transform>();
-    private readonly Collider[] _colliders = new Collider[7];
     [SerializeField] private float hookSwitchCooldown = 1f; // Cooldown in seconds
     [SerializeField] private CinemachineCamera aimCamera; // aim Camera 
-   // [SerializeField] private CinemachineCamera followCamera; // normal Camera (Dont need to disable I just set teh AIm cam priority to be 1 higher than follow cam)
+
+    [Tooltip("How far in degrees can you move the camera up")]
+    [SerializeField] private float TopClamp = 70.0f;
+
+    [Tooltip("How far in degrees can you move the camera down")]
+    [SerializeField] private float BottomClamp = -30.0f;
+
+    [Tooltip("Additional degress to override the camera. Useful for fine tuning camera position when locked")]
+    [SerializeField] private float CameraAngleOverride = 0.0f;
+
+    public float Sensitivity = 1.0f;//----------------reduce the mouse sensitivity when aiming--------------------------------------------------------------------------------------
+    private const float _threshold = 0.01f;
+    private float yaw;
+    private float pitch;
     private float lastHookSwitchTime = 0f; // Time when the last switch happened
     private Vector2 lookVector;
 
@@ -53,7 +67,19 @@ public class SpringTugSystem : MonoBehaviour
     [SerializeField] private Material defaultMaterial;
 
 
-    
+
+    private bool IsCurrentDeviceMouse
+    {
+        get
+        {
+#if ENABLE_INPUT_SYSTEM
+            return controls.Boat.Look.activeControl.Equals("KeyboardMouse");
+#else
+				return false;
+#endif
+        }
+    }
+
 
     private void Start()
     {
@@ -108,41 +134,91 @@ public class SpringTugSystem : MonoBehaviour
         //Display the distance between the Player and the Barge (For tweeking sprint settings)
         distanceText.text = distanceToTowedObject.ToString() + " m";
 
-        // ===Hooking Mechanic=== 
-        //Aim Mode 
-        if (isAimMode && visibleHooks.Count > 0)
-        {
-            //Logic to determine the closest hook to the camera center 
-            FindVisibleHooks();
+        // ====== 
+        // ===Hooking Mechanic Start=== 
+        // ====== 
 
-            //lock to camera to the hooks and when the player moves they mouse it will lock onto the next hook in that direction 
-            SelectClosestVisibleHook();
+        // ---Aim Mode ---
+        //if (isAimMode && visibleHooks.Count > 0) //<-- Only allow aim if hookpoints are in view 
+        Vector3 cameraForward = Camera.main.transform.forward;
+        //cameraForward.y = 0f;
+        //cameraForward.Normalize();
 
-            aimCamera.gameObject.SetActive(true);// turn on aim cam if aiming 
+        //Quaternion newRot = Quaternion.LookRotation(cameraForward);
 
-            // Now lock camera to point at selected hook
-            aimCamera.LookAt = visibleHooks[selectedHookIndex].gameObject.transform;
+        //cameraAimFollowPoint.rotation = Quaternion.LookRotation(cameraForward); // instant snap
+        cameraAimFollowPoint.forward = Camera.main.transform.forward;
 
-            //Switch aim hook after cooldown
-            if (lookVector.magnitude > 2f && Time.time >= lastHookSwitchTime + hookSwitchCooldown)
+        cameraAimFollowPoint.rotation = Quaternion.LookRotation(cameraForward); // instant snap
+
+        if (isAimMode)
+        {//can always aim 
+
+           
+            // turn on aim cam when aim button pressed
+            aimCamera.gameObject.SetActive(true);
+
+            // Camera snap to look direction        
+            //Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
+            //Vector3 worldAimTarget = new Vector3(Screen.width / 2f, 0, Screen.height / 2f);
+            //Vector3 worldAimTarget = aimCamera.gameObject.transform.forward;
+            //worldAimTarget.y = targetAttachPoint.position.y; // 
+            //Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
+
+           
+            ////rotate the player
+            //targetAttachPoint.forward = Camera.main.transform.position;//  aimDirection - Camera.main.transform.position;// Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 20.0f);
+            
+
+            if (distanceToTowedObject <= maxTowDistance)
             {
-                // Example: if mouse moved right, select next hook
-                if (lookVector.x > 2f)
+                //Logic to determine the closest hook to the camera center 
+                FindVisibleHooks();
+
+                //lock to camera to the hooks and when the player moves they mouse it will lock onto the next hook in that direction 
+                SelectClosestVisibleHook();
+
+
+                if (!isAttached && visibleHooks.Count > 0)
                 {
-                    SelectNextHook(1);
-                    lastHookSwitchTime = Time.time; // Reset cooldown
+                    lineRenderer.enabled = true;
+                    //draw a line 
+                    lineRenderer.SetPosition(0, transform.position);
+                    lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
                 }
-                else if (lookVector.x < -2f)
+                else
                 {
-                    SelectNextHook(-1);
-                    lastHookSwitchTime = Time.time; // Reset cooldown
+                    //reset attached
+                    lineRenderer.enabled = false;
                 }
-            }
-        }
+
+                //Switch aim hook after cooldown
+                if (lookVector.magnitude > 2f && Time.time >= lastHookSwitchTime + hookSwitchCooldown)
+                {
+                    // Example: if mouse moved right, select next hook
+                    if (lookVector.x > 2f)
+                    {
+                        SelectNextHook(1);
+                        lastHookSwitchTime = Time.time; // Reset cooldown
+                    }
+                    else if (lookVector.x < -2f)
+                    {
+                        SelectNextHook(-1);
+                        lastHookSwitchTime = Time.time; // Reset cooldown
+                    }
+                }
+
+               
+
+            }//end if close enough to hook 
+            
+
+        }//end if aimMode 
 
 
         //Auto Mode (Only active while close)
-        if (distanceToTowedObject <= maxTowDistance) {
+        if (distanceToTowedObject <= maxTowDistance) 
+        {
 
             
             if (towedObject != null && !isAimMode)
@@ -158,28 +234,22 @@ public class SpringTugSystem : MonoBehaviour
 
             }
 
-            //if (!isAttached)
-            //{
-                
-            //}
-            //else
-            //{
-            //    //reset attached
-            //    lineRenderer.enabled = false;
-            //}
         }
         else
         {
             //reset when out of range 
             lineRenderer.enabled = false;
             SetAttachPointHighlight(currentClosestAttachPoint, false);
-            aimCamera.gameObject.SetActive(false);// turn off aim when out of range  aiming  
+            //aimCamera.gameObject.SetActive(false);// turn off aim when out of range  aiming  
         }
 
 
-        
+        // ====== 
+        // ===Hooking Mechanic End=== 
+        // ====== 
 
-        //Only update the rope length if we are attached 
+
+        //Only update the visual rope length if we are attached 
         if (isAttached)
         {
             if (distanceToTowedObject >= springJoint.maxDistance)
@@ -192,10 +262,42 @@ public class SpringTugSystem : MonoBehaviour
                 visualRope.ropeLength = distanceToTowedObject;
             }
         }
+       
 
-        
+    }//end update 
 
+    private void LateUpdate()
+    {
+        CameraRotation();
+    }
 
+    private void CameraRotation()
+    {
+        // if there is an input
+        if (lookVector.sqrMagnitude >= _threshold)
+        {
+            //Don't multiply mouse input by Time.deltaTime;
+            float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+
+            yaw += lookVector.x * deltaTimeMultiplier * Sensitivity;
+            pitch += -lookVector.y * deltaTimeMultiplier * Sensitivity;
+        }
+
+        // clamp our rotations so our values are limited 360 degrees
+        yaw = ClampAngle(yaw, float.MinValue, float.MaxValue);
+        pitch = ClampAngle(pitch, BottomClamp, TopClamp);
+
+        // Cinemachine will follow this target
+        cameraAimFollowPoint.transform.rotation = Quaternion.Euler(pitch + CameraAngleOverride,
+            yaw, 0.0f);
+
+    }
+
+    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 
     /// <summary>
@@ -304,7 +406,7 @@ public class SpringTugSystem : MonoBehaviour
     {
         if (visibleHooks.Count == 0)
         {
-            isAimMode = false;
+            //isAimMode = false; i can now allways aim 
             return;
         }
 
@@ -347,7 +449,7 @@ public class SpringTugSystem : MonoBehaviour
             selectedHookIndex = visibleHooks.Count - 1;
 
         currentClosestAttachPoint = visibleHooks[selectedHookIndex];
-        aimCamera.LookAt = visibleHooks[selectedHookIndex].gameObject.transform;
+        //aimCamera.LookAt = visibleHooks[selectedHookIndex].gameObject.transform;
 
         HighlightSelectedHook();
     }
