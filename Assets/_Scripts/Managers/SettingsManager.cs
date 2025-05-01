@@ -22,6 +22,8 @@ public class SettingsManager : MonoBehaviour
     private const string GraphicsPresetKey = "GraphicsPreset";
     private const string ResolutionKey     = "ResolutionIndex";
     private const string WindowModeKey     = "WindowMode";
+    
+    private bool settingsInitialized = false;
 
     private void Awake()
     {
@@ -30,10 +32,8 @@ public class SettingsManager : MonoBehaviour
 
         // restore saved indices (clamped to valid range)
         int savedPreset = PlayerPrefs.GetInt(GraphicsPresetKey, 0);
-        int savedRes    = Mathf.Clamp(PlayerPrefs.GetInt(ResolutionKey, 0),
-                                      0, availableResolutions.Length - 1);
-        int savedMode   = Mathf.Clamp(PlayerPrefs.GetInt(WindowModeKey, 0),
-                                      0, windowModeOptionList.options.Count - 1);
+        int savedRes    = Mathf.Clamp(PlayerPrefs.GetInt(ResolutionKey, 0), 0, availableResolutions.Length - 1);
+        int savedMode   = Mathf.Clamp(PlayerPrefs.GetInt(WindowModeKey, 0), 0, windowModeOptionList.options.Count - 1);
 
         // initialize the controls without firing callbacks
         graphicsPresetOptionList.SetOption(savedPreset);
@@ -55,6 +55,15 @@ public class SettingsManager : MonoBehaviour
         OnGraphicsPresetChanged(graphicsPresetOptionList.optionIndex);
         OnResolutionChanged(resolutionDropdown.value);
         OnWindowModeChanged(windowModeOptionList.optionIndex);
+        
+        // set the initial state to avoid sound at the game start
+        settingsInitialized = true;
+    }
+    
+    private void ClickSound()
+    {
+        // FMOD sound trigger (do not modify)
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
     }
 
     private void BuildResolutionDropdown()
@@ -94,6 +103,9 @@ public class SettingsManager : MonoBehaviour
         QualitySettings.SetQualityLevel(level, true);
         PlayerPrefs.SetInt(GraphicsPresetKey, idx);
         PlayerPrefs.Save();
+
+        if (settingsInitialized)
+            ClickSound();
     }
 
     public void OnResolutionChanged(int idx)
@@ -109,6 +121,9 @@ public class SettingsManager : MonoBehaviour
 
         PlayerPrefs.SetInt(ResolutionKey, idx);
         PlayerPrefs.Save();
+        
+        if (settingsInitialized)
+            ClickSound();
     }
 
     public void OnWindowModeChanged(int idx)
@@ -130,5 +145,8 @@ public class SettingsManager : MonoBehaviour
 
         PlayerPrefs.SetInt(WindowModeKey, idx);
         PlayerPrefs.Save();
+        
+        if (settingsInitialized)
+            ClickSound();
     }
 }

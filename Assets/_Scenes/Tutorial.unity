@@ -477,7 +477,7 @@ MonoBehaviour:
   foamPersistenceMultiplier: 1
   foamCurrentInfluence: 0.6
   foamColor: {r: 1, g: 1, b: 1, a: 1}
-  foamTextureTiling: 0.01
+  foamTextureTiling: 1
   foamSmoothness: 0.6
   simulationFoamAmount: 0.8
   supportSimulationFoamMask: 1
@@ -1063,6 +1063,71 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &601881886
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 63
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.38284144
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 58
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3471425851147049643, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4917318672047762209, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_Name
+      value: Stripped Network Boat
+      objectReference: {fileID: 0}
+    - target: {fileID: 4917318672047762209, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5930822591878951538, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 304619399
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: eef64434028cd6943a7114a8b2d074b6, type: 3}
 --- !u!1 &651569208
 GameObject:
   m_ObjectHideFlags: 0
@@ -3049,7 +3114,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2800333481428982002, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.2
+      value: 1.1999998
       objectReference: {fileID: 0}
     - target: {fileID: 2800333481428982002, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3094,6 +3159,22 @@ PrefabInstance:
     - target: {fileID: 3847396471491352583, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 1143883611
+      objectReference: {fileID: 0}
+    - target: {fileID: 4703145140702413362, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
+      propertyPath: regionSize.x
+      value: 6.887903
+      objectReference: {fileID: 0}
+    - target: {fileID: 4703145140702413362, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
+      propertyPath: regionSize.y
+      value: 6.394623
+      objectReference: {fileID: 0}
+    - target: {fileID: 4703145140702413362, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
+      propertyPath: deepFoamDimmer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4703145140702413362, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
+      propertyPath: surfaceFoamDimmer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7372491227222741656, guid: 145cd6c6d7279ee49b7fe3840307704b, type: 3}
       propertyPath: m_Name
@@ -3335,7 +3416,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5171789054945650788, guid: fe2ff5ea777f2a248b53381240f47f8e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.35747528
+      value: -0.18706204
       objectReference: {fileID: 0}
     - target: {fileID: 5171789054945650788, guid: fe2ff5ea777f2a248b53381240f47f8e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3400,3 +3481,4 @@ SceneRoots:
   - {fileID: 2038583744}
   - {fileID: 550810264}
   - {fileID: 2292252291573989033}
+  - {fileID: 601881886}

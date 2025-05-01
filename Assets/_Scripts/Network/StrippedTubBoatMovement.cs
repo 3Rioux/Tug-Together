@@ -16,9 +16,8 @@ using UnityEngine.Rendering.HighDefinition;
 [RequireComponent(typeof(Rigidbody))]
 public class StrippedTubBoatMovement : NetworkBehaviour
 {
-    [Header("Camera")]
-    [SerializeField] private CinemachineCamera freeLookCamera;
-
+    // [Header("Camera")]
+    // [SerializeField] private GameObject playerCamera;
     
     [Header("Thrust & Speed")]
     [Tooltip("Sets the capped forward speed in meters per second.")]
@@ -131,8 +130,8 @@ public class StrippedTubBoatMovement : NetworkBehaviour
 
     private void Start()
     {
-        // freeLookCamera.gameObject.SetActive(IsOwner);
-        freeLookCamera.Priority = IsOwner ? 10 : 0;
+        //playerCamera.gameObject.SetActive(IsOwner);
+        //playerCamera.Priority = IsOwner ? 10 : 0;
         
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
         if (targetSurface == null)
