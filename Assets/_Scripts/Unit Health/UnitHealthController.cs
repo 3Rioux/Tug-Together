@@ -1,11 +1,16 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider))] // needs a collider of any kind attached 
-public class UnitHealthController : MonoBehaviour
+public class UnitHealthController : MonoBehaviour, IDamageable
 {
-    [Header("Player Health Bar: ")]
+    [Header("Player Health: ")]
+    public int maxHealth = 100;
+    [SerializeField] private int currentHealth;
+    [SerializeField] private TextMeshPro m_tempHealthText;
+    
     public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit *** Can change to private 
 
     // public HealthBar _playerHealthBar; //reference to the healthBar or your damaged parts script stuff 
@@ -20,7 +25,11 @@ public class UnitHealthController : MonoBehaviour
     private float timeSinceLastDamage = 0f; // Tracks time since last damage
     private bool isUnitHealing = false; // Tracks if healing coroutine is running
 
-
+    private void Awake()
+    {
+        currentHealth = maxHealth;
+        CurrentUnitHeath = new UnitHealth(currentHealth, maxHealth); 
+    }
 
 
     private void Update()
@@ -42,6 +51,9 @@ public class UnitHealthController : MonoBehaviour
             //Player is Dead 
             //LevelManager.Instance.PlayerDeath();//call the player death method from the GM when players HP less than or equal 0
 
+        }else
+        {
+            m_tempHealthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
         }
         //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
 
@@ -61,7 +73,6 @@ public class UnitHealthController : MonoBehaviour
         }
         //------------------TESTING--------------------------
     }//end update 
-
 
 
     /// <summary>
@@ -100,8 +111,17 @@ public class UnitHealthController : MonoBehaviour
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.CurrentHealth);
+        Debug.Log($"{name} took {damage} damage, health now {currentHealth}.");
 
-       // Debug.Log(LevelManager.Instance.PlayerHeath.CurrentHealth.ToString());
+        // Debug.Log(LevelManager.Instance.PlayerHeath.CurrentHealth.ToString());
+
+        if (currentHealth <= 0) Die();
+    }
+
+    void Die()
+    {
+        // Your death logic here...
+        Debug.Log($"{name} died!");
     }
 
     /// <summary>

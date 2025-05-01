@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1861279590425847504}
   - component: {fileID: 3711604379218630779}
   - component: {fileID: 1595774449130548895}
+  - component: {fileID: 6043727999442882156}
   m_Layer: 0
   m_Name: DebrisV2
   m_TagString: Untagged
@@ -106,7 +107,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -192,3 +193,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabID: DriftPlank
+--- !u!114 &6043727999442882156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6418523565824155749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d8f068bba72867438c77da7d34efa9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageAmount: 10
+  useTrigger: 1
+  destroyOnImpact: 0
