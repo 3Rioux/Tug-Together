@@ -111,7 +111,7 @@ public class UnitHealthController : MonoBehaviour, IDamageable
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.CurrentHealth);
-        Debug.Log($"{name} took {damage} damage, health now {currentHealth}.");
+        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath.CurrentHealth}.");
 
         // Debug.Log(LevelManager.Instance.PlayerHeath.CurrentHealth.ToString());
 
