@@ -5,7 +5,6 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
-using Color = UnityEngine.Color;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -56,6 +55,7 @@ public class DebrisSpawner : MonoBehaviour
     // Data structure to track floating debris movement
     private class FloatingDebrisData
     {
+        public bool isNotBuoyency; // Whether or not the object is using buoyency to float (if yes DONT add Drift)
         public GameObject obj;     // Instance of the debris GameObject
         public Vector3 direction;  // Horizontal drift direction
         public float speed;        // Drift speed
@@ -63,16 +63,12 @@ public class DebrisSpawner : MonoBehaviour
     private List<FloatingDebrisData> floatingDebrisList = new List<FloatingDebrisData>();
     //private static readonly List<FloatingDebrisData> floatingDebrisList = new List<FloatingDebrisData>();
 
-    [SerializeField] private LineRenderer lineRenderer;
-
     //=======================
 
 
 
     void Start()
     {
-       if( lineRenderer == null ) lineRenderer = new LineRenderer();
-
         //Initialize All Pools:
         foreach (var pool in floatingDebrisPools)
             pool.Initialize(this.transform, waterSurface);
@@ -86,12 +82,7 @@ public class DebrisSpawner : MonoBehaviour
         {
             //Cant spawn more stationary obj then there are spawn points 
             if (currentDebrisCount >= stationarySpawnPoints.Count - 1) break;
-            //if (stationaryDebrisPrefabs.Count == 0) break;
-            // Choose a random stationary debris prefab
-            //GameObject prefab = stationaryDebrisPrefabs[Random.Range(0, stationaryDebrisPrefabs.Count)];
-            // Instantiate at the spawn point's position
-            //GameObject obj = Instantiate(prefab, point.position, Quaternion.identity);
-            //Spawn stationary objects using pool 
+           
             int index = Random.Range(0, stationaryDebrisPools.Count);
             GameObject obj = stationaryDebrisPools[index].Get();
             obj.transform.position = point.position;
@@ -121,7 +112,7 @@ public class DebrisSpawner : MonoBehaviour
             var data = floatingDebrisList[i];
 
             // Simple horizontal drift
-            data.obj.transform.position += data.direction * data.speed * Time.deltaTime;
+            if(data.isNotBuoyency) data.obj.transform.position += data.direction * data.speed * Time.deltaTime;
 
             // Optional: keep object at the water surface height
             if (waterSurface != null)
@@ -158,62 +149,26 @@ public class DebrisSpawner : MonoBehaviour
 
         }//end foreach 
 
-
-
-
     }//end update 
-
-    //private void LateUpdate()
-    //{
-    //    lineRenderer.SetPosition(0, transform.position);
-    //    lineRenderer.SetPosition(1, new Vector3(0,0, destroyBounds.x));
-
-    //    lineRenderer.SetPosition(2, transform.position);
-    //    lineRenderer.SetPosition(3, new Vector3(180, 0, -destroyBounds.y));
-
-    //    lineRenderer.SetPosition(4, transform.position);
-    //    lineRenderer.SetPosition(5, new Vector3(destroyBounds.z +90, 0, 0));
-
-    //    lineRenderer.SetPosition(6, transform.position);
-    //    lineRenderer.SetPosition(7, new Vector3(-destroyBounds.w - 90, 0, 0));
-    //}
 
     /// <summary>
     /// Instantiate a floating debris prefab at a random horizontal position.
     /// </summary>
     void SpawnFloatingDebris()
     {
-        //if (floatingDebrisPrefabs.Count == 0) return;
-
-        //// Pick a random prefab
-        //GameObject prefab = floatingDebrisPrefabs[Random.Range(0, floatingDebrisPrefabs.Count)];
+        if (floatingDebrisPools.Count == 0) return;
 
         // Compute a random spawn position in XZ around this spawner
         Vector2 randCircle = Random.insideUnitCircle * spawnRadius;
         Vector3 spawnPos = transform.position + new Vector3(randCircle.x, 0f, randCircle.y);
 
-        // If using HDRP water, adjust Y to the water surface height (Just added build in script for that)
-        //if (waterSurface != null)
-        //{
-        //    WaterSearchParameters searchParams = new WaterSearchParameters();
-        //    searchParams.targetPositionWS = spawnPos;
-        //    searchParams.startPositionWS = spawnPos;
-        //    searchParams.error = 0.05f;
-        //    searchParams.maxIterations = 8;
-        //    if (waterSurface.FindWaterSurfaceHeight(searchParams, out WaterSearchResult result))
-        //    {
-        //        spawnPos.y = result.height;
-        //    }
-        //}
-
-        // Instantiate the floating debris prefab
-        //GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity, this.transform);
 
         //Get Object from Pool: 
-        int index = Random.Range(0, stationaryDebrisPools.Count);
+        int index = Random.Range(0, stationaryDebrisPools.Count + 1);
         GameObject obj = floatingDebrisPools[index].Get();
         obj.transform.position = spawnPos;
-        obj.transform.rotation = Quaternion.identity;
+        int randomRotation = Random.Range(-90, 90 + 1);
+        obj.transform.rotation = new Quaternion(0, obj.transform.rotation.y + randomRotation, 0, 1); //unsure about the w lol 
 
         // Assign random horizontal drift direction and speed
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
@@ -260,26 +215,7 @@ public class DebrisSpawner : MonoBehaviour
     }//end return to pool 
     
 
-    //private void OnDrawGizmosSelected()
-    //{
-    //    Gizmos.color = Color.white;
-    //    Gizmos.DrawLine(transform.forward, transform.position);
-
-    //    //Gizmos.color = Color.red;
-    //    //Gizmos.DrawLine(transform.forward, transform.position);
-
-    //    //Gizmos.color = Color.blue;
-    //    //Gizmos.DrawLine(transform.position, transform.right * destroyBounds.z);
-
-    //    //Gizmos.color = Color.green;
-    //    //Gizmos.DrawLine(transform.position, -transform.right * destroyBounds.w);
-    //}
-
-
-
 }//end DebisSpawner Class
-
-
 
 
 /// <summary>
@@ -290,6 +226,7 @@ public class DebrisPool
 {
     public GameObject prefab;
     public int initialSize = 10;
+    public bool isNotBuoyency = false;
 
     //local pool 
     private Queue<GameObject> pool = new Queue<GameObject>();
@@ -316,7 +253,15 @@ public class DebrisPool
         {
             GameObject obj = GameObject.Instantiate(prefab, poolParentObject.transform);
             //link to the waterline:
-            obj.GetComponent<FitToWaterSurface>().targetSurface = waterSurface;
+
+            if (obj.TryGetComponent<FitToWaterSurface>(out FitToWaterSurface fit))
+            {
+                fit.targetSurface = waterSurface;
+            }
+            if (obj.TryGetComponent<Buoyancy>(out Buoyancy buoyancy))
+            {
+                buoyancy.targetSurface = waterSurface;
+            }
 
             obj.SetActive(false);
             pool.Enqueue(obj);
