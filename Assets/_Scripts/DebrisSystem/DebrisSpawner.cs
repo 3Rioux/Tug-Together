@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using Unity.Multiplayer.Center.NetcodeForGameObjectsExample.DistributedAuthority;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
+using Color = UnityEngine.Color;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -59,15 +62,17 @@ public class DebrisSpawner : MonoBehaviour
     }
     private List<FloatingDebrisData> floatingDebrisList = new List<FloatingDebrisData>();
     //private static readonly List<FloatingDebrisData> floatingDebrisList = new List<FloatingDebrisData>();
-    
-    
-    
+
+    [SerializeField] private LineRenderer lineRenderer;
+
     //=======================
 
 
 
     void Start()
     {
+       if( lineRenderer == null ) lineRenderer = new LineRenderer();
+
         //Initialize All Pools:
         foreach (var pool in floatingDebrisPools)
             pool.Initialize(this.transform, waterSurface);
@@ -158,7 +163,20 @@ public class DebrisSpawner : MonoBehaviour
 
     }//end update 
 
-    
+    //private void LateUpdate()
+    //{
+    //    lineRenderer.SetPosition(0, transform.position);
+    //    lineRenderer.SetPosition(1, new Vector3(0,0, destroyBounds.x));
+
+    //    lineRenderer.SetPosition(2, transform.position);
+    //    lineRenderer.SetPosition(3, new Vector3(180, 0, -destroyBounds.y));
+
+    //    lineRenderer.SetPosition(4, transform.position);
+    //    lineRenderer.SetPosition(5, new Vector3(destroyBounds.z +90, 0, 0));
+
+    //    lineRenderer.SetPosition(6, transform.position);
+    //    lineRenderer.SetPosition(7, new Vector3(-destroyBounds.w - 90, 0, 0));
+    //}
 
     /// <summary>
     /// Instantiate a floating debris prefab at a random horizontal position.
@@ -240,12 +258,28 @@ public class DebrisSpawner : MonoBehaviour
         Destroy(obj);
         currentDebrisCount--;
     }//end return to pool 
+    
 
+    //private void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.white;
+    //    Gizmos.DrawLine(transform.forward, transform.position);
 
+    //    //Gizmos.color = Color.red;
+    //    //Gizmos.DrawLine(transform.forward, transform.position);
+
+    //    //Gizmos.color = Color.blue;
+    //    //Gizmos.DrawLine(transform.position, transform.right * destroyBounds.z);
+
+    //    //Gizmos.color = Color.green;
+    //    //Gizmos.DrawLine(transform.position, -transform.right * destroyBounds.w);
+    //}
 
 
 
 }//end DebisSpawner Class
+
+
 
 
 /// <summary>
@@ -318,8 +352,6 @@ public class DebrisPool
         obj.SetActive(false);
         pool.Enqueue(obj);
     }
-
-
 
 
 }
