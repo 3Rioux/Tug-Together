@@ -92,21 +92,32 @@ public class TugboatMovementWFloat : MonoBehaviour
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
         if (targetSurface == null)
         {
-            WaterSurface ocean = GameObject.FindFirstObjectByType<WaterSurface>();
-            if (ocean != null)
-            {
-                targetSurface = ocean;//.GetComponent<WaterSurface>();
-                if (targetSurface == null)
-                    Debug.LogError("WaterSurface component not found on object Ocean", this);
-            }
-            else
-            {
-                Debug.LogError("Ocean game object not found", this);
-            }
+            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+
+            //WaterSurface ocean = GameObject.FindFirstObjectByType<WaterSurface>();
+            //if (ocean != null)
+            //{
+            //    targetSurface = ocean;//.GetComponent<WaterSurface>();
+            //    if (targetSurface == null)
+            //        Debug.LogError("WaterSurface component not found on object Ocean", this);
+            //}
+            //else
+            //{
+            //    Debug.LogError("Ocean game object not found", this);
+            //}
         }
     }
 
-    void OnEnable() => controls.Enable();
+    void OnEnable()
+    {
+        if (targetSurface == null)
+        {
+            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+        }
+        controls.Enable();
+    }
+
+
     void OnDisable() => controls.Disable();
 
     private void Update()
