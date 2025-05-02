@@ -9,6 +9,8 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class SpawnPlayerManager : MonoBehaviour
 {
+    [SerializeField] private GameObject playerPrefab; // Your player prefab
+
     // Define your custom spawn positions
     public List<Transform> spawnPoints;
     public WaterSurface levelWaterSurface;
@@ -26,19 +28,24 @@ public class SpawnPlayerManager : MonoBehaviour
         // Subscribe to scene events
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         SceneManager.sceneLoaded += OnSceneLoaded;
+        // Subscribe to Netcode scene events
+        NetworkManager.Singleton.SceneManager.OnSceneEvent += OnNetworkSceneEvent;
     }
 
     private void OnEnable()
     {
         // Subscribe to scene events
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneLoaded  += OnSceneLoaded;
+        
     }
 
     private void OnDisable()
     {
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.SceneManager.OnSceneEvent -= OnNetworkSceneEvent;
     }
 
     // Track if we've already spawned players
@@ -46,7 +53,26 @@ public class SpawnPlayerManager : MonoBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        // Optional: Log or prepare something for each client
+        if (!NetworkManager.Singleton.IsServer)
+            return;
+
+        // Delay player spawn until after scene is loaded if needed
+        StartCoroutine(SpawnPlayerAfterSceneLoad(clientId));
+    }
+
+    private IEnumerator<WaitForSeconds> SpawnPlayerAfterSceneLoad(ulong clientId)
+    {
+        // Small delay to ensure the scene is ready
+        yield return new WaitForSeconds(0.2f);
+
+        // Choose a spawn point (e.g., based on order or randomly)
+        Vector3 spawnPos = spawnPoints.Count > 0 ? spawnPoints[(int)(clientId % (ulong)spawnPoints.Count)].position : Vector3.zero;
+
+        GameObject playerInstance = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+        var networkObject = playerInstance.GetComponent<NetworkObject>();
+
+        // Spawn and assign this player object to the connected client
+        networkObject.SpawnAsPlayerObject(clientId);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -59,6 +85,19 @@ public class SpawnPlayerManager : MonoBehaviour
         }
     }
 
+    private void OnNetworkSceneEvent(SceneEvent sceneEvent)
+    {
+        // Wait for server-side scene load complete
+        if (sceneEvent.SceneEventType == SceneEventType.LoadComplete &&
+            NetworkManager.Singleton.IsServer &&
+            sceneEvent.SceneName == "_Scenes/Tutorial" &&
+            !playersSpawned)
+        {
+            Debug.Log("Scene loaded via Netcode: Spawning players...");
+            SpawnAllPlayers();
+            playersSpawned = true;
+        }
+    }
 
     private void SpawnAllPlayers()
     {
