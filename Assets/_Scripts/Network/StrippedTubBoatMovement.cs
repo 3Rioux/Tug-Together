@@ -127,25 +127,51 @@ public class StrippedTubBoatMovement : NetworkBehaviour
         controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
         controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
     }
-
+    
     private void Start()
     {
-        //playerCamera.gameObject.SetActive(IsOwner);
-        //playerCamera.Priority = IsOwner ? 10 : 0;
-        
-        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
+        // Also verify on Start
         if (targetSurface == null)
         {
+            InitializeWaterTarget();
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (targetSurface == null)
+        {
+            InitializeWaterTarget();
+        }
+    }
+    
+// C#
+    private void InitializeWaterTarget()
+    {
+        if (targetSurface == null)
+        {
+            // Try to find an object named Ocean.
             GameObject ocean = GameObject.Find("Ocean");
             if (ocean != null)
             {
                 targetSurface = ocean.GetComponent<WaterSurface>();
-                if (targetSurface == null)
-                    Debug.LogError("WaterSurface component not found on object Ocean", this);
+                Debug.Log("WaterSurface found on Ocean object: " + ocean.name);
             }
-            else
+        
+            // Fallback: search for any WaterSurface instance in the scene.
+            if (targetSurface == null)
             {
-                Debug.LogError("Ocean game object not found", this);
+                targetSurface = FindObjectOfType<WaterSurface>();
+                if (targetSurface != null)
+                {
+                    Debug.Log("WaterSurface found via FindObjectOfType on: " + targetSurface.gameObject.name);
+                }
+            }
+        
+            // Log an error if still not found.
+            if (targetSurface == null)
+            {
+                Debug.LogError("WaterSurface component not found. Ensure an object named Ocean or a WaterSurface instance exists in the scene.", this);
             }
         }
     }
@@ -272,11 +298,6 @@ public class StrippedTubBoatMovement : NetworkBehaviour
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
 
-    }
-
-    private void OnApplicationFocus(bool focus)
-    {
-        Cursor.lockState = CursorLockMode.Locked;
     }
 
 }

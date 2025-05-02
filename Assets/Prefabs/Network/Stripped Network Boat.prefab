@@ -1541,7 +1541,7 @@ Transform:
   m_GameObject: {fileID: 4917318672047762209}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 63, y: 0.38284144, z: 58}
+  m_LocalPosition: {x: 200, y: 1, z: -200}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1593,7 +1593,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 304619399
+  GlobalObjectIdHash: 1916215615
   InScenePlacedSourceGlobalObjectIdHash: 1916215615
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2397,7 +2397,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: sparkymarky234
+  m_text: unknown
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 365409d5b0325444c999d00909f3abb7, type: 2}
   m_sharedMaterial: {fileID: 6946802552068725412, guid: 365409d5b0325444c999d00909f3abb7, type: 2}
@@ -2424,7 +2424,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 315.1
+  m_fontSize: 400
   m_fontSizeBase: 442.98
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2986,11 +2986,48 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  playerName: {fileID: 5966469841618571268}
   minScale: 1.55
   maxScale: 4
   minDistance: 20
   maxDistance: 100
   verticalOffset: 10
+  playerCustomName: Unknown
+  networkPlayerName:
+    m_InternalValue:
+      utf8LengthInBytes: 7
+      bytes:
+        offset0000:
+          byte0000: 85
+          byte0001: 110
+          byte0002: 107
+          byte0003: 110
+          byte0004: 111
+          byte0005: 119
+          byte0006: 110
+          byte0007: 0
+          byte0008: 0
+          byte0009: 0
+          byte0010: 0
+          byte0011: 0
+          byte0012: 0
+          byte0013: 0
+          byte0014: 0
+          byte0015: 0
+        byte0016: 0
+        byte0017: 0
+        byte0018: 0
+        byte0019: 0
+        byte0020: 0
+        byte0021: 0
+        byte0022: 0
+        byte0023: 0
+        byte0024: 0
+        byte0025: 0
+        byte0026: 0
+        byte0027: 0
+        byte0028: 0
+        byte0029: 0
 --- !u!1 &9186674493136715113
 GameObject:
   m_ObjectHideFlags: 0
