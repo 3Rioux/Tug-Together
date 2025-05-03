@@ -1,27 +1,28 @@
-using System;
+using System.Collections;
 using FMOD.Studio;
-using UnityEngine;
 using FMODUnity;
+using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-    private EventInstance ambienceEventInstance;
-    
     public static AudioManager Instance { get; private set; }
-    
-    [Header("Audio Settings")]
-    [Range(0,1)] public float masterVolume = 1.0f;
-    [Range(0,1)] public float musicVolume = 1.0f;
-    [Range(0,1)] public float sfxVolume = 1.0f;
-    [Range(0,1)] public float ambienceVolume = 1.0f;
-    [Range(0,1)] public float uiVolume = 1.0f;
 
-    private Bus masterBus;
-    private Bus musicBus;
-    private Bus sfxBus;
-    private Bus ambienceBus;
-    private Bus uiBus;
-    
+    [Header("Volume Settings")]
+    [Range(0f, 1f)] public float masterVolume   = 1f;
+    [Range(0f, 1f)] public float musicVolume    = 1f;
+    [Range(0f, 1f)] public float sfxVolume      = 1f;
+    [Range(0f, 1f)] public float ambienceVolume = 1f;
+    [Range(0f, 1f)] public float uiVolume       = 1f;
+
+    private EventInstance _ambienceInstance;
+    private EventInstance _loopInstance;
+
+    private Bus _masterBus;
+    private Bus _musicBus;
+    private Bus _sfxBus;
+    private Bus _ambienceBus;
+    private Bus _uiBus;
+
     private void Awake()
     {
         if (Instance != null)
@@ -29,48 +30,130 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
-        
-        masterBus = RuntimeManager.GetBus("bus:/");
-        musicBus = RuntimeManager.GetBus("bus:/Music");
-        sfxBus = RuntimeManager.GetBus("bus:/SFX");
-        ambienceBus = RuntimeManager.GetBus("bus:/Ambience");
-        uiBus = RuntimeManager.GetBus("bus:/UI");
-    }
 
-    private void Start()
-    {
-        InitializeAmbience(FMODEvents.Instance.MainMenu);
+        _masterBus   = RuntimeManager.GetBus("bus:/");
+        _musicBus    = RuntimeManager.GetBus("bus:/Music");
+        _sfxBus      = RuntimeManager.GetBus("bus:/SFX");
+        _ambienceBus = RuntimeManager.GetBus("bus:/Ambience");
+        _uiBus       = RuntimeManager.GetBus("bus:/UI");
     }
 
     private void Update()
     {
-        masterBus.setVolume(masterVolume);
-        musicBus.setVolume(musicVolume);
-        sfxBus.setVolume(sfxVolume);
-        ambienceBus.setVolume(ambienceVolume);
-        uiBus.setVolume(uiVolume);
+        _masterBus.setVolume(masterVolume);
+        _musicBus.setVolume(musicVolume);
+        _sfxBus.setVolume(sfxVolume);
+        _ambienceBus.setVolume(ambienceVolume);
+        _uiBus.setVolume(uiVolume);
     }
 
-    private void InitializeAmbience(EventReference ambienceEventReference)
+    // play or swap ambience immediately
+    public void PlayAmbience(EventReference ambience)
     {
-        if (!ambienceEventReference.IsNull)
+        StopAmbience();
+
+        if (ambience.IsNull)
         {
-            ambienceEventInstance = RuntimeManager.CreateInstance(ambienceEventReference);
-            ambienceEventInstance.start();
+            Debug.LogWarning("Ambience reference is null");
+            return;
         }
-        else
+
+        _ambienceInstance = RuntimeManager.CreateInstance(ambience);
+        _ambienceInstance.start();
+    }
+
+    // stop current ambience immediately
+    public void StopAmbience()
+    {
+        if (_ambienceInstance.isValid())
         {
-            Debug.LogWarning("Ambience event reference is null or invalid.");
+            _ambienceInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            _ambienceInstance.release();
         }
     }
 
-
-    public void PlayOneShot(EventReference sound, Vector3 worldPos)
+    // fade out ambience over duration then stop
+    public void FadeOutAmbience(float duration)
     {
-        RuntimeManager.PlayOneShot(sound, worldPos);
+        StartCoroutine(FadeAmbienceCoroutine(duration));
+    }
+
+    private IEnumerator FadeAmbienceCoroutine(float duration)
+    {
+        float elapsed = 0f;
+        _ambienceBus.getVolume(out float startVol);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            _ambienceBus.setVolume(Mathf.Lerp(startVol, 0f, t));
+            yield return null;
+        }
+
+        StopAmbience();
+        _ambienceBus.setVolume(ambienceVolume);
+    }
+
+    // play sfx at world position
+    public void PlayOneShot(EventReference sfx, Vector3 pos)
+    {
+        if (sfx.IsNull)
+        {
+            Debug.LogWarning("SFX reference is null");
+            return;
+        }
+        RuntimeManager.PlayOneShot(sfx, pos);
+    }
+
+    // start a looping sound attached to an emitter
+    public void StartLoop(EventReference loopRef, GameObject emitter)
+    {
+        StopLoop();
+
+        if (loopRef.IsNull)
+        {
+            Debug.LogWarning("Loop reference is null");
+            return;
+        }
+
+        _loopInstance = RuntimeManager.CreateInstance(loopRef);
+        RuntimeManager.AttachInstanceToGameObject(_loopInstance, emitter);
+        _loopInstance.start();
+    }
+
+    // stop looping sound immediately
+    public void StopLoop()
+    {
+        if (_loopInstance.isValid())
+        {
+            _loopInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+            _loopInstance.release();
+        }
+    }
+
+    // fade out looping sound then stop
+    public void FadeOutLoop(float duration)
+    {
+        StartCoroutine(fadeLoopCoroutine(duration));
+    }
+
+    private IEnumerator fadeLoopCoroutine(float duration)
+    {
+        float elapsed = 0f;
+        _sfxBus.getVolume(out float startVol);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            _sfxBus.setVolume(Mathf.Lerp(startVol, 0f, t));
+            yield return null;
+        }
+
+        StopLoop();
+        _sfxBus.setVolume(sfxVolume);
     }
 }

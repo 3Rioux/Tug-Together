@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
@@ -48,6 +49,11 @@ public class MenuManager : MonoBehaviour
         {
             Debug.LogError("Credits button reference not assigned in the inspector.");
         }
+    }
+
+    private void Start()
+    {
+        AudioManager.Instance.PlayAmbience(FMODEvents.Instance.MainMenu);
     }
 
     private void OnEnable()
