@@ -29,6 +29,7 @@ public class SpawnManager : NetworkBehaviour
         if (sceneEvent.SceneEventType == SceneEventType.LoadComplete)
         {
             _sceneLoaded = true;
+           
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 SpawnForClient(clientId);
@@ -63,6 +64,8 @@ public class SpawnManager : NetworkBehaviour
             Debug.LogError("BoatMovement component not found on spawned object.", this);
         }
         go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+
+        MenuManager.Instance.OnClientSpawned(); // close all the menu's  
 
         _spawnedClients.Add(clientId);
     }

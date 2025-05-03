@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager Instance;
+
     [Header("Panels")]
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject hostMenu;
@@ -39,6 +41,15 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
         if (creditsButton != null)
         {
             creditsButton.onClick.RemoveAllListeners();
@@ -152,7 +163,8 @@ public class MenuManager : MonoBehaviour
     {
         ClickSound();
         DOTween.KillAll();
-        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
+        //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("JR_TestMultiplayer", LoadSceneMode.Single);
     }
 
     private void ExecuteBackNavigation()
@@ -216,6 +228,16 @@ public class MenuManager : MonoBehaviour
         ClickSound();
         Application.Quit();
     }
+
+    public void OnClientSpawned()
+    {
+        mainMenu.SetActive(false);
+        hostMenu.SetActive(false);
+        joinMenu.SetActive(false);
+        optionsContainer.SetActive(false);
+        if (tutorialMenu != null) tutorialMenu.SetActive(false);
+    }
+
 
     private void OnCreditsButtonClicked()
     {
