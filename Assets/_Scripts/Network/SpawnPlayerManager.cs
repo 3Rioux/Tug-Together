@@ -14,23 +14,39 @@ public class SpawnPlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        if (IsServer)
-        {
+
             NetworkManager.Singleton.SceneManager.OnLoadComplete += OnSceneLoadComplete;
-        }
+       
+    }
+
+    private void OnEnable()
+    {
+        NetworkManager.Singleton.SceneManager.OnLoadComplete += OnSceneLoadComplete;
     }
 
     private void OnSceneLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
-        if (sceneName == "GameScene")
+        Debug.Log(" OnSceneLoadComplete");
+
+        if (sceneName == "JR_MainMenu") return;
+
+
+            if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client)) return;
+
+        //// Only spawn if not already spawned
+        //if (!NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject)
+        //{
+        //    GameObject playerInstance = Instantiate(playerPrefab, GetSpawnPosition(), Quaternion.identity);
+        //    playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+        //}
+        if (client.PlayerObject == null)
         {
-            // Only spawn if not already spawned
-            if (!NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject)
-            {
-                GameObject playerInstance = Instantiate(playerPrefab, GetSpawnPosition(), Quaternion.identity);
-                playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
-            }
+            Vector3 spawnPos = GetSpawnPosition();
+            GameObject playerInstance = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+            playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
         }
+
+
     }
 
     private Vector3 GetSpawnPosition()

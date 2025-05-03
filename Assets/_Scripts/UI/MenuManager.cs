@@ -163,8 +163,7 @@ public class MenuManager : MonoBehaviour
     {
         ClickSound();
         DOTween.KillAll();
-        //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
-        NetworkManager.Singleton.SceneManager.LoadScene("JR_TestMultiplayer", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
     }
 
     private void ExecuteBackNavigation()

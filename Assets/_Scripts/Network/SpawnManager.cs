@@ -16,6 +16,14 @@ public class SpawnManager : NetworkBehaviour
     // Track spawned client IDs to avoid duplicate spawns.
     private HashSet<ulong> _spawnedClients = new HashSet<ulong>();
 
+    private void Awake()
+    {
+        if (!IsServer)
+            return;
+
+        NetworkManager.Singleton.SceneManager.OnSceneEvent += HandleSceneEvent;
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -44,11 +52,11 @@ public class SpawnManager : NetworkBehaviour
             return;
 
         // If the scene isn’t loaded, delay the spawn.
-        if (!_sceneLoaded)
-        {
-            StartCoroutine(DelaySpawn(clientId));
-            return;
-        }
+        //if (!_sceneLoaded)
+        //{
+        //    StartCoroutine(DelaySpawn(clientId));
+        //    return;
+        //}
 
         Transform spawn = _spawnPoints[_nextSpawnIndex % _spawnPoints.Length];
         _nextSpawnIndex++;
@@ -57,7 +65,7 @@ public class SpawnManager : NetworkBehaviour
         var boatMovement = go.GetComponent<StrippedTubBoatMovement>();
         if (boatMovement != null && boatMovement.targetSurface == null)
         {
-            StartCoroutine(WaitForWaterSurface(boatMovement));
+           // StartCoroutine(WaitForWaterSurface(boatMovement));
         }
         else
         {
