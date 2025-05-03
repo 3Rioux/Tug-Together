@@ -167,16 +167,28 @@ public class StrippedTubBoatMovement : NetworkBehaviour
                     Debug.Log("WaterSurface found via FindObjectOfType on: " + targetSurface.gameObject.name);
                 }
             }
-        
+
+            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+
             // Log an error if still not found.
             if (targetSurface == null)
             {
+
                 Debug.LogError("WaterSurface component not found. Ensure an object named Ocean or a WaterSurface instance exists in the scene.", this);
             }
         }
     }
 
-    void OnEnable() => controls.Enable();
+    void OnEnable()
+    {
+        if (targetSurface == null)
+        {
+            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+        }
+        controls.Enable();
+    }
+
+   
     void OnDisable() => controls.Disable();
 
     void FixedUpdate()
@@ -214,6 +226,14 @@ public class StrippedTubBoatMovement : NetworkBehaviour
         if (alignToWaterNormal)
         {
             AlignToWaterNormal(searchResult.normalWS);
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (targetSurface == null)
+        {
+            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
         }
     }
 
