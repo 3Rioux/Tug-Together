@@ -53,7 +53,8 @@ public class SpawnManager : NetworkBehaviour
         _nextSpawnIndex++;
 
         GameObject go = Instantiate(_playerPrefab, spawn.position, spawn.rotation);
-        var boatMovement = go.GetComponent<StrippedTubBoatMovement>();
+        var boatMovement = go.GetComponent<TugboatMovementWFloat>();
+        //if(boatMovement ==null) boatMovement = go.GetComponent<TugboatMovementWFloat>();
         if (boatMovement != null && boatMovement.targetSurface == null)
         {
             StartCoroutine(WaitForWaterSurface(boatMovement));
@@ -76,7 +77,7 @@ public class SpawnManager : NetworkBehaviour
         SpawnForClient(clientId);
     }
 
-    private IEnumerator WaitForWaterSurface(StrippedTubBoatMovement boatMovement)
+    private IEnumerator WaitForWaterSurface(TugboatMovementWFloat boatMovement)
     {
         GameObject ocean = GameObject.Find("Ocean");
         if (ocean != null)

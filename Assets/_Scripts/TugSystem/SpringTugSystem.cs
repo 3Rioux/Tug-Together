@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Windows;
 
 
-public class SpringTugSystem : MonoBehaviour
+public class SpringTugSystem : NetworkBehaviour
 {
     [SerializeField] private TextMeshProUGUI distanceText;
 
@@ -95,22 +95,33 @@ public class SpringTugSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        controls = new BoatInputActions();
-        controls.Boat.Enable();
+        if (!IsOwner) return;
+        
+            controls = new BoatInputActions();
+            controls.Boat.Enable();
 
-        // Register event handlers
-        controls.Boat.Hook.performed += OnHookTriggered;
-        controls.Boat.AimHook.performed += OnAimTriggered;
-        controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
-        controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
+            // Register event handlers
+            controls.Boat.Hook.performed += OnHookTriggered;
+            controls.Boat.AimHook.performed += OnAimTriggered;
+            controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
+            controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
 
-        //cam look 
-        controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
+            //cam look 
+            controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
+            controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
+        //}else
+        //{
+        //    // Unregister event handlers
+        //    //controls.Boat.Hook.performed -= OnHookTriggered;
+        //    //controls.Boat.AimHook.performed -= OnHookTriggered;
+
+        //    lookVector = Vector2.zero;
+        //}
     }
 
     private void OnDisable()
     {
+        if (!IsOwner) return;
         // Unregister event handlers
         controls.Boat.Hook.performed -= OnHookTriggered;
         controls.Boat.AimHook.performed -= OnHookTriggered;
@@ -121,7 +132,7 @@ public class SpringTugSystem : MonoBehaviour
 
     private void Update()
     {
-        if (towedObject == null)
+        if (towedObject == null || !IsOwner)
         {
             //Debug.LogError("towedObject is not assigned. Please assign it in the inspector.");
             return;
@@ -239,7 +250,11 @@ public class SpringTugSystem : MonoBehaviour
         {
             //reset when out of range 
             lineRenderer.enabled = false;
-            SetAttachPointHighlight(currentClosestAttachPoint, false);
+            //add check for the start of the game whenre we dont have a hook point 
+            if (currentClosestAttachPoint != null)
+            {
+                SetAttachPointHighlight(currentClosestAttachPoint, false);
+            }
             //aimCamera.gameObject.SetActive(false);// turn off aim when out of range  aiming  
         }
 

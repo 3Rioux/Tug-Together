@@ -4,8 +4,10 @@ using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.SceneManagement;
+using UnityEngine.VFX;
 
 
 /// <summary>
@@ -14,7 +16,7 @@ using UnityEngine.SceneManagement;
 /// https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/water-deform-a-water-surface.html#bow-wave
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class TugboatMovementWFloat : MonoBehaviour
+public class TugboatMovementWFloat : NetworkBehaviour
 {
     [SerializeField] private TextMeshProUGUI debugSpeedText;
 
@@ -25,6 +27,11 @@ public class TugboatMovementWFloat : MonoBehaviour
     public float throttleForceMultiplier = 10f;
     public float reverseThrottleFactor = 0.5f;    // Less power in reverse
     public float accelerationSmoothing = 2f;
+
+    [Header("Movement Effects")]
+    [SerializeField] WaterDecal bowWaveDecal; 
+    [SerializeField] WaterFoamGenerator foamGenerator; 
+    [SerializeField] VisualEffect rearSplashVFX; 
 
     [Header("Turning")]
     public float turnTorque = 1500f;
@@ -89,22 +96,18 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     private void Start()
     {
-        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
+        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component ALWAYS FOR ALL PLAYERS 
         if (targetSurface == null)
         {
-            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = JR_NetWaterSync.Instance.GlobalWaterSurface; // get the water surface 
+        }
+    }
 
-            //WaterSurface ocean = GameObject.FindFirstObjectByType<WaterSurface>();
-            //if (ocean != null)
-            //{
-            //    targetSurface = ocean;//.GetComponent<WaterSurface>();
-            //    if (targetSurface == null)
-            //        Debug.LogError("WaterSurface component not found on object Ocean", this);
-            //}
-            //else
-            //{
-            //    Debug.LogError("Ocean game object not found", this);
-            //}
+    public override void OnNetworkSpawn()
+    {
+        if (targetSurface == null)
+        {
+            InitializeWaterTarget();
         }
     }
 
@@ -112,16 +115,21 @@ public class TugboatMovementWFloat : MonoBehaviour
     {
         if (targetSurface == null)
         {
-            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = JR_NetWaterSync.Instance.GlobalWaterSurface; // get the water surface 
         }
         controls.Enable();
     }
 
 
-    void OnDisable() => controls.Disable();
+    void OnDisable()
+    {
+        controls.Disable();
+    }
 
     private void Update()
     {
+        if (!IsOwner) return;
+
         if (debugSpeedText == null)
         {
             //Debug.LogWarning("debugSpeedText is not assigned in the inspector.");
@@ -131,7 +139,10 @@ public class TugboatMovementWFloat : MonoBehaviour
 
         float speed = rb.linearVelocity.magnitude - 10f;
         if (speed <= 0.4f) speed = 0f;
-        debugSpeedText.text = $"Speed: {speed:0}m/s";  
+        debugSpeedText.text = $"Speed: {speed:0}m/s";
+
+
+        ApplyMovementEffects(speed);
 
         ////look Controls:
         //if (lookVector != Vector2.zero)
@@ -145,14 +156,52 @@ public class TugboatMovementWFloat : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Apply settings to the boats visual effects based on the boats speed 
+    /// </summary>
+    /// <param name="currentSpeed"></param>
+    private void ApplyMovementEffects(float currentSpeed)
+    {
+        if (currentSpeed <= 1f)
+        {
+            //bowWaveDecal.gameObject.GetComponent<Material>().shader.Get .FindPropertyIndex("")
+            bowWaveDecal.gameObject.GetComponent<Material>().SetFloat("_Elevation", 0f);
+            bowWaveDecal.amplitude = 0;
+            bowWaveDecal.regionSize = new Vector2(0, 16);
+
+            //Conter the Bow wave Ampliture surface float:
+            floatingOffset = new float3(0, 0, 0);
+
+        }
+        else if (currentSpeed <= 10f)
+        {
+            bowWaveDecal.gameObject.GetComponent<Material>().SetFloat("_Elevation", 0.5f);
+            bowWaveDecal.amplitude = 0.5f;
+            bowWaveDecal.regionSize = new Vector2(8, 16);
+
+            //Conter the Bow wave Ampliture surface float:
+            floatingOffset = new float3(0, -0.5f, 0);
+        }
+        else if (currentSpeed <= 20f)
+        {
+            bowWaveDecal.gameObject.GetComponent<Material>().SetFloat("_Elevation", 1f);
+            bowWaveDecal.amplitude = 1f;
+            bowWaveDecal.regionSize = new Vector2(12, 16);
+            //Conter the Bow wave Ampliture surface float:
+            floatingOffset = new float3(0, -1f, 0);
+        }
+
+
+    }
+
     void FixedUpdate()
     {
 
-        // if (!IsOwner)
-        // {
-        //     return;
-        // }
-        
+        if (!IsOwner)
+        {
+            return;
+        }
+
         HandleThrottle();
         HandleTurning();
         //HandleDrag();
@@ -180,6 +229,25 @@ public class TugboatMovementWFloat : MonoBehaviour
         if (alignToWaterNormal)
         {
             AlignToWaterNormal(searchResult.normalWS);
+        }
+    }
+
+    /// <summary>
+    /// Get the water surface when spawned 
+    /// </summary>
+    private void InitializeWaterTarget()
+    {
+        if (targetSurface == null)
+        {
+            //Get teh Scenes Water Surface 
+            targetSurface = JR_NetWaterSync.Instance.GlobalWaterSurface; 
+
+            // Log an error if still not found.
+            if (targetSurface == null)
+            {
+
+                Debug.LogError("WaterSurface component not found. Ensure an object named Ocean or a WaterSurface instance exists in the scene.", this);
+            }
         }
     }
 
