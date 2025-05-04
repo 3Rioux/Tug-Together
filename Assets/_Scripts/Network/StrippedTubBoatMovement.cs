@@ -145,7 +145,24 @@ public class StrippedTubBoatMovement : NetworkBehaviour
         }
     }
     
-// C#
+    /// <summary>
+    /// Enable or disable all player input for this boat
+    /// </summary>
+    public void SetControlEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            controls.Enable();
+        }
+        else
+        {
+            controls.Disable();
+            // clear any buffered movement/look
+            moveVector = Vector2.zero;
+            lookVector = Vector2.zero;
+        }
+    }
+    
     private void InitializeWaterTarget()
     {
         if (targetSurface == null)
@@ -168,7 +185,7 @@ public class StrippedTubBoatMovement : NetworkBehaviour
                 }
             }
 
-            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+            //targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
 
             // Log an error if still not found.
             if (targetSurface == null)
@@ -181,10 +198,10 @@ public class StrippedTubBoatMovement : NetworkBehaviour
 
     void OnEnable()
     {
-        if (targetSurface == null)
-        {
-            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
-        }
+        // if (targetSurface == null)
+        // {
+        //     targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+        // }
         controls.Enable();
     }
 
@@ -229,13 +246,13 @@ public class StrippedTubBoatMovement : NetworkBehaviour
         }
     }
 
-    private void LateUpdate()
-    {
-        if (targetSurface == null)
-        {
-            targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
-        }
-    }
+    // private void LateUpdate()
+    // {
+    //     if (targetSurface == null)
+    //     {
+    //         targetSurface = JR_NetWaterSync.instance.GlobalWaterSurface; // get the water surface 
+    //     }
+    // }
 
 
     private void HandleThrottle()

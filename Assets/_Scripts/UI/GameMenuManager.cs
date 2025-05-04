@@ -1,4 +1,6 @@
 // C#
+
+using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -47,6 +49,11 @@ public class GameMenuManager : MonoBehaviour
             pauseActionReference.action.performed += OnPausePerformed;
         else
             Debug.LogError("Pause action reference not assigned");
+    }
+
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void OnDestroy()
@@ -134,6 +141,7 @@ public class GameMenuManager : MonoBehaviour
 
         _isPaused = true;
         gameMenuPanel.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
         Debug.Log("Game paused.");
     }
 
@@ -150,6 +158,7 @@ public class GameMenuManager : MonoBehaviour
 
         _isPaused = false;
         gameMenuPanel.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
         Debug.Log("Game resumed from pause menu.");
     }
 
@@ -164,6 +173,7 @@ public class GameMenuManager : MonoBehaviour
     {
         DOTween.KillAll();
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        Cursor.lockState = CursorLockMode.None;
         SceneManager.LoadScene("MainMenu");
         Debug.Log("Returning to main menu.");
     }

@@ -64,9 +64,8 @@ public class PlayerNameDisplay : NetworkBehaviour
             Debug.LogError("NetworkManager Singleton is null.");
         }
     }
-
-// C#
-    private void LateUpdate()
+    
+    private void Update()
     {
         if (ownerTransform == null || localPlayerTransform == null)
             return;
