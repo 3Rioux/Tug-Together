@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using Unity.Cinemachine;
 using Unity.Mathematics;
@@ -100,7 +101,6 @@ public class StrippedTubBoatMovement : NetworkBehaviour
     [Tooltip("Result of the water surface projection search.")]
     WaterSearchResult searchResult = new WaterSearchResult();
 
-
     private Rigidbody rb;
     private Vector2 moveVector;
     private Vector2 lookVector;
@@ -113,19 +113,54 @@ public class StrippedTubBoatMovement : NetworkBehaviour
 
 
 
+// Add this field to your class
+    private CinemachineInputAxisController inputProvider;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.angularDamping = angularDrag;
 
+        // Get the input provider from the camera rig
+        if (cameraRig != null)
+        {
+            inputProvider = cameraRig.GetComponentInChildren<CinemachineInputAxisController>();
+            if (inputProvider == null)
+            {
+                Debug.LogWarning("No CinemachineInputProvider found on camera rig", this);
+            }
+        }
+
         controls = new BoatInputActions();
         //Movement input
         controls.Boat.Move.performed += ctx => moveVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Move.canceled += _ => moveVector = Vector2.zero; // remove this to enable Toggle speed 
-        
+        controls.Boat.Move.canceled += _ => moveVector = Vector2.zero; 
+
         //Look input
         controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
+        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero;
+    }
+
+    public void SetControlEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            controls.Enable();
+        
+            // Enable Cinemachine input
+            if (inputProvider != null)
+                inputProvider.enabled = true;
+        }
+        else
+        {
+            controls.Disable();
+            moveVector = Vector2.zero;
+            lookVector = Vector2.zero;
+        
+            // Disable Cinemachine input
+            if (inputProvider != null)
+                inputProvider.enabled = false;
+        }
     }
     
     private void Start()
@@ -145,23 +180,6 @@ public class StrippedTubBoatMovement : NetworkBehaviour
         }
     }
     
-    /// <summary>
-    /// Enable or disable all player input for this boat
-    /// </summary>
-    public void SetControlEnabled(bool enabled)
-    {
-        if (enabled)
-        {
-            controls.Enable();
-        }
-        else
-        {
-            controls.Disable();
-            // clear any buffered movement/look
-            moveVector = Vector2.zero;
-            lookVector = Vector2.zero;
-        }
-    }
     
     private void InitializeWaterTarget()
     {

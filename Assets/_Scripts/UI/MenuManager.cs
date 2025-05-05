@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DG.Tweening;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,7 +24,14 @@ public class MenuManager : MonoBehaviour
 
     [Header("Buttons")]
     [SerializeField] private Button creditsButton;
+    [SerializeField] private Button proceedButton;
+    
+    [Header("Session Management")]
+    [SerializeField] private SessionEventBridge sessionEventBridge;
 
+    
+    private Unity.Services.Multiplayer.ISession currentSession;
+    
     private enum MenuState
     {
         Main,
@@ -54,6 +62,93 @@ public class MenuManager : MonoBehaviour
     private void Start()
     {
         AudioManager.Instance.PlayAmbience(FMODEvents.Instance.MainMenu);
+
+        if (sessionEventBridge != null)
+        {
+            sessionEventBridge.OnJoiningSession.AddListener(OnPlayerJoining);
+            sessionEventBridge.OnJoinedSession.AddListener(OnPlayerJoined);
+            sessionEventBridge.OnFailedToJoinSession.AddListener(OnJoinFailed);
+        }
+        else
+        {
+            Debug.LogWarning("Session event bridge not found");
+        }
+    }
+    
+// Add these methods to handle session events
+    private void OnPlayerJoining()
+    {
+        // Disable button while joining
+        if (proceedButton != null)
+        {
+            proceedButton.interactable = false;
+            Debug.Log("Proceed button disabled while joining session");
+        }
+    }
+
+    private void OnPlayerJoined(Unity.Services.Multiplayer.ISession session)
+    {
+        // Store reference to the session
+        currentSession = session;
+        Debug.Log("Player joined with session: " + session.Id);
+        
+        // Subscribe to the PlayerJoined event on the session
+        currentSession.PlayerJoined += OnRemotePlayerJoined;
+
+        // Disable the button
+        if (proceedButton != null)
+        {
+            proceedButton.interactable = false;
+            StartCoroutine(DelayedButtonEnable());
+        }
+    }
+    
+    private void OnRemotePlayerJoined(string playerId)
+    {
+        Debug.Log("Remote player joined: " + playerId);
+        
+        // Disable the button
+        if (proceedButton != null)
+        {
+            proceedButton.interactable = false;
+            StartCoroutine(DelayedButtonEnable());
+        }
+    }
+
+    private IEnumerator DelayedButtonEnable()
+    {
+        // Wait for 2 seconds before re-enabling button
+        yield return new WaitForSeconds(2f);
+        
+        if (proceedButton != null)
+        {
+            proceedButton.interactable = true;
+            Debug.Log("Proceed button re-enabled after delay");
+        }
+    }
+
+    private void OnJoinFailed(Unity.Services.Multiplayer.SessionException exception)
+    {
+        // Handle join failure
+        Debug.LogError("Failed to join session: " + exception.Message);
+        if (proceedButton != null)
+            proceedButton.interactable = true;
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up event listeners
+        if (sessionEventBridge != null)
+        {
+            sessionEventBridge.OnJoiningSession.RemoveListener(OnPlayerJoining);
+            sessionEventBridge.OnJoinedSession.RemoveListener(OnPlayerJoined);
+            sessionEventBridge.OnFailedToJoinSession.RemoveListener(OnJoinFailed);
+        }
+        
+        if (currentSession != null)
+        {
+            currentSession.PlayerJoined -= OnRemotePlayerJoined;
+        }
     }
 
     private void OnEnable()

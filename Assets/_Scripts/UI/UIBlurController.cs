@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 
@@ -37,6 +38,19 @@ public class UIBlurController : MonoBehaviour
     [SerializeField] private float removeBlurSpeedMultiplier = 1f;
 
     private Tween currentTween;
+
+    private void Start()
+    {
+        // Initialize the blur material with the starting value
+        if (blurMaterial != null)
+        {
+            blurMaterial.SetFloat(blurProperty, blurStart);
+        }
+        else
+        {
+            Debug.LogError("Blur material is not assigned in the inspector.");
+        }
+    }
 
     /// <summary>
     /// Tween blur from 0 to the paused value.

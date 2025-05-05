@@ -410,9 +410,9 @@ GameObject:
   - component: {fileID: 425555568709107034}
   - component: {fileID: 3908256470396005511}
   - component: {fileID: 3119373368000931603}
-  - component: {fileID: 4664479259468145896}
-  - component: {fileID: 3466186664834112903}
+  - component: {fileID: 5920128875418658396}
   - component: {fileID: 3385640465736017603}
+  - component: {fileID: 6461678671126227812}
   m_Layer: 3
   m_Name: FreeLook Camera
   m_TagString: Untagged
@@ -570,7 +570,7 @@ MonoBehaviour:
     Time: 0
     Smoothing: 0
     IgnoreY: 0
---- !u!114 &4664479259468145896
+--- !u!114 &5920128875418658396
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -586,7 +586,21 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!114 &3466186664834112903
+--- !u!114 &3385640465736017603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1340982304082759264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 1340982304082759264}
+--- !u!114 &6461678671126227812
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -625,7 +639,7 @@ MonoBehaviour:
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
-      InputValue: -0
+      InputValue: 0
       Driver:
         AccelTime: 0.2
         DecelTime: 0.2
@@ -638,26 +652,12 @@ MonoBehaviour:
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
-      InputValue: -0
+      InputValue: 0
       Driver:
         AccelTime: 0
         DecelTime: 0
   PlayerIndex: -1
   AutoEnableInputs: 1
---- !u!114 &3385640465736017603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1340982304082759264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nonRigidbodyVelocity: 0
-  attenuationObject: {fileID: 1340982304082759264}
 --- !u!1 &1550002123347935458
 GameObject:
   m_ObjectHideFlags: 0
@@ -1626,7 +1626,7 @@ MonoBehaviour:
   accelerationSmoothing: 1
   turnTorque: 150000
   turnResponsiveness: 4
-  cameraRig: {fileID: 5772891113537931270}
+  cameraRig: {fileID: 6175379670386225237}
   lookSensitivity: 1.5
   minPitch: -30
   maxPitch: 60
@@ -1935,8 +1935,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6165482522859443957}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.17193413, y: -0, z: -0, w: 0.9851085}
-  m_LocalPosition: {x: 0, y: 28.54235, z: -62.433018}
+  m_LocalRotation: {x: 0.17193416, y: 0, z: 0, w: 0.9851085}
+  m_LocalPosition: {x: 0, y: 28.542349, z: -62.433014}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -1,19 +1,14 @@
+// ITutorialStage.cs
 using System;
 
 public interface ITutorialStage
 {
-    /// <summary>
-    /// Invoked by the TutorialController when this stage should begin
-    /// </summary>
+    /// <summary>Called by the controller to start this stage</summary>
     void ActivateStage();
 
-    /// <summary>
-    /// Invoked by the TutorialController when this stage should be cleaned up
-    /// </summary>
+    /// <summary>Called by the controller (or self) to hide this stage</summary>
     void DeactivateStage();
 
-    /// <summary>
-    /// Fired by the stage script when it has detected completion (all players pressed keys, etc.)
-    /// </summary>
+    /// <summary>Fired when the stage is done and the controller should move on</summary>
     event Action StageCompleted;
 }

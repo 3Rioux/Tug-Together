@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -58,6 +59,17 @@ public class LiquidBubblePanelAnimation : MonoBehaviour
         _panelGroup.alpha = 0f;
         contentPanel.transform.localScale = Vector3.one * initialContentScale;
         contentPanel.SetActive(false);
+        
+        if (backgroundImage != null)
+        {
+            // Ensure you are working on the instance, not the shared material.
+            _bubbleMat = backgroundImage.material;
+            _bubbleMat.SetFloat(bubblePropertyName, bubbleStartValue);
+        }
+        else
+        {
+            Debug.LogError("Bubble material is not assigned in the inspector.");
+        }
     }
 
 

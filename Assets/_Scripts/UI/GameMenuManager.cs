@@ -129,6 +129,9 @@ public class GameMenuManager : MonoBehaviour
 
     public void PauseGame()
     {
+        gameMenuPanel.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        
         if (_isPaused)
             return;
 
@@ -139,27 +142,55 @@ public class GameMenuManager : MonoBehaviour
         if (blurController != null)
             blurController.ApplyPauseBlur();
 
+        // Disable only the local player's boat controls
+        DisableLocalPlayerControls();
+
         _isPaused = true;
-        gameMenuPanel.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
         Debug.Log("Game paused.");
     }
 
     public IEnumerator ResumeGameCoroutine()
     {
+        gameMenuPanel.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        
         if (_anim != null)
             _anim.PlayCloseAnimation();
 
         // Call UIBlurController to remove blur when resuming.
         if (blurController != null)
             blurController.RemovePauseBlur();
-
+        
+        // Re-enable only the local player's boat controls
+        EnableLocalPlayerControls();
+        
         yield return new WaitForSeconds(closeAnimationDuration);
 
         _isPaused = false;
-        gameMenuPanel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
+        
         Debug.Log("Game resumed from pause menu.");
+    }
+    
+    private void DisableLocalPlayerControls()
+    {
+        foreach (var boat in FindObjectsOfType<StrippedTubBoatMovement>())
+        {
+            if (boat.IsOwner) // Only disable controls for the local player's boat
+            {
+                boat.SetControlEnabled(false);
+            }
+        }
+    }
+
+    private void EnableLocalPlayerControls()
+    {
+        foreach (var boat in FindObjectsOfType<StrippedTubBoatMovement>())
+        {
+            if (boat.IsOwner) // Only enable controls for the local player's boat
+            {
+                boat.SetControlEnabled(true);
+            }
+        }
     }
 
     public void OnResumeButtonClicked()

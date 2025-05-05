@@ -23,6 +23,7 @@ namespace Unity.Multiplayer.Widgets
 
             m_CopyCodeButton.onClick.AddListener(CopySessionCodeToClipboard);
             m_CopyCodeButton.gameObject.SetActive(false);
+            
         }
 
         public void OnSessionJoined()

@@ -30,8 +30,7 @@ namespace Unity.Multiplayer.Widgets
             if (m_EnterSessionButton != null)
             {
                 m_EnterSessionButton.onClick.AddListener(EnterSession);
-                //m_EnterSessionButton.interactable = false;
-                m_EnterSessionButton.interactable = true;
+                m_EnterSessionButton.interactable = false;
 
             }
         }
@@ -52,8 +51,7 @@ namespace Unity.Multiplayer.Widgets
         {
             JoiningSession?.Invoke();
             if (m_EnterSessionButton != null)
-                //m_EnterSessionButton.interactable = false;
-                m_EnterSessionButton.interactable = true;
+                m_EnterSessionButton.interactable = false;
         }
 
         public void OnSessionFailedToJoin(SessionException sessionException)
@@ -67,8 +65,7 @@ namespace Unity.Multiplayer.Widgets
         {
             JoinedSession?.Invoke(Session);
             if (m_EnterSessionButton != null)
-                //m_EnterSessionButton.interactable = Session == null;
-                m_EnterSessionButton.interactable = true;
+                m_EnterSessionButton.interactable = Session == null;
             
         }
 
@@ -93,8 +90,7 @@ namespace Unity.Multiplayer.Widgets
             _isJoining = true;
     
             if (m_EnterSessionButton != null)
-                //m_EnterSessionButton.interactable = false;
-                m_EnterSessionButton.interactable = true;
+                m_EnterSessionButton.interactable = false;
                 
     
             await SessionManager.Instance.EnterSession(GetSessionData());
@@ -103,8 +99,7 @@ namespace Unity.Multiplayer.Widgets
             _isJoining = false;
     
             if (m_EnterSessionButton != null)
-                //m_EnterSessionButton.interactable = Session == null;
-                m_EnterSessionButton.interactable = true;
+                m_EnterSessionButton.interactable = Session == null;
 
         }
         
