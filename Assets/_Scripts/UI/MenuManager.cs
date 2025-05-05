@@ -253,7 +253,8 @@ public class MenuManager : MonoBehaviour
     {
         ClickSound();
         DOTween.KillAll();
-        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
+        //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Default/Island_Test", LoadSceneMode.Single);
     }
 
     private void ExecuteBackNavigation()

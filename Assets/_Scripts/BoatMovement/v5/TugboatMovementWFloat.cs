@@ -225,7 +225,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
         HandleThrottle();
         HandleTurning();
-        HandleDrag();
+        //HandleDrag();
 
 
         if (targetSurface == null)
