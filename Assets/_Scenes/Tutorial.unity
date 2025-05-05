@@ -4321,12 +4321,12 @@ GameObject:
   - component: {fileID: 5115026572639728233}
   - component: {fileID: 1893621697786297268}
   m_Layer: 0
-  m_Name: NetWaterManager
+  m_Name: NetWaterSourceSingleton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &5115026572639728233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4374,7 +4374,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5171789054945650788, guid: fe2ff5ea777f2a248b53381240f47f8e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.7497675
+      value: -0.113590576
       objectReference: {fileID: 0}
     - target: {fileID: 5171789054945650788, guid: fe2ff5ea777f2a248b53381240f47f8e, type: 3}
       propertyPath: m_LocalPosition.z

@@ -30,6 +30,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     [Header("Movement Effects")]
     [SerializeField] WaterDecal bowWaveDecal; 
+    [SerializeField] Material bowWaveMaterial; 
     [SerializeField] WaterFoamGenerator foamGenerator; 
     [SerializeField] VisualEffect rearSplashVFX; 
 
@@ -99,7 +100,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component ALWAYS FOR ALL PLAYERS 
         if (targetSurface == null)
         {
-            targetSurface = JR_NetWaterSync.Instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = JR_NetWaterSource.Instance.GlobalWaterSurface; // get the water surface 
         }
     }
 
@@ -115,7 +116,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
     {
         if (targetSurface == null)
         {
-            targetSurface = JR_NetWaterSync.Instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = JR_NetWaterSource.Instance.GlobalWaterSurface; // get the water surface 
         }
         controls.Enable();
     }
@@ -162,37 +163,57 @@ public class TugboatMovementWFloat : NetworkBehaviour
     /// <param name="currentSpeed"></param>
     private void ApplyMovementEffects(float currentSpeed)
     {
+
+
+        // Normalize speed to a value between 0 and 1
+        float normalizedSpeed = Mathf.InverseLerp(0, maxSpeed - 10f, currentSpeed);
+
+        // Smoothly transition amplitude between 0 and 2 based on normalized speed
+        bowWaveDecal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
+        //floatingOffset = new float3(0, Mathf.Lerp(0, -0.5f, normalizedSpeed), 0);
+
         if (currentSpeed <= 1f)
         {
             //bowWaveDecal.gameObject.GetComponent<Material>().shader.Get .FindPropertyIndex("")
-            bowWaveDecal.gameObject.GetComponent<Material>().SetFloat("_Elevation", 0f);
-            bowWaveDecal.amplitude = 0;
+            //bowWaveMaterial.SetFloat("_Elevation", 0f);
+            //bowWaveDecal.amplitude = 0;
             bowWaveDecal.regionSize = new Vector2(0, 16);
 
             //Conter the Bow wave Ampliture surface float:
             floatingOffset = new float3(0, 0, 0);
 
+            //VFX
+            rearSplashVFX.gameObject.SetActive(false);
+
         }
         else if (currentSpeed <= 10f)
         {
-            bowWaveDecal.gameObject.GetComponent<Material>().SetFloat("_Elevation", 0.5f);
-            bowWaveDecal.amplitude = 0.5f;
+            //bowWaveMaterial.SetFloat("_Elevation", 0.5f);
+           // bowWaveDecal.amplitude = 1f;
             bowWaveDecal.regionSize = new Vector2(8, 16);
 
             //Conter the Bow wave Ampliture surface float:
-            floatingOffset = new float3(0, -0.5f, 0);
+            //floatingOffset = new float3(0, -0.5f, 0);
+
+            //VFX
+            rearSplashVFX.gameObject.SetActive(true);
         }
-        else if (currentSpeed <= 20f)
+        else if (currentSpeed > 10f)
         {
-            bowWaveDecal.gameObject.GetComponent<Material>().SetFloat("_Elevation", 1f);
-            bowWaveDecal.amplitude = 1f;
+            // bowWaveMaterial.SetFloat("_Elevation", 1f);
+           // bowWaveDecal.amplitude = 2f;
             bowWaveDecal.regionSize = new Vector2(12, 16);
+
             //Conter the Bow wave Ampliture surface float:
-            floatingOffset = new float3(0, -1f, 0);
+            //floatingOffset = new float3(0, -1f, 0);
+
+            //VFX
+            rearSplashVFX.gameObject.SetActive(true);
         }
 
 
     }
+    [SerializeField] float surfaceStickLerpAmount = 1f;
 
     void FixedUpdate()
     {
@@ -204,7 +225,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
         HandleThrottle();
         HandleTurning();
-        //HandleDrag();
+        HandleDrag();
 
 
         if (targetSurface == null)
@@ -222,6 +243,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
+            //Attempt Smoother movement
+            //Vector3 currentPositon = transform.position;
+            //gameObject.transform.position = new Vector3(currentPositon.x, Mathf.Lerp(transform.position.y, searchResult.projectedPositionWS.y, surfaceStickLerpAmount), currentPositon.z); //
             gameObject.transform.position = searchResult.projectedPositionWS;
         }
 
@@ -240,7 +264,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (targetSurface == null)
         {
             //Get teh Scenes Water Surface 
-            targetSurface = JR_NetWaterSync.Instance.GlobalWaterSurface; 
+            targetSurface = JR_NetWaterSource.Instance.GlobalWaterSurface; 
 
             // Log an error if still not found.
             if (targetSurface == null)

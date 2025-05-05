@@ -3,9 +3,12 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
-public class JR_NetWaterSync : NetworkBehaviour
+/// <summary>
+/// This script is no longer used for anything other than the boat to get the water Source from a scene.
+/// </summary>
+public class JR_NetWaterSource : NetworkBehaviour
 {
-    public static JR_NetWaterSync Instance;
+    public static JR_NetWaterSource Instance;
 
     public WaterSurface GlobalWaterSurface;
 

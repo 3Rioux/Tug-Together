@@ -95,7 +95,7 @@ public class SpringTugSystem : NetworkBehaviour
 
     private void OnEnable()
     {
-        if (!IsOwner) return;
+        //if (!IsOwner) return;
         
             controls = new BoatInputActions();
             controls.Boat.Enable();
@@ -121,7 +121,7 @@ public class SpringTugSystem : NetworkBehaviour
 
     private void OnDisable()
     {
-        if (!IsOwner) return;
+        //if (!IsOwner) return;
         // Unregister event handlers
         controls.Boat.Hook.performed -= OnHookTriggered;
         controls.Boat.AimHook.performed -= OnHookTriggered;
