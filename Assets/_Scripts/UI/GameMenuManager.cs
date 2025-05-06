@@ -12,6 +12,8 @@ public class GameMenuManager : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject gameMenuPanel; // Also used as pause panel
     [SerializeField] private GameObject optionsPanel;
+    [SerializeField] private GameObject sessionPanel;
+    [SerializeField] private GameObject quitPanel;
 
     [Header("Options Submenus")]
     [SerializeField] private GameObject settingsMenu;
@@ -71,16 +73,24 @@ public class GameMenuManager : MonoBehaviour
 
     public void OnBackButtonClicked()
     {
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
         ProcessBackNavigation();
     }
 
     private void ProcessBackNavigation()
     {
-        if (!gameMenuPanel.activeSelf && _isPaused)
+        if (quitPanel.activeSelf)
         {
-            AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
+            OnQuitCancelButtonClicked();
+            return;
         }
-
+    
+        if (sessionPanel.activeSelf)
+        {
+            OnSessionBackButtonClicked();
+            return;
+        }
+        
         if (optionsPanel.activeSelf)
         {
             if (videoMenu != null && videoMenu.activeSelf)
@@ -195,9 +205,60 @@ public class GameMenuManager : MonoBehaviour
 
     public void OnResumeButtonClicked()
     {
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+    
         if (_isPaused)
             StartCoroutine(ResumeGameCoroutine());
+    }
+
+    public void OnQuitButtonClicked()
+    {
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        if (gameMenuPanel != null) gameMenuPanel.SetActive(false);
+        quitPanel.SetActive(true);
+    }
+
+    public void OnSessionButtonClicked()
+    {
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        if (gameMenuPanel != null) gameMenuPanel.SetActive(false);
+        sessionPanel.SetActive(true);
+    
+        // Ensure SessionCodeConnector is working properly when the panel is opened
+        RefreshSessionCodeConnector();
+    }
+    
+    private void RefreshSessionCodeConnector()
+    {
+        // Find the SessionCodeConnector component in the session panel
+        SessionCodeConnector connector = sessionPanel.GetComponentInChildren<SessionCodeConnector>(true);
+    
+        if (connector != null)
+        {
+            // Just call RefreshConnection instead of destroying and recreating
+            connector.RefreshConnection();
+            Debug.Log("SessionCodeConnector refreshed");
+        }
+        else
+        {
+            // If no connector exists, add one
+            sessionPanel.AddComponent<SessionCodeConnector>();
+            Debug.Log("SessionCodeConnector added");
+        }
+    }
+    
+    public void OnQuitCancelButtonClicked()
+    {
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
+        quitPanel.SetActive(false);
+        gameMenuPanel.SetActive(true);
+    }
+    
+    public void OnSessionBackButtonClicked()
+    {
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
+        sessionPanel.SetActive(false);
+        gameMenuPanel.SetActive(true);
     }
 
     public void OnMainMenuButtonClicked()

@@ -60,6 +60,18 @@ public class SettingsManager : MonoBehaviour
         settingsInitialized = true;
     }
     
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.F4))
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+        }
+    }
+    
     private void ClickSound()
     {
         // FMOD sound trigger (do not modify)

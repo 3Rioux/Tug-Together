@@ -26,6 +26,11 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private Button creditsButton;
     [SerializeField] private Button proceedButton;
     
+    [Header("Button Animation")]
+    [SerializeField] private float buttonAnimationDuration = 0.3f;
+    [SerializeField] private Ease buttonShrinkEase = Ease.InBack;
+    [SerializeField] private Ease buttonExpandEase = Ease.OutBack;
+    
     [Header("Session Management")]
     [SerializeField] private SessionEventBridge sessionEventBridge;
 
@@ -73,16 +78,89 @@ public class MenuManager : MonoBehaviour
         {
             Debug.LogWarning("Session event bridge not found");
         }
+
+        if (proceedButton != null)
+        {
+            proceedButton.gameObject.SetActive(false);
+        }
     }
+    
+public void AnimateButtonDisable()
+{
+    if (proceedButton != null)
+    {
+        proceedButton.interactable = false;
+        
+        // Get canvas group component or add one
+        CanvasGroup canvasGroup = proceedButton.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = proceedButton.gameObject.AddComponent<CanvasGroup>();
+            
+        // Create sequence for fade and scale
+        Sequence disableSequence = DOTween.Sequence();
+        
+        // Fade out
+        disableSequence.Append(canvasGroup.DOFade(0f, buttonAnimationDuration * 0.7f));
+        
+        // Scale down
+        disableSequence.Join(proceedButton.transform.DOScale(Vector3.zero, buttonAnimationDuration)
+            .SetEase(buttonShrinkEase));
+            
+        // Deactivate after complete
+        disableSequence.OnComplete(() => {
+            proceedButton.gameObject.SetActive(false);
+            Debug.Log("Proceed button disabled and animated out");
+        });
+    }
+}
+
+private void AnimateButtonEnable()
+{
+    if (proceedButton != null)
+    {
+        // Activate button
+        proceedButton.gameObject.SetActive(true);
+        
+        // Get canvas group component or add one
+        CanvasGroup canvasGroup = proceedButton.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = proceedButton.gameObject.AddComponent<CanvasGroup>();
+            
+        // Set initial state
+        canvasGroup.alpha = 0f;
+        proceedButton.transform.localScale = Vector3.zero;
+        
+        // Create sequence for scale and fade
+        Sequence enableSequence = DOTween.Sequence();
+        
+        // Scale up
+        enableSequence.Append(proceedButton.transform.DOScale(Vector3.one, buttonAnimationDuration)
+            .SetEase(buttonExpandEase));
+            
+        // Fade in
+        enableSequence.Join(canvasGroup.DOFade(1f, buttonAnimationDuration));
+        
+        // Reset animator's initial scale and enable interaction
+        enableSequence.OnComplete(() => {
+            proceedButton.interactable = true;
+            
+            // Reset the ButtonAnimatorController's initial scale
+            ButtonAnimatorController animator = proceedButton.GetComponent<ButtonAnimatorController>();
+            if (animator != null)
+                animator.ResetInitialScale(Vector3.one);
+                
+            Debug.Log("Proceed button re-enabled after animation");
+        });
+    }
+}
     
 // Add these methods to handle session events
     private void OnPlayerJoining()
     {
-        // Disable button while joining
+        // Disable button while joining with animation
         if (proceedButton != null)
         {
-            proceedButton.interactable = false;
-            Debug.Log("Proceed button disabled while joining session");
+            AnimateButtonDisable();
         }
     }
 
@@ -99,6 +177,7 @@ public class MenuManager : MonoBehaviour
         if (proceedButton != null)
         {
             proceedButton.interactable = false;
+            AnimateButtonDisable();
             StartCoroutine(DelayedButtonEnable());
         }
     }
@@ -111,6 +190,7 @@ public class MenuManager : MonoBehaviour
         if (proceedButton != null)
         {
             proceedButton.interactable = false;
+            AnimateButtonDisable();
             StartCoroutine(DelayedButtonEnable());
         }
     }
@@ -118,12 +198,11 @@ public class MenuManager : MonoBehaviour
     private IEnumerator DelayedButtonEnable()
     {
         // Wait for 2 seconds before re-enabling button
-        yield return new WaitForSeconds(2f);
-        
+        yield return new WaitForSeconds(3f);
+
         if (proceedButton != null)
         {
-            proceedButton.interactable = true;
-            Debug.Log("Proceed button re-enabled after delay");
+            AnimateButtonEnable();
         }
     }
 
@@ -132,7 +211,7 @@ public class MenuManager : MonoBehaviour
         // Handle join failure
         Debug.LogError("Failed to join session: " + exception.Message);
         if (proceedButton != null)
-            proceedButton.interactable = true;
+            AnimateButtonEnable();
     }
 
     private void OnDestroy()
@@ -155,8 +234,7 @@ public class MenuManager : MonoBehaviour
     {
         SwitchToState(MenuState.Main);
     }
-
-    // Keep your existing FMOD sound methods
+    
     private void ClickSound()
     {
         // FMOD sound trigger (do not modify)
