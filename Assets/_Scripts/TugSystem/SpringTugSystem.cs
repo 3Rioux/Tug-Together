@@ -84,10 +84,8 @@ public class SpringTugSystem : NetworkBehaviour
     private void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
-        if (aimCamera != null)
-        {
-            aimCamera.gameObject.SetActive(false);// off by default 
-        }
+
+        
 
         // springJoint.autoConfigureConnectedAnchor = false;
         //springJoint.connectedAnchor = ropeAttachPoint.position;
@@ -117,6 +115,11 @@ public class SpringTugSystem : NetworkBehaviour
 
         //    lookVector = Vector2.zero;
         //}
+
+
+        //set aim cam to off by default 
+        aimCamera.gameObject.SetActive(false);// off by default 
+        isAimMode = false;
     }
 
     private void OnDisable()
@@ -134,6 +137,7 @@ public class SpringTugSystem : NetworkBehaviour
     {
         if (towedObject == null || !IsOwner)
         {
+           
             //Debug.LogError("towedObject is not assigned. Please assign it in the inspector.");
             return;
         }
@@ -225,7 +229,10 @@ public class SpringTugSystem : NetworkBehaviour
             
 
         }//end if aimMode 
-
+        else
+        {
+            aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
+        }
 
         //Auto Mode (Only active while close)
         if (distanceToTowedObject <= maxTowDistance) 
@@ -283,6 +290,16 @@ public class SpringTugSystem : NetworkBehaviour
 
     private void LateUpdate()
     {
+        //if (!IsOwner)
+        //{
+        //    return;
+        //}
+
+        if (towedObject == null)
+        {
+            towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+        }
+
         CameraRotation();
     }
 
@@ -292,7 +309,8 @@ public class SpringTugSystem : NetworkBehaviour
         if (lookVector.sqrMagnitude >= _threshold)
         {
             //Don't multiply mouse input by Time.deltaTime;
-            float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+            //float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+            float deltaTimeMultiplier = Time.deltaTime;
 
             yaw += lookVector.x * deltaTimeMultiplier * Sensitivity;
             pitch += -lookVector.y * deltaTimeMultiplier * Sensitivity;
@@ -321,6 +339,7 @@ public class SpringTugSystem : NetworkBehaviour
     /// <param name="context"></param>
     private void OnHookTriggered(InputAction.CallbackContext context)
     {
+        Debug.Log($"===Hook Triggered  isAttached == {isAttached}===");
         if (isAttached)
         {
             Detach();
@@ -486,7 +505,7 @@ public class SpringTugSystem : NetworkBehaviour
     public void Attach()
     {
         //Check everything needed is properly set
-        if (towedObject == null || targetAttachPoint == null)
+        if (towedObject == null || currentClosestAttachPoint == null)
             return;
 
         //if there is still a spring joint attached for some reason then remove it 
