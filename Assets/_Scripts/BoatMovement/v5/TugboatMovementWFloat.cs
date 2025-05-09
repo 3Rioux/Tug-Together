@@ -25,6 +25,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
     //public float boostMaxSpeed = 100f;
     public float throttleForce = 2000f;
     public float throttleForceMultiplier = 10f;
+    [HideInInspector] public float defaultThrottleForceMultiplier = 10f;
     public float reverseThrottleFactor = 0.5f;    // Less power in reverse
     public float accelerationSmoothing = 2f;
 
@@ -97,6 +98,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     private void Start()
     {
+        //set the default throttle force Multiplier to the currently set throttleForceMultiplier
+        defaultThrottleForceMultiplier = throttleForceMultiplier;
+
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component ALWAYS FOR ALL PLAYERS 
         if (targetSurface == null)
         {

@@ -29,24 +29,24 @@ public class DebrisSpawner : MonoBehaviour
 
 
     // Reference to the HDRP WaterSurface (assign via Inspector if using water height queries)
-    public WaterSurface waterSurface;
+    [SerializeField] private WaterSurface waterSurface;
 
 
     // Spawn settings
     [Tooltip("Maximum number of debris instances allowed in the scene at once.")]
-    public int maxDebris = 50;
+    [SerializeField] private int maxDebris = 50;
     [Tooltip("Time interval (sec) between spawning new floating debris.")]
-    public float spawnInterval = 2f;
+    [SerializeField] private float spawnInterval = 2f;
     [Tooltip("Random drift speed range for floating debris.")]
-    public float driftSpeedMin = 0.5f;
-    public float driftSpeedMax = 2f;
+    [SerializeField] private float driftSpeedMin = 0.5f;
+    [SerializeField] private float driftSpeedMax = 2f;
     [Tooltip("Horizontal spawn radius around this object for floating debris.")]
-    public float spawnRadius = 20f;
+    [SerializeField] private float spawnRadius = 20f;
 
 
     [Header("Destruction Bounds (relative to spawner)")]
     [Tooltip("Maximum distance from spawner before debris is destroyed.\nVector4: +Z (Forward), -Z (Back), -X (Left), +X (Right)")]
-    public Vector4 destroyBounds = new(30f, 30f, 30f, 30f); // forward, backward, left, right
+    [SerializeField] private Vector4 destroyBounds = new(30f, 30f, 30f, 30f); // forward, backward, left, right
 
     // Internal state
     private float spawnTimer = 0f;
@@ -69,6 +69,13 @@ public class DebrisSpawner : MonoBehaviour
 
     void Start()
     {
+        //get the water surface if Null
+        if (waterSurface == null)
+        {
+            //set water surface to the Gobal Water surface 
+            waterSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface;
+        }
+
         //Initialize All Pools:
         foreach (var pool in floatingDebrisPools)
             pool.Initialize(this.transform, waterSurface);
@@ -164,8 +171,16 @@ public class DebrisSpawner : MonoBehaviour
 
 
         //Get Object from Pool: 
-        int index = Random.Range(0, stationaryDebrisPools.Count + 1);
+        int index = Random.Range(0, floatingDebrisPools.Count);
         GameObject obj = floatingDebrisPools[index].Get();
+        
+        //stop the original spawn spinning effect
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.freezeRotation = true;
+        }
+
         obj.transform.position = spawnPos;
         int randomRotation = Random.Range(-90, 90 + 1);
         obj.transform.rotation = new Quaternion(0, obj.transform.rotation.y + randomRotation, 0, 1); //unsure about the w lol 
@@ -175,7 +190,8 @@ public class DebrisSpawner : MonoBehaviour
         Vector3 driftDir = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)).normalized;
         float driftSpeed = Random.Range(driftSpeedMin, driftSpeedMax);
 
-       
+        //allow object to rotate once everything is set
+        rb.freezeRotation = false;
 
         // Add to tracking list
         floatingDebrisList.Add(new FloatingDebrisData { obj = obj, direction = driftDir, speed = driftSpeed });
