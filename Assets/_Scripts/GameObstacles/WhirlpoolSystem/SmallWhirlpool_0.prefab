@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 6631020445235035717}
   - component: {fileID: 7696561779906022723}
   - component: {fileID: 5737811860517664475}
-  - component: {fileID: 8170765019177190987}
   m_Layer: 0
   m_Name: SmallWhirlpool_0
   m_TagString: Untagged
@@ -150,26 +149,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   speedMultiplier: 0.5
---- !u!114 &8170765019177190987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3102358771460665543}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ca2b77bbacdfa441b2fda71fcab842b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  floatingOffset:
-    x: 0
-    y: 0
-    z: 0
-  targetSurface: {fileID: 0}
-  includeDeformation: 1
-  excludeSimulation: 0
-  alignToWaterNormal: 1
-  orientationSmoothSpeed: 5
-  pitchAngleMultiplier: 2
-  rollAngleMultiplier: 3
