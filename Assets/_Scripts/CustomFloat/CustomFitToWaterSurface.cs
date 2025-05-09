@@ -27,6 +27,13 @@ public class CustomFitToWaterSurface : MonoBehaviour
 
     private void Start()
     {
+        //get the water surface if Null
+        if (targetSurface == null)
+        {
+            //set water surface to the Gobal Water surface 
+            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface;
+        }
+
         previousPosition = transform.position;
     }
 

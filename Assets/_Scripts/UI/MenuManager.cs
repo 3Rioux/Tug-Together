@@ -384,7 +384,7 @@ private void AnimateButtonEnable()
         ClickSound();
         DOTween.KillAll();
         //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
-        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Default/Island_Test", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Default/Final_Level_1_V1", LoadSceneMode.Single);
     }
 
     private void ExecuteBackNavigation()
