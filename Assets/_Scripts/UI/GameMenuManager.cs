@@ -116,6 +116,20 @@ public class GameMenuManager : MonoBehaviour
                 Debug.Log("Settings closed, returning to pause menu.");
                 return;
             }
+            if (sessionPanel != null && sessionPanel.activeSelf)
+            {
+                sessionPanel.SetActive(false);
+                gameMenuPanel.SetActive(true);
+                Debug.Log("session closed, returning to pause menu.");
+                return;
+            }
+            if (quitPanel != null && quitPanel.activeSelf)
+            {
+                quitPanel.SetActive(false);
+                gameMenuPanel.SetActive(true);
+                Debug.Log("quit closed, returning to pause menu.");
+                return;
+            }
         }
     }
 
@@ -161,7 +175,7 @@ public class GameMenuManager : MonoBehaviour
 
     public IEnumerator ResumeGameCoroutine()
     {
-        gameMenuPanel.SetActive(false);
+
         Cursor.lockState = CursorLockMode.Locked;
         
         if (_anim != null)
@@ -176,6 +190,7 @@ public class GameMenuManager : MonoBehaviour
         
         yield return new WaitForSeconds(closeAnimationDuration);
 
+        gameMenuPanel.SetActive(false);
         _isPaused = false;
         
         Debug.Log("Game resumed from pause menu.");
@@ -265,10 +280,40 @@ public class GameMenuManager : MonoBehaviour
     {
         DOTween.KillAll();
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        SceneTransition.Instance.LoadScene("MainMenu");
         Cursor.lockState = CursorLockMode.None;
-        SceneManager.LoadScene("MainMenu");
         Debug.Log("Returning to main menu.");
     }
+    
+    // public void OnMainMenuButtonClicked()
+    // {
+    //     DOTween.KillAll();
+    //     AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+    //
+    //     // If we're in a networked game, use LoadNetworkedScene instead
+    //     if (Unity.Netcode.NetworkManager.Singleton != null && 
+    //         Unity.Netcode.NetworkManager.Singleton.IsListening)
+    //     {
+    //         if (Unity.Netcode.NetworkManager.Singleton.IsHost || Unity.Netcode.NetworkManager.Singleton.IsServer)
+    //         {
+    //             // Host/server can trigger network scene change
+    //             SceneTransition.Instance.LoadNetworkedSceneForAllClients("MainMenu");
+    //         }
+    //         else
+    //         {
+    //             // Clients should just do a local scene change since they can't control the network
+    //             SceneTransition.Instance.LoadScene("MainMenu");
+    //         }
+    //     }
+    //     else
+    //     {
+    //         // Not in a networked game, use regular scene load
+    //         SceneTransition.Instance.LoadScene("MainMenu");
+    //     }
+    //
+    //     Cursor.lockState = CursorLockMode.None;
+    //     Debug.Log("Returning to main menu.");
+    // }
 
     public void OnOptionsButtonClicked()
     {

@@ -22,7 +22,7 @@ namespace Unity.Multiplayer.Widgets
                 m_Text = GetComponentInChildren<TMP_Text>();
 
             m_CopyCodeButton.onClick.AddListener(CopySessionCodeToClipboard);
-            m_CopyCodeButton.gameObject.SetActive(false);
+            m_CopyCodeButton.gameObject.SetActive(true);
             
         }
 
@@ -32,10 +32,10 @@ namespace Unity.Multiplayer.Widgets
             m_CopyCodeButton.gameObject.SetActive(true);
 
             CanvasGroup canvasGroup = m_CopyCodeButton.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-            {
-                canvasGroup = m_CopyCodeButton.gameObject.AddComponent<CanvasGroup>();
-            }
+            // if (canvasGroup == null)
+            // {
+            //     canvasGroup = m_CopyCodeButton.gameObject.AddComponent<CanvasGroup>();
+            // }
             canvasGroup.alpha = 0f;
             StartCoroutine(WaitAndFade(canvasGroup, .5f, 1f, 1f)); // Wait 1 second then fade in over 1 second.
         }

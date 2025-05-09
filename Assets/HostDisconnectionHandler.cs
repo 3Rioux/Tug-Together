@@ -1,148 +1,262 @@
 using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using Unity.Netcode;
+using UnityEngine;
+using TMPro;
+using Unity.Services.Multiplayer;
 using UnityEngine.SceneManagement;
 
 public class HostDisconnectionHandler : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField] private GameObject disconnectionPanel;
-    [SerializeField] private Button closeButton;
-    [SerializeField] private TextMeshProUGUI messageText;
+    [Header("References")]
+    [SerializeField] private SessionEventBridge sessionEventBridge;
+    [SerializeField] private WidgetEventDispatcherBridge eventDispatcherBridge;
+    [SerializeField] private Canvas disconnectionNoticeCanvas;
+    [SerializeField] private TextMeshProUGUI countdownText;
+    [SerializeField] private float returnToMenuDelay = 5f;
     
-    [Header("Settings")]
-    [SerializeField] private string mainMenuScene = "_Scenes/MainMenu";
-    [SerializeField] private float disconnectionTimeoutSeconds = 5f;
-    
-    private bool isCheckingDisconnection = false;
-    private bool isHost = false;
-    private Coroutine disconnectionCheckCoroutine;
+    private ISession currentSession;
+    private string hostPlayerId;
+    private bool isReturningToMenu = false;
 
     private void Start()
     {
-        // Initialize UI
-        if (disconnectionPanel != null)
-            disconnectionPanel.SetActive(false);
-            
-        if (closeButton != null)
-            closeButton.onClick.AddListener(OnCloseButtonClicked);
-            
-        if (messageText != null)
-            messageText.text = "Host disconnected. The session has ended.";
-        
-        // Register for network events
-        RegisterNetworkEvents();
+        // Make sure required components are found
+        // Then disable the canvas
+        if (disconnectionNoticeCanvas != null)
+        {
+            disconnectionNoticeCanvas.gameObject.SetActive(false);
+        }
     }
     
-    private void RegisterNetworkEvents()
+    private void OnEnable()
     {
-        // NetCode for GameObjects events
+        // Connect to network events
         if (NetworkManager.Singleton != null)
         {
-            isHost = NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
-            NetworkManager.Singleton.OnTransportFailure += OnTransportFailure;
+            NetworkManager.Singleton.OnServerStopped += OnServerStopped;
         }
-        
-        // Subscribe to session events if available
-        var sessionEventBridge = FindObjectOfType<SessionEventBridge>();
+
+        // Connect to session events
         if (sessionEventBridge != null)
         {
-            sessionEventBridge.OnFailedToJoinSession.AddListener(OnSessionFailure);
+            sessionEventBridge.OnJoinedSession.AddListener(OnPlayerJoined);
+        }
+
+        // Connect to widget events if bridge exists
+        if (eventDispatcherBridge != null)
+        {
+            eventDispatcherBridge.OnPlayerLeft.AddListener(OnRemotePlayerLeft);
+            eventDispatcherBridge.OnRemovedFromSession.AddListener(OnRemovedFromSession);
+            eventDispatcherBridge.OnSessionDeleted.AddListener(OnSessionDeleted);
+        }
+        
+        // Initialize the disconnection canvas as hidden
+        if (disconnectionNoticeCanvas != null)
+        {
+            disconnectionNoticeCanvas.gameObject.SetActive(false);
         }
     }
-    
-    private void OnDestroy()
+
+    private void OnDisable()
     {
-        // Cleanup
+        // Disconnect from network events
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
-            NetworkManager.Singleton.OnTransportFailure -= OnTransportFailure;
+            NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
         }
-        
-        if (closeButton != null)
-            closeButton.onClick.RemoveListener(OnCloseButtonClicked);
-            
-        if (disconnectionCheckCoroutine != null)
-            StopCoroutine(disconnectionCheckCoroutine);
+
+        // Disconnect from session events
+        if (sessionEventBridge != null)
+        {
+            sessionEventBridge.OnJoinedSession.RemoveListener(OnPlayerJoined);
+        }
+
+        // Disconnect from widget events
+        if (eventDispatcherBridge != null)
+        {
+            eventDispatcherBridge.OnPlayerLeft.RemoveListener(OnRemotePlayerLeft);
+            eventDispatcherBridge.OnRemovedFromSession.RemoveListener(OnRemovedFromSession);
+            eventDispatcherBridge.OnSessionDeleted.RemoveListener(OnSessionDeleted);
+        }
+
+        // Clean up session reference
+        if (currentSession != null)
+        {
+            currentSession.PlayerJoined -= OnRemotePlayerJoined;
+        }
+    }
+    
+    private void OnPlayerJoined(ISession session)
+    {
+        Debug.Log("Connected to session: " + session.Id);
+        currentSession = session;
+
+        // Store the session object's ID as the host ID if you're not the host
+        if (!NetworkManager.Singleton.IsHost)
+        {
+            try {
+                // Use reflection to get the host ID if available
+                var hostIdProperty = session.GetType().GetProperty("HostId", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (hostIdProperty != null)
+                {
+                    hostPlayerId = hostIdProperty.GetValue(session) as string;
+                    Debug.Log($"Found host ID via reflection: {hostPlayerId}");
+                }
+                else
+                {
+                    // Fallback: Store creator ID if available
+                    var creatorIdProperty = session.GetType().GetProperty("CreatorId", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    if (creatorIdProperty != null)
+                    {
+                        hostPlayerId = creatorIdProperty.GetValue(session) as string;
+                        Debug.Log($"Using creator ID as host ID: {hostPlayerId}");
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Error getting host ID: {ex.Message}");
+            }
+        }
+
+        // Subscribe to the PlayerJoined event on the session
+        currentSession.PlayerJoined += OnRemotePlayerJoined;
+    }
+    
+    private void OnRemotePlayerJoined(string playerId)
+    {
+        Debug.Log($"Remote player joined: {playerId}");
     }
     
     private void OnClientDisconnect(ulong clientId)
     {
-        // If we're not the host and the host (clientId 0) disconnected
-        if (!isHost && clientId == 0 && !isCheckingDisconnection)
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
-            StartDisconnectionCheck();
-        }
-    }
-    
-    private void OnTransportFailure()
-    {
-        if (!isHost && !isCheckingDisconnection)
-        {
-            StartDisconnectionCheck();
-        }
-    }
-    
-    private void OnSessionFailure(Unity.Services.Multiplayer.SessionException exception)
-    {
-        if (!isCheckingDisconnection)
-        {
-            ShowDisconnectionPanel();
-        }
-    }
-    
-    private void StartDisconnectionCheck()
-    {
-        isCheckingDisconnection = true;
-        disconnectionCheckCoroutine = StartCoroutine(CheckHostDisconnection());
-    }
-    
-    private IEnumerator CheckHostDisconnection()
-    {
-        // Wait for timeout to confirm disconnection
-        yield return new WaitForSeconds(disconnectionTimeoutSeconds);
-        
-        // If we're still connected to a server, false alarm
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
-        {
-            isCheckingDisconnection = false;
-            yield break;
+            // Host doesn't handle its own disconnection here
+            return;
         }
         
-        // Show disconnection panel
-        ShowDisconnectionPanel();
+        // Handle when a client disconnects
+        if (hostPlayerId != null && clientId.ToString() == hostPlayerId)
+        {
+            ShowDisconnectionNotice("Host has disconnected from the game.");
+            StartCoroutine(ReturnToMenuAfterDelay(returnToMenuDelay));
+        }
     }
     
-    private void ShowDisconnectionPanel()
+    private void OnRemotePlayerLeft(string playerId)
     {
-        if (disconnectionPanel != null)
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
-            disconnectionPanel.SetActive(true);
-            
-            // Ensure it's visible in the hierarchy
-            Canvas canvas = disconnectionPanel.GetComponentInParent<Canvas>();
-            if (canvas != null)
+            // Host doesn't need special handling for other clients
+            return;
+        }
+        
+        if (playerId == hostPlayerId)
+        {
+            ShowDisconnectionNotice("Host has left the game.");
+            StartCoroutine(ReturnToMenuAfterDelay(returnToMenuDelay));
+        }
+    }
+    
+    private void OnRemovedFromSession()
+    {
+        ShowDisconnectionNotice("You have been removed from the session.");
+        StartCoroutine(ReturnToMenuAfterDelay(returnToMenuDelay));
+    }
+    
+    private void OnSessionDeleted()
+    {
+        ShowDisconnectionNotice("The session has been deleted.");
+        StartCoroutine(ReturnToMenuAfterDelay(returnToMenuDelay));
+    }
+    
+    private void OnServerStopped(bool _)
+    {
+        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+        {
+            // Host/server initiated the stop, normal flow
+            return;
+        }
+        
+        // For clients, this means the server stopped unexpectedly
+        ShowDisconnectionNotice("Connection to host was lost.");
+        StartCoroutine(ReturnToMenuAfterDelay(returnToMenuDelay));
+    }
+
+    private void ShowDisconnectionNotice(string message)
+    {
+        if (disconnectionNoticeCanvas != null)
+        {
+            disconnectionNoticeCanvas.gameObject.SetActive(true);
+
+            // Find message text component that isn't the countdown text
+            TextMeshProUGUI messageText = null;
+            TextMeshProUGUI[] textComponents = disconnectionNoticeCanvas.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (var text in textComponents)
             {
-                canvas.sortingOrder = 100;
+                if (text != countdownText)
+                {
+                    messageText = text;
+                    break;
+                }
+            }
+
+            // Update message text if found
+            if (messageText != null)
+            {
+                messageText.text = message;
+            }
+
+            // Initialize the countdown text
+            if (countdownText != null)
+            {
+                countdownText.text = returnToMenuDelay.ToString("0");
             }
         }
     }
-    
-    private void OnCloseButtonClicked()
+
+    private IEnumerator ReturnToMenuAfterDelay(float delay)
     {
-        // Hide panel first
-        if (disconnectionPanel != null)
-            disconnectionPanel.SetActive(false);
-            
-        // Shutdown network connections
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsConnectedClient)
-            NetworkManager.Singleton.Shutdown();
-            
-        // Return to main menu
-        SceneManager.LoadScene(mainMenuScene);
+        isReturningToMenu = true;
+        float timeRemaining = delay;
+
+        while (timeRemaining > 0)
+        {
+            // Update countdown text
+            if (countdownText != null)
+            {
+                countdownText.text = Mathf.CeilToInt(timeRemaining).ToString();
+            }
+
+            // Wait one second
+            yield return new WaitForSeconds(1f);
+            timeRemaining -= 1f;
+        }
+
+        // Final countdown display
+        if (countdownText != null)
+        {
+            countdownText.text = "0";
+        }
+
+        ReturnToMainMenu();
+    }
+    
+    private void ReturnToMainMenu()
+    {
+        // Clean up network connection
+        if (NetworkManager.Singleton != null)
+        {
+            if (NetworkManager.Singleton.IsClient)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+        }
+        
+        // Load main menu scene
+        SceneManager.LoadScene("_Scenes/MainMenu");
     }
 }

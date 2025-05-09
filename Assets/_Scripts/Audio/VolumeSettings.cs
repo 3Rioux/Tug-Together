@@ -20,6 +20,9 @@ public class VolumeSettings : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Slider _volumeSlider;
     [SerializeField] private TMP_Text volumeValueText; // displays the volume value
+    
+    private int _lastDisplayedValue = -1; // Initialize to invalid value to ensure first sound plays
+
 
     private void Awake()
     {
@@ -80,7 +83,19 @@ public class VolumeSettings : MonoBehaviour
                 Debug.LogError("Invalid volume type: " + volumeType);
                 break;
         }
+    
+        // Calculate the integer display value (0-100)
+        int currentDisplayValue = Mathf.RoundToInt(_volumeSlider.value * 100);
+    
+        // Update the displayed text
         UpdateVolumeText(_volumeSlider.value);
+    
+        // If the displayed value has changed, play sound
+        if (currentDisplayValue != _lastDisplayedValue)
+        {
+            AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIScroll, transform.position);
+            _lastDisplayedValue = currentDisplayValue;
+        }
     }
 
     private void UpdateVolumeText(float value)

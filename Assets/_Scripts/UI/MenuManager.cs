@@ -16,6 +16,9 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject tutorialMenu;
     [SerializeField] private GameObject createMenu;
     [SerializeField] private GameObject optionsContainer;
+    [SerializeField] private GameObject loadingMenu;
+    [SerializeField] private GameObject lobbyMenu;
+    [SerializeField] private GameObject roomCodeMenu;
 
     [Header("Options Submenus")]
     [SerializeField] private GameObject settingsMenu;
@@ -36,6 +39,7 @@ public class MenuManager : MonoBehaviour
 
     
     private Unity.Services.Multiplayer.ISession currentSession;
+    private bool isJoiningPlayer = false;
     
     private enum MenuState
     {
@@ -46,7 +50,10 @@ public class MenuManager : MonoBehaviour
         VideoSettings,
         AudioSettings,
         Tutorial,
-        Create
+        Create,
+        Loading,
+        Lobby,
+        RoomCode
     }
 
     private MenuState currentState = MenuState.Main;
@@ -157,6 +164,9 @@ private void AnimateButtonEnable()
 // Add these methods to handle session events
     private void OnPlayerJoining()
     {
+        // First show loading screen when joining starts
+        SwitchToState(MenuState.Loading);
+    
         // Disable button while joining with animation
         if (proceedButton != null)
         {
@@ -169,11 +179,23 @@ private void AnimateButtonEnable()
         // Store reference to the session
         currentSession = session;
         Debug.Log("Player joined with session: " + session.Id);
-        
+    
         // Subscribe to the PlayerJoined event on the session
         currentSession.PlayerJoined += OnRemotePlayerJoined;
-
-        // Disable the button
+    
+        // Different menus based on whether player is hosting or joining
+        if (isJoiningPlayer)
+        {
+            // Player joining with code goes to lobby
+            SwitchToState(MenuState.Lobby);
+        }
+        else
+        {
+            // Host player stays on host menu or goes to create menu
+            SwitchToState(MenuState.Create);
+        }
+    
+        // Handle button animations
         if (proceedButton != null)
         {
             proceedButton.interactable = false;
@@ -210,6 +232,11 @@ private void AnimateButtonEnable()
     {
         // Handle join failure
         Debug.LogError("Failed to join session: " + exception.Message);
+    
+        // Return to the join menu state
+        SwitchToState(MenuState.Join);
+    
+        // Re-enable proceed button if needed
         if (proceedButton != null)
             AnimateButtonEnable();
     }
@@ -235,13 +262,13 @@ private void AnimateButtonEnable()
         SwitchToState(MenuState.Main);
     }
     
-    private void ClickSound()
+    public void ClickSound()
     {
         // FMOD sound trigger (do not modify)
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
     }
 
-    private void BackSound()
+    public void BackSound()
     {
         // FMOD sound trigger (do not modify)
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
@@ -253,13 +280,17 @@ private void AnimateButtonEnable()
         mainMenu.SetActive(false);
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
+        loadingMenu.SetActive(false);
+        createMenu.SetActive(false);
         optionsContainer.SetActive(false);
-        if (tutorialMenu != null) tutorialMenu.SetActive(false);
+        tutorialMenu.SetActive(false);
+        lobbyMenu.SetActive(false);
+        roomCodeMenu.SetActive(false);
 
         // For options submenus, ensure they're all hidden initially
-        if (settingsMenu != null) settingsMenu.SetActive(false);
-        if (videoMenu != null) videoMenu.SetActive(false);
-        if (audioMenu != null) audioMenu.SetActive(false);
+        settingsMenu.SetActive(false);
+        videoMenu.SetActive(false);
+        audioMenu.SetActive(false);
 
         // Activate panels based on new state
         switch (newState)
@@ -270,39 +301,46 @@ private void AnimateButtonEnable()
 
             case MenuState.Host:
                 hostMenu.SetActive(true);
-                if (createMenu != null) createMenu.SetActive(true);
-                if (tutorialMenu != null) tutorialMenu.SetActive(false);
+                createMenu.SetActive(true);
                 break;
 
             case MenuState.Join:
                 joinMenu.SetActive(true);
+                roomCodeMenu.SetActive(true);
                 break;
 
             case MenuState.Options:
                 optionsContainer.SetActive(true);
-                if (settingsMenu != null) settingsMenu.SetActive(true);
+                settingsMenu.SetActive(true);
                 break;
 
             case MenuState.VideoSettings:
                 optionsContainer.SetActive(true);
-                if (videoMenu != null) videoMenu.SetActive(true);
+                videoMenu.SetActive(true);
                 break;
 
             case MenuState.AudioSettings:
                 optionsContainer.SetActive(true);
-                if (audioMenu != null) audioMenu.SetActive(true);
+                audioMenu.SetActive(true);
                 break;
 
             case MenuState.Tutorial:
                 hostMenu.SetActive(true);
-                if (tutorialMenu != null) tutorialMenu.SetActive(true);
-                if (createMenu != null) createMenu.SetActive(false);
+                tutorialMenu.SetActive(true);
                 break;
             
             case MenuState.Create:
                 hostMenu.SetActive(true);
-                if (createMenu != null) createMenu.SetActive(true);
-                if (tutorialMenu != null) tutorialMenu.SetActive(false);
+                createMenu.SetActive(true);
+                break;
+            
+            case MenuState.Loading:
+                loadingMenu.SetActive(true);
+                break;
+            
+            case MenuState.Lobby:
+                joinMenu.SetActive(true);
+                lobbyMenu.SetActive(true);
                 break;
         }
 
@@ -320,11 +358,25 @@ private void AnimateButtonEnable()
         SwitchToState(MenuState.Tutorial);
     }
     
+    public void Lobby()
+    {
+
+        SwitchToState(MenuState.Lobby);
+    }
+
+    public void Loading()
+    {
+        SwitchToState(MenuState.Loading);
+    }
+    
     public void OnTutorialYesButtonClick()
     {
         ClickSound();
         DOTween.KillAll();
-        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Tutorial", LoadSceneMode.Single);
+        //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Tutorial", LoadSceneMode.Single);
+        //SceneTransition.Instance.LoadNetworkedScene("_Scenes/Tutorial");
+        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Tutorial");
+
     }
 
     public void OnTutorialNoButtonClick()
@@ -352,6 +404,7 @@ private void AnimateButtonEnable()
             case MenuState.Options:
             case MenuState.Host:
             case MenuState.Join:
+            case MenuState.Lobby:
             case MenuState.Create:
                 SwitchToState(MenuState.Main);
                 break;
@@ -364,13 +417,15 @@ private void AnimateButtonEnable()
     public void OnHostButtonClicked()
     {
         ClickSound();
-        SwitchToState(MenuState.Host);
+        //SwitchToState(MenuState.Host);
+        isJoiningPlayer = false; // Mark as host player
     }
 
     public void OnJoinButtonClicked()
     {
         ClickSound();
         SwitchToState(MenuState.Join);
+        isJoiningPlayer = true;  // Mark as joining player
     }
 
     public void OnOptionsButtonClicked()

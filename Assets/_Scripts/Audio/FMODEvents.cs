@@ -8,6 +8,8 @@ public class FMODEvents : MonoBehaviour
     [field: SerializeField] public EventReference UIClick { get; private set; }
     [field: SerializeField] public EventReference UIBack { get; private set; }
     
+    [field: SerializeField] public EventReference UIScroll { get; private set; }
+    
     
     [field: Header("AMBIENCE")]
     [field: SerializeField] public EventReference MainMenu { get; private set; }

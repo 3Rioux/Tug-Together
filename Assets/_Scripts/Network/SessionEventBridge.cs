@@ -18,25 +18,47 @@ public class SessionEventBridge : MonoBehaviour
         if (sessionWidgetObject == null)
         {
             // First check parent
-            var sessionComponent = GetComponentInParent<Transform>().GetComponentInChildren(
-                Type.GetType("Unity.Multiplayer.Widgets.CreateSession, Unity.Multiplayer.Widgets"));
-                
-            if (sessionComponent != null)
+            Type createSessionType = null;
+        
+            // Try to find the type with proper error handling
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                sessionWidgetObject = sessionComponent.gameObject;
+                try
+                {
+                    createSessionType = assembly.GetType("Unity.Multiplayer.Widgets.CreateSession");
+                    if (createSessionType != null)
+                        break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Error checking assembly for CreateSession: {ex.Message}");
+                }
+            }
+        
+            if (createSessionType != null)
+            {
+                var sessionComponent = GetComponentInParent<Transform>().GetComponentInChildren(createSessionType);
+                if (sessionComponent != null)
+                {
+                    sessionWidgetObject = sessionComponent.gameObject;
+                }
+                else
+                {
+                    // Try to find it in the scene
+                    var foundComponents = FindObjectsOfType<Component>().Where(
+                        c => c != null && c.GetType().FullName == "Unity.Multiplayer.Widgets.CreateSession");
+                    
+                    if (foundComponents.Any())
+                    {
+                        sessionWidgetObject = foundComponents.First().gameObject;
+                    }
+                }
             }
             else
             {
-                // Try to find it in the scene
-                var foundComponents = FindObjectsOfType<Component>().Where(
-                    c => c != null && c.GetType().FullName == "Unity.Multiplayer.Widgets.CreateSession");
-                    
-                if (foundComponents.Any())
-                {
-                    sessionWidgetObject = foundComponents.First().gameObject;
-                }
+                Debug.LogWarning("Could not find CreateSession type");
             }
-            
+        
             if (sessionWidgetObject == null)
             {
                 Debug.LogError("Could not find a CreateSession component", this);
