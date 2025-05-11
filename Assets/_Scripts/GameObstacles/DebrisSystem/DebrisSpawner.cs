@@ -90,7 +90,7 @@ public class DebrisSpawner : MonoBehaviour
             //Cant spawn more stationary obj then there are spawn points 
             if (currentDebrisCount >= stationarySpawnPoints.Count - 1) break;
            
-            int index = Random.Range(0, stationaryDebrisPools.Count);
+            int index = Random.Range(0, stationaryDebrisPools.Count + 1);
             GameObject obj = stationaryDebrisPools[index].Get();
             obj.transform.position = point.position;
             obj.transform.rotation = Quaternion.identity;
@@ -175,15 +175,15 @@ public class DebrisSpawner : MonoBehaviour
         GameObject obj = floatingDebrisPools[index].Get();
         
         //stop the original spawn spinning effect
-        Rigidbody rb = obj.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.freezeRotation = true;
-        }
+        //Rigidbody rb = obj.GetComponent<Rigidbody>();
+        //if (rb != null)
+        //{
+        //    rb.freezeRotation = true;
+        //}
 
         obj.transform.position = spawnPos;
         int randomRotation = Random.Range(-90, 90 + 1);
-        obj.transform.rotation = new Quaternion(0, obj.transform.rotation.y + randomRotation, 0, 1); //unsure about the w lol 
+        obj.transform.rotation = new Quaternion(obj.transform.position.x, obj.transform.rotation.y + randomRotation, obj.transform.position.z, 1); //unsure about the w lol 
 
         // Assign random horizontal drift direction and speed
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
@@ -191,7 +191,7 @@ public class DebrisSpawner : MonoBehaviour
         float driftSpeed = Random.Range(driftSpeedMin, driftSpeedMax);
 
         //allow object to rotate once everything is set
-        rb.freezeRotation = false;
+       // rb.freezeRotation = false;
 
         // Add to tracking list
         floatingDebrisList.Add(new FloatingDebrisData { obj = obj, direction = driftDir, speed = driftSpeed });
@@ -257,12 +257,21 @@ public class DebrisPool
         // Assign ID from the prefab's DebrisIdentifier
         var id = prefab.GetComponent<DebrisIdentifier>();
         if (id != null)
+        {
             prefabID = id.prefabID;
+        }
         else
+        {
             Debug.LogWarning($"Prefab '{prefab.name}' is missing DebrisIdentifier!");
+        }
 
+        //Create a Parent GameObject to store Each Pool Gameobject as a child:
         GameObject poolParentObject = new GameObject();
         poolParentObject.name = $"Pool_{id}"; // Set the name of the GameObject
+
+        // Set poolParentObject as a child of this script's GameObject
+        poolParentObject.transform.parent = parentTransform;
+
         //GameObject.Instantiate(poolParentObject, parent);
 
         for (int i = 0; i < initialSize; i++)

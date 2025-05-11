@@ -35,7 +35,7 @@ Transform:
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
@@ -160,7 +160,7 @@ MonoBehaviour:
   dragMultiplier: 1
   defaultRigidbodyDrag: 0.25
   underwaterRigidbodyAngularDrag: 1
-  overwaterRigidbodyAngularDrag: 0.25
+  overwaterRigidbodyAngularDrag: 1
   surfaceTensionDamping: 50
   applyForceWithRandomOffset: 0
   isWaterSurfaceACustomMesh: 0
