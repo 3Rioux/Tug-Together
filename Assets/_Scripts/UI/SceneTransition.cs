@@ -430,18 +430,6 @@ public class SceneTransition : MonoBehaviour
         // 4. The OnSceneLoaded handler will take care of fade in
     }
 
-    public void LoadNetworkedScene(string sceneName, float fadeSpeed = -1f)
-    {
-        if (_transitionMaterial == null)
-        {
-            Debug.LogError("SceneTransition: Transition material is missing!");
-            return;
-        }
-
-        float duration = (fadeSpeed > 0) ? fadeSpeed : _defaultFadeDuration;
-        StartCoroutine(FadeAndLoadNetworkedScene(sceneName, duration));
-    }
-
     private IEnumerator FadeAndLoadNetworkedScene(string sceneName, float fadeSpeed)
     {
         // 1. Fade Out completely

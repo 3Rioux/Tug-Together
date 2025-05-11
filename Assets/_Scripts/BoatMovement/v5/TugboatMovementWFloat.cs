@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using Unity.Cinemachine;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -78,6 +79,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
     private float currentThrottle;
 
     private BoatInputActions controls;
+    
+    [SerializeField] private CinemachineInputAxisController inputProvider;
+
 
 
 
@@ -130,6 +134,28 @@ public class TugboatMovementWFloat : NetworkBehaviour
     {
         controls.Disable();
     }
+    
+    public void SetControlEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            controls.Enable();
+        
+            // Enable Cinemachine input
+            if (inputProvider != null)
+                inputProvider.enabled = true;
+        }
+        else
+        {
+            controls.Disable();
+            moveVector = Vector2.zero;
+            lookVector = Vector2.zero;
+        
+            // Disable Cinemachine input
+            if (inputProvider != null)
+                inputProvider.enabled = false;
+        }
+    }
 
     private void Update()
     {
@@ -172,8 +198,8 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // Normalize speed to a value between 0 and 1
         float normalizedSpeed = Mathf.InverseLerp(0, maxSpeed - 10f, currentSpeed);
 
-        // Smoothly transition amplitude between 0 and 2 based on normalized speed
-        bowWaveDecal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
+         // Smoothly transition amplitude between 0 and 2 based on normalized speed
+        bowWaveDecal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
         //floatingOffset = new float3(0, Mathf.Lerp(0, -0.5f, normalizedSpeed), 0);
 
         if (currentSpeed <= 1f)
