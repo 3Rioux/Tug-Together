@@ -147,7 +147,7 @@ public class SpringTugSystem : NetworkBehaviour
         distanceToTowedObject = Vector3.Distance(transform.position, towedObject.position);
 
         //Display the distance between the Player and the Barge (For tweeking sprint settings)
-        distanceText.text = distanceToTowedObject.ToString() + " m";
+        if (distanceText != null) distanceText.text = distanceToTowedObject.ToString() + " m";
 
         // ====== 
         // ===Hooking Mechanic Start=== 
@@ -198,7 +198,7 @@ public class SpringTugSystem : NetworkBehaviour
                 {
                     lineRenderer.enabled = true;
                     //draw a line 
-                    lineRenderer.SetPosition(0, transform.position);
+                    lineRenderer.SetPosition(0, visualRope.StartPoint.position);
                     lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
                 }
                 else
@@ -243,12 +243,22 @@ public class SpringTugSystem : NetworkBehaviour
             { //if we are close enough to hook show clossest hook point && that we are NOT in Aim mode 
                 UpdateClosestAttachPoint();
 
-                lineRenderer.enabled = true;
+               
                 aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
 
-                //draw a line 
-                lineRenderer.SetPosition(0, transform.position);
-                lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
+                //only draw the line if not already attached
+                if (!isAttached)
+                {
+                    lineRenderer.enabled = true;
+                    //draw a line 
+                    lineRenderer.SetPosition(0, visualRope.StartPoint.position);
+                    lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
+                }
+                else
+                {
+                    //reset attached
+                    lineRenderer.enabled = false;
+                }
 
             }
 
@@ -412,7 +422,7 @@ public class SpringTugSystem : NetworkBehaviour
             //Debug.DrawRay(camPosition, direction, Color.red, 1f);
 
             // if(Physics.Linecast(camPosition, direction, out hit))
-            if (Physics.Raycast(camPosition, direction, out hit))
+            if (Physics.Raycast(camPosition, direction, out hit, aimColliderLayerMask))
             {
                 Debug.DrawRay(camPosition, direction, Color.magenta, 1f);
                 if (hit.collider != null)

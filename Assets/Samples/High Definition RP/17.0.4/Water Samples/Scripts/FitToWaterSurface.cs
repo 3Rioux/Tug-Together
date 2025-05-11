@@ -21,6 +21,15 @@ public class FitToWaterSurface : MonoBehaviour
     WaterSearchParameters searchParameters = new WaterSearchParameters();
     WaterSearchResult searchResult = new WaterSearchResult();
 
+    private void Start()
+    {
+        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component ALWAYS FOR ALL PLAYERS 
+        if (targetSurface == null)
+        {
+            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface; // get the water surface 
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
