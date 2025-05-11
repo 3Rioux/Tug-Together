@@ -198,7 +198,7 @@ public class GameMenuManager : MonoBehaviour
     
     private void DisableLocalPlayerControls()
     {
-        foreach (var boat in FindObjectsOfType<StrippedTubBoatMovement>())
+        foreach (var boat in FindObjectsByType<TugboatMovementWFloat>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             if (boat.IsOwner) // Only disable controls for the local player's boat
             {
@@ -209,7 +209,7 @@ public class GameMenuManager : MonoBehaviour
 
     private void EnableLocalPlayerControls()
     {
-        foreach (var boat in FindObjectsOfType<StrippedTubBoatMovement>())
+        foreach (var boat in FindObjectsByType<TugboatMovementWFloat>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             if (boat.IsOwner) // Only enable controls for the local player's boat
             {
