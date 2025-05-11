@@ -4,6 +4,15 @@ using UnityEngine.Rendering.HighDefinition;
 [ExecuteInEditMode]
 public class FitToWaterSurface : MonoBehaviour
 {
+    //Smooth out the Surface feel 
+    [SerializeField] bool enableDamping = false;
+
+    [Tooltip("How long (in seconds) it takes to catch up to the true water height.")]
+    [SerializeField] float dampingTime = 0.2f;
+
+    private Vector3 _dampVelocity = Vector3.zero;
+
+
     public WaterSurface targetSurface = null;
     public bool includeDeformation = true;
     public bool excludeSimulation = false;
@@ -28,7 +37,18 @@ public class FitToWaterSurface : MonoBehaviour
             // Do the search
             if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
             {
-                gameObject.transform.position = searchResult.projectedPositionWS;
+                if (!enableDamping)
+                {
+                    gameObject.transform.position = searchResult.projectedPositionWS;
+                }
+                else
+                {
+                    transform.position = Vector3.SmoothDamp(
+                        transform.position,                   // current position
+                        searchResult.projectedPositionWS,     // target on-water position
+                        ref _dampVelocity,                    // velocity state
+                        dampingTime);                         // smoothing time
+                }
             }
         }
     }

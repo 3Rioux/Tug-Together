@@ -34,7 +34,10 @@ public class TugboatMovementWFloat : NetworkBehaviour
     [SerializeField] WaterDecal bowWaveDecal; 
     [SerializeField] Material bowWaveMaterial; 
     [SerializeField] WaterFoamGenerator foamGenerator; 
-    [SerializeField] VisualEffect rearSplashVFX; 
+    [SerializeField] VisualEffect rearSplashVFX;
+    
+
+    private Vector3 _dampVelocity = Vector3.zero;
 
     [Header("Turning")]
     public float turnTorque = 1500f;
@@ -49,6 +52,10 @@ public class TugboatMovementWFloat : NetworkBehaviour
     [Header("Physics")]
     public float dragWhenNotMoving = 2f;
     public float angularDrag = 0.5f;
+
+    //flaoting/movement Damping
+    [Tooltip("How long (in seconds) it takes to catch up to the true water height.")]
+    [SerializeField] float dampingTime = 0.2f;
 
     [Space(10)]
     [Header("Float")]
@@ -243,7 +250,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
 
     }
-    [SerializeField] float surfaceStickLerpAmount = 1f;
+    //[SerializeField] float surfaceStickLerpAmount = 1f;
 
     void FixedUpdate()
     {
@@ -276,7 +283,15 @@ public class TugboatMovementWFloat : NetworkBehaviour
             //Attempt Smoother movement
             //Vector3 currentPositon = transform.position;
             //gameObject.transform.position = new Vector3(currentPositon.x, Mathf.Lerp(transform.position.y, searchResult.projectedPositionWS.y, surfaceStickLerpAmount), currentPositon.z); //
-            gameObject.transform.position = searchResult.projectedPositionWS;
+            // OLD WAY --->>>
+            //gameObject.transform.position = searchResult.projectedPositionWS;
+            
+            //damping fit to surface to filter small waves 
+            transform.position = Vector3.SmoothDamp(
+                      transform.position,                   // current position
+                      searchResult.projectedPositionWS,     // target on-water position
+                      ref _dampVelocity,                    // velocity state
+                      dampingTime);                         // smoothing time
         }
 
         //Align the boat to the water 
