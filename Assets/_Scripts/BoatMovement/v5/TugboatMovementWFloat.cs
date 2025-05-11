@@ -207,7 +207,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
             //bowWaveDecal.gameObject.GetComponent<Material>().shader.Get .FindPropertyIndex("")
             //bowWaveMaterial.SetFloat("_Elevation", 0f);
             //bowWaveDecal.amplitude = 0;
-            bowWaveDecal.regionSize = new Vector2(0, 16);
+            bowWaveDecal.regionSize = new Vector2(0, 25);
 
             //Conter the Bow wave Ampliture surface float:
             floatingOffset = new float3(0, 0, 0);
@@ -220,7 +220,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         {
             //bowWaveMaterial.SetFloat("_Elevation", 0.5f);
            // bowWaveDecal.amplitude = 1f;
-            bowWaveDecal.regionSize = new Vector2(8, 16);
+            bowWaveDecal.regionSize = new Vector2(11, 25);
 
             //Conter the Bow wave Ampliture surface float:
             //floatingOffset = new float3(0, -0.5f, 0);
@@ -232,7 +232,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         {
             // bowWaveMaterial.SetFloat("_Elevation", 1f);
            // bowWaveDecal.amplitude = 2f;
-            bowWaveDecal.regionSize = new Vector2(12, 16);
+            bowWaveDecal.regionSize = new Vector2(17, 25);
 
             //Conter the Bow wave Ampliture surface float:
             //floatingOffset = new float3(0, -1f, 0);
