@@ -90,6 +90,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
     [SerializeField] private CinemachineInputAxisController inputProvider;
 
 
+    private readonly NetworkVariable<float> _syncedSpeed = new NetworkVariable<float>(0f, 
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
 
 
     void Awake()
@@ -166,91 +169,55 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner) return;
-
-        if (debugSpeedText == null)
+        // Local player logic
+        if (IsOwner)
         {
-            //Debug.LogWarning("debugSpeedText is not assigned in the inspector.");
-            return;
+            float speed = rb.linearVelocity.magnitude - 10f;
+            if (speed <= 0.4f) speed = 0f;
+        
+            // Update network variable with current speed
+            _syncedSpeed.Value = speed;
+        
+            // Display speed in UI
+            if (debugSpeedText != null)
+                debugSpeedText.text = $"Speed: {speed:0}m/s";
+            
+            // Apply visual effects for local player using local calculations
+            ApplyMovementEffects(speed);
         }
-
-
-        float speed = rb.linearVelocity.magnitude - 10f;
-        if (speed <= 0.4f) speed = 0f;
-        debugSpeedText.text = $"Speed: {speed:0}m/s";
-
-
-        ApplyMovementEffects(speed);
-
-        ////look Controls:
-        //if (lookVector != Vector2.zero)
-        //{
-        //    yaw += lookVector.x * lookSensitivity * Time.deltaTime;
-        //    pitch -= lookVector.y * lookSensitivity * Time.deltaTime;
-        //    pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
-
-        //    cameraRig.rotation = Quaternion.Euler(pitch, yaw, 0f);
-        //}
-
+        // Remote player logic
+        else
+        {
+            // Apply visual effects for remote player using network-synced speed
+            ApplyMovementEffects(_syncedSpeed.Value);
+        }
     }
-
-    /// <summary>
-    /// Apply settings to the boats visual effects based on the boats speed 
-    /// </summary>
-    /// <param name="currentSpeed"></param>
+    
     private void ApplyMovementEffects(float currentSpeed)
     {
-
-
         // Normalize speed to a value between 0 and 1
         float normalizedSpeed = Mathf.InverseLerp(0, maxSpeed - 10f, currentSpeed);
 
-         // Smoothly transition amplitude between 0 and 2 based on normalized speed
+        
+        // Smoothly transition amplitude between 0 and 3 based on normalized speed
         bowWaveDecal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
-        //floatingOffset = new float3(0, Mathf.Lerp(0, -0.5f, normalizedSpeed), 0);
-
+        
+        // Smoothly transition bow wave decal region size
+        Vector2 minSize = new Vector2(30.5f, 43f);
+        Vector2 maxSize = new Vector2(45f, 55f);
+        bowWaveDecal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
+        
+        // Smoothly transition rear splash size from 0.3 to 2.5
+        float splashSize = Mathf.Lerp(0.3f, 2.5f, normalizedSpeed);
+        rearSplashVFX.SetFloat("Size", splashSize);
+        rearSplashVFX.gameObject.SetActive(currentSpeed > 1.0f);
+        
+        // Reset floating offset if needed
         if (currentSpeed <= 1f)
         {
-            //bowWaveDecal.gameObject.GetComponent<Material>().shader.Get .FindPropertyIndex("")
-            //bowWaveMaterial.SetFloat("_Elevation", 0f);
-            //bowWaveDecal.amplitude = 0;
-            bowWaveDecal.regionSize = new Vector2(0, 25);
-
-            //Conter the Bow wave Ampliture surface float:
             floatingOffset = new float3(0, 0, 0);
-
-            //VFX
-            rearSplashVFX.gameObject.SetActive(false);
-
         }
-        else if (currentSpeed <= 10f)
-        {
-            //bowWaveMaterial.SetFloat("_Elevation", 0.5f);
-           // bowWaveDecal.amplitude = 1f;
-            bowWaveDecal.regionSize = new Vector2(11, 25);
-
-            //Conter the Bow wave Ampliture surface float:
-            //floatingOffset = new float3(0, -0.5f, 0);
-
-            //VFX
-            rearSplashVFX.gameObject.SetActive(true);
-        }
-        else if (currentSpeed > 10f)
-        {
-            // bowWaveMaterial.SetFloat("_Elevation", 1f);
-           // bowWaveDecal.amplitude = 2f;
-            bowWaveDecal.regionSize = new Vector2(17, 25);
-
-            //Conter the Bow wave Ampliture surface float:
-            //floatingOffset = new float3(0, -1f, 0);
-
-            //VFX
-            rearSplashVFX.gameObject.SetActive(true);
-        }
-
-
     }
-    //[SerializeField] float surfaceStickLerpAmount = 1f;
 
     void FixedUpdate()
     {

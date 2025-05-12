@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_BubbleTransition
-  m_Shader: {fileID: -6465566751694194690, guid: 7f3308dbffaf64d4f85e430cc906cdd4, type: 3}
+  m_Name: M_Loading
+  m_Shader: {fileID: -6465566751694194690, guid: aee167b6d9839594b9a709a035e9e9cd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -43,28 +43,22 @@ Material:
     m_Floats:
     - _AlphaClip: 0.5
     - _ColorMask: 15
-    - _Contrast: -0.0001
+    - _Contrast: 3
     - _Fade: 0
-    - _Float: 4.55
-    - _Gradient_Speed: 1
-    - _Move: 1
-    - _NoiseScale: 1
-    - _Speed: 0.1
+    - _NoiseScale: 2.5
+    - _Speed: 4
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _Step: 0.5
     - _UIMaskSoftnessX: 1
     - _UIMaskSoftnessY: 1
-    - _UseColor: 1
     m_Colors:
-    - _Background: {r: 0.10196077, g: 0.10196077, b: 0.10196077, a: 1}
-    - _Bubbles: {r: 0.28235298, g: 0.7098039, b: 0.8784314, a: 1}
     - _ClipRect: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 0, g: 0, b: 0, a: 0}
-    - _Pos: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _Vector4: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 0}
+    - _Color_1: {r: 1, g: 1, b: 1, a: 0}
+    - _Fade: {r: 0, g: 0, b: 0, a: 0}
+    - _Vector2: {r: 0.71, g: 3.2, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

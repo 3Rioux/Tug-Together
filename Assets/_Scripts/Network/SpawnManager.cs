@@ -42,7 +42,7 @@ public class SpawnManager : NetworkBehaviour
         if (_spawnedClients.Contains(clientId))
             return;
 
-        // If the scene isn’t loaded, delay the spawn.
+        // If the scene isn't loaded, delay the spawn.
         if (!_sceneLoaded)
         {
             StartCoroutine(DelaySpawn(clientId));
@@ -53,18 +53,22 @@ public class SpawnManager : NetworkBehaviour
         _nextSpawnIndex++;
 
         GameObject go = Instantiate(_playerPrefab, spawn.position, spawn.rotation);
+    
+        // Try to get the component, and add it if it doesn't exist
         var boatMovement = go.GetComponent<TugboatMovementWFloat>();
-        //if(boatMovement ==null) boatMovement = go.GetComponent<TugboatMovementWFloat>();
+        if (boatMovement == null)
+        {
+            Debug.LogWarning("TugboatMovementWFloat component not found, attempting to add it.", this);
+            boatMovement = go.AddComponent<TugboatMovementWFloat>();
+        }
+    
+        // Initialize water surface
         if (boatMovement != null && boatMovement.targetSurface == null)
         {
             StartCoroutine(WaitForWaterSurface(boatMovement));
         }
-        else
-        {
-            Debug.LogError("BoatMovement component not found on spawned object.", this);
-        }
+    
         go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
-
         _spawnedClients.Add(clientId);
     }
 
