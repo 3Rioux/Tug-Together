@@ -36,7 +36,10 @@ public class MenuManager : MonoBehaviour
     
     [Header("Session Management")]
     [SerializeField] private SessionEventBridge sessionEventBridge;
-
+    
+    [Header("UI Animation")]
+    [SerializeField] private float fadeAnimationDuration = 0.5f;
+    private CanvasGroup loadingMenuCanvasGroup;
     
     private Unity.Services.Multiplayer.ISession currentSession;
     private bool isJoiningPlayer = false;
@@ -90,6 +93,13 @@ public class MenuManager : MonoBehaviour
         {
             proceedButton.gameObject.SetActive(false);
         }
+
+        // Get or add CanvasGroup to loadingMenu
+        loadingMenuCanvasGroup = loadingMenu.GetComponent<CanvasGroup>();
+    
+        // Ensure initial state
+        loadingMenuCanvasGroup.alpha = 0f;
+        loadingMenu.SetActive(false);
     }
     
 public void AnimateButtonDisable()
@@ -280,7 +290,7 @@ private void AnimateButtonEnable()
         mainMenu.SetActive(false);
         hostMenu.SetActive(false);
         joinMenu.SetActive(false);
-        loadingMenu.SetActive(false);
+        //loadingMenu.SetActive(false);
         createMenu.SetActive(false);
         optionsContainer.SetActive(false);
         tutorialMenu.SetActive(false);
@@ -291,6 +301,10 @@ private void AnimateButtonEnable()
         settingsMenu.SetActive(false);
         videoMenu.SetActive(false);
         audioMenu.SetActive(false);
+        
+        // If we're switching away from loading state, hide it
+        if (currentState == MenuState.Loading && newState != MenuState.Loading)
+            HideLoadingMenu();
 
         // Activate panels based on new state
         switch (newState)
@@ -335,7 +349,7 @@ private void AnimateButtonEnable()
                 break;
             
             case MenuState.Loading:
-                loadingMenu.SetActive(true);
+                ShowLoadingMenu();
                 break;
             
             case MenuState.Lobby:
@@ -459,5 +473,31 @@ private void AnimateButtonEnable()
             CreditsController.Instance.ShowCredits();
         else
             Debug.LogError("CreditsController instance not found");
+    }
+    
+    // Method to show loading menu with animation
+    public void ShowLoadingMenu()
+    {
+        // Make sure we have the canvas group
+        if (loadingMenuCanvasGroup == null)
+            loadingMenuCanvasGroup = loadingMenu.GetComponent<CanvasGroup>();
+        
+        // Set initial state
+        loadingMenuCanvasGroup.alpha = 0f;
+        loadingMenu.SetActive(true);
+    
+        // Animate fade in
+        loadingMenuCanvasGroup.DOFade(1f, fadeAnimationDuration);
+    }
+
+// Method to hide loading menu with animation
+    public void HideLoadingMenu()
+    {
+        if (loadingMenuCanvasGroup == null || !loadingMenu.activeSelf)
+            return;
+        
+        // Animate fade out and deactivate when done
+        loadingMenuCanvasGroup.DOFade(0f, fadeAnimationDuration)
+            .OnComplete(() => loadingMenu.SetActive(false));
     }
 }
