@@ -43,10 +43,10 @@ MonoBehaviour:
   active: 1
   temperature:
     m_OverrideState: 1
-    m_Value: -8
+    m_Value: -5
   tint:
     m_OverrideState: 1
-    m_Value: 5
+    m_Value: 3
 --- !u!114 &-8119410062658652161
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d7593b3a9277ac4696b20006c21dde2, type: 3}
   m_Name: VisualEnvironment
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   skyType:
     m_OverrideState: 1
     m_Value: 3
@@ -158,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c1be1b6c95cd2e41b27903b9270817f, type: 3}
   m_Name: Vignette
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   mode:
     m_OverrideState: 1
     m_Value: 0
@@ -250,19 +250,19 @@ MonoBehaviour:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0.0069204154
-          value: 0.014925361
-          inSlope: 0.74737704
-          outSlope: 0.74737704
+          time: 0
+          value: 0.069182396
+          inSlope: 0
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
           outWeight: 0
         - serializedVersion: 3
-          time: 0.48958334
-          value: 0.5037594
-          inSlope: 1.3351101
-          outSlope: 1.3351101
+          time: 0.55
+          value: 0.6415094
+          inSlope: 1.3364781
+          outSlope: 1.3364781
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
@@ -437,7 +437,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24f077503be6ae942a1e1245dbd53ea9, type: 3}
   m_Name: Bloom
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   quality:
     m_OverrideState: 1
     m_Value: 1
@@ -446,13 +446,13 @@ MonoBehaviour:
     m_Value: 0.8
   intensity:
     m_OverrideState: 1
-    m_Value: 0.55
+    m_Value: 0.51
   scatter:
     m_OverrideState: 1
-    m_Value: 0.7
+    m_Value: 0.645
   tint:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_Value: {r: 1, g: 0.94432074, b: 0.8537736, a: 1}
   dirtTexture:
     m_OverrideState: 1
     m_Value: {fileID: 0}
@@ -471,6 +471,76 @@ MonoBehaviour:
   m_HighQualityFiltering:
     m_OverrideState: 1
     m_Value: 1
+--- !u!114 &-2129156893551841492
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f086a068d4c5889438831b3ae9afc11c, type: 3}
+  m_Name: Tonemapping
+  m_EditorClassIdentifier: 
+  active: 1
+  mode:
+    m_OverrideState: 1
+    m_Value: 3
+  useFullACES:
+    m_OverrideState: 0
+    m_Value: 0
+  toeStrength:
+    m_OverrideState: 1
+    m_Value: 0.177
+  toeLength:
+    m_OverrideState: 1
+    m_Value: 0.572
+  shoulderStrength:
+    m_OverrideState: 1
+    m_Value: 1
+  shoulderLength:
+    m_OverrideState: 1
+    m_Value: 0.73
+  shoulderAngle:
+    m_OverrideState: 1
+    m_Value: 0.118
+  gamma:
+    m_OverrideState: 1
+    m_Value: 1.1
+  lutTexture:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}
+  lutContribution:
+    m_OverrideState: 0
+    m_Value: 1
+  neutralHDRRangeReductionMode:
+    m_OverrideState: 0
+    m_Value: 2
+  acesPreset:
+    m_OverrideState: 0
+    m_Value: 3
+  fallbackMode:
+    m_OverrideState: 0
+    m_Value: 1
+  hueShiftAmount:
+    m_OverrideState: 0
+    m_Value: 0
+  detectPaperWhite:
+    m_OverrideState: 0
+    m_Value: 0
+  paperWhite:
+    m_OverrideState: 0
+    m_Value: 300
+  detectBrightnessLimits:
+    m_OverrideState: 0
+    m_Value: 1
+  minNits:
+    m_OverrideState: 0
+    m_Value: 0.005
+  maxNits:
+    m_OverrideState: 0
+    m_Value: 1000
 --- !u!114 &-1235509382758070519
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -509,10 +579,10 @@ MonoBehaviour:
   m_Name: MainMenuVolume-Update
   m_EditorClassIdentifier: 
   components:
+  - {fileID: 2738288566352787095}
   - {fileID: -2503137463956860485}
   - {fileID: -7548179859660803737}
   - {fileID: -7295736694333958251}
-  - {fileID: 2738288566352787095}
   - {fileID: -8119410062658652161}
   - {fileID: 6767734974566343175}
   - {fileID: 8647138409519792922}
@@ -523,6 +593,7 @@ MonoBehaviour:
   - {fileID: -5318169146010963190}
   - {fileID: -4254677433903801330}
   - {fileID: -8266355796524488168}
+  - {fileID: -2129156893551841492}
 --- !u!114 &2738288566352787095
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -538,10 +609,10 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 1
-    m_Value: 0.1
+    m_Value: 0.5
   contrast:
-    m_OverrideState: 0
-    m_Value: -5
+    m_OverrideState: 1
+    m_Value: -1
   colorFilter:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -550,7 +621,7 @@ MonoBehaviour:
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: 7
+    m_Value: 20
 --- !u!114 &3929854513424376197
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -563,7 +634,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d08ce26990eb1a4a9177b860541e702, type: 3}
   m_Name: Exposure
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   mode:
     m_OverrideState: 1
     m_Value: 0
@@ -575,7 +646,7 @@ MonoBehaviour:
     m_Value: 1
   fixedExposure:
     m_OverrideState: 1
-    m_Value: 14.716129
+    m_Value: 0.47524756
   compensation:
     m_OverrideState: 1
     m_Value: 6.26
@@ -805,13 +876,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15cc4c5fcb677014ebdc0d8be227b40c, type: 3}
   m_Name: ScreenSpaceLensFlare
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   intensity:
     m_OverrideState: 1
     m_Value: 5
   tintColor:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_Value: {r: 1, g: 0.96174556, b: 0.8820755, a: 1}
   bloomMip:
     m_OverrideState: 1
     m_Value: 1
@@ -881,13 +952,13 @@ MonoBehaviour:
   active: 0
   quality:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   spectralLut:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {fileID: 0}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.109
+    m_Value: 0.017
   m_MaxSamples:
     m_OverrideState: 1
-    m_Value: 6
+    m_Value: 3
