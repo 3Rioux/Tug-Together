@@ -110,10 +110,10 @@ public class UnitHealthController : MonoBehaviour, IDamageable
         CurrentUnitHeath.DamageUnits(damage);
 
         //display current health to the user 
-        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.CurrentHealth);
+        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
         Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath.CurrentHealth}.");
 
-        // Debug.Log(LevelManager.Instance.PlayerHeath.CurrentHealth.ToString());
+        // Debug.Log(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth.ToString());
 
         if (currentHealth <= 0) Die();
     }
@@ -136,7 +136,7 @@ public class UnitHealthController : MonoBehaviour, IDamageable
        CurrentUnitHeath.HealUnits(healing);
 
         //display current health to the user 
-        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.CurrentHealth);
+        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
 
         Debug.Log("Current Health" + CurrentUnitHeath.CurrentHealth.ToString());
     }

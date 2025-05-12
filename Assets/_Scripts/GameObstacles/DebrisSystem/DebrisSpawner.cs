@@ -90,7 +90,7 @@ public class DebrisSpawner : MonoBehaviour
             //Cant spawn more stationary obj then there are spawn points 
             if (currentDebrisCount >= stationarySpawnPoints.Count - 1) break;
            
-            int index = Random.Range(0, stationaryDebrisPools.Count + 1);
+            int index = Random.Range(0, stationaryDebrisPools.Count);
             GameObject obj = stationaryDebrisPools[index].Get();
             obj.transform.position = point.position;
             obj.transform.rotation = Quaternion.identity;

@@ -53,7 +53,9 @@ public class SpawnManager : NetworkBehaviour
         _nextSpawnIndex++;
 
         GameObject go = Instantiate(_playerPrefab, spawn.position, spawn.rotation);
-    
+
+        //Add Player to leaderboard:
+
         // Try to get the component, and add it if it doesn't exist
         var boatMovement = go.GetComponent<TugboatMovementWFloat>();
         if (boatMovement == null)
@@ -70,6 +72,9 @@ public class SpawnManager : NetworkBehaviour
     
         go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
         _spawnedClients.Add(clientId);
+
+        // Update leaderboard now that the player is spawned
+        LeaderboardManager.Instance?.UpdateLeaderboard();
     }
 
     private IEnumerator DelaySpawn(ulong clientId)
