@@ -95,6 +95,8 @@ public class SpawnManager : NetworkBehaviour
 
         go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
         _spawnedClients.Add(clientId);
+        
+        LeaderboardManager.Instance?.UpdateLeaderboard();
     }
 
     private int GetUnusedPrefabVariant()
