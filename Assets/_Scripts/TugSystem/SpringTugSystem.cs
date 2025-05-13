@@ -4,6 +4,7 @@ using TMPro;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Windows;
@@ -13,9 +14,10 @@ public class SpringTugSystem : NetworkBehaviour
 {
     [SerializeField] private TextMeshProUGUI distanceText;
 
-
+   
     [SerializeField] private SpringJoint springJoint;
     [SerializeField] private Rope visualRope;
+    public Rope VisualRope { get => visualRope; set => visualRope = value; }
 
     [Header("Tow Settings")]
     [SerializeField] private Rigidbody towedObject;
@@ -79,7 +81,9 @@ public class SpringTugSystem : NetworkBehaviour
 #endif
         }
     }
-    
+
+   
+
     private void Awake()
     {
         // Make sure the towedObject rigidbody is properly set up
@@ -95,7 +99,8 @@ public class SpringTugSystem : NetworkBehaviour
     {
         lineRenderer = GetComponent<LineRenderer>();
 
-        
+        //visualRope.gameObject.GetComponent<NetworkObject>().Spawn();
+        visualRope.gameObject.SetActive(false); //needs to create the network object before being deactivated 
 
         // springJoint.autoConfigureConnectedAnchor = false;
         //springJoint.connectedAnchor = ropeAttachPoint.position;
@@ -339,8 +344,8 @@ public class SpringTugSystem : NetworkBehaviour
             towedObject.MoveRotation(targetRotation);
         
             // Alternative approach - reset angular velocity on unwanted axes
-            Vector3 angularVelocity = towedObject.angularVelocity;
-            towedObject.angularVelocity = new Vector3(0, angularVelocity.y, 0);
+            //Vector3 angularVelocity = towedObject.angularVelocity;
+            //towedObject.angularVelocity = new Vector3(0, angularVelocity.y, 0);
         }
     }
 
@@ -537,6 +542,85 @@ public class SpringTugSystem : NetworkBehaviour
         }
     }
 
+    //public NetworkVariable<SpringJoint> PlayerNetSpringJoint = new NetworkVariable<SpringJoint>(;
+
+    //=================================================================================================================================== Make Network SpringJoint Work
+
+    // Called on the client to request a joint
+    void RequestSpringJoint(GameObject player, GameObject targetObject)
+    {
+        var playerNetObj = player.GetComponent<NetworkObject>();
+        var targetNetObj = targetObject.GetComponent<NetworkObject>();
+        AttachSpringJointServerRpc(playerNetObj, targetNetObj);
+    }
+
+    [ServerRpc]
+    void AttachSpringJointServerRpc(NetworkObjectReference playerRef, NetworkObjectReference targetRef)
+    {
+        // Resolve references on the server
+        if (playerRef.TryGet(out NetworkObject playerNet) && targetRef.TryGet(out NetworkObject targetNet))
+        {
+            print("Attaching joint");
+            var playerBody = playerNet.GetComponent<Rigidbody>();
+            //var spring = playerNet.GetComponent<SpringJoint>() ?? playerNet.gameObject.AddComponent<SpringJoint>();
+            var spring = playerNet.gameObject.AddComponent<SpringJoint>();
+            spring.connectedBody = targetNet.GetComponent<Rigidbody>();
+            // Configure spring settings as needed...
+            //set Spring properties 
+            spring.connectedBody = towedObject;
+            spring.spring = springAmount;
+            spring.damper = 1;
+            spring.maxDistance = springMaxDistance;
+        }
+    }
+
+    //Detach the joint!
+    void RequestDetach(GameObject player)
+    {
+        var playerNetObj = player.GetComponent<NetworkObject>();
+
+        DetachSpringJointServerRpc(playerNetObj);
+    }
+
+    [ServerRpc]
+    void DetachSpringJointServerRpc(NetworkObjectReference playerRef)
+    {
+        // Resolve references on the server
+        if (playerRef.TryGet(out NetworkObject playerNet))
+        {
+            print("Detach joint on server");
+            var playerBody = playerNet.GetComponent<Rigidbody>();
+            //var spring = playerNet.GetComponent<SpringJoint>() ?? playerNet.gameObject.AddComponent<SpringJoint>();
+            var spring = playerNet.GetComponent<SpringJoint>();
+
+            //Destroy the spring on the server copy 
+            Destroy(spring);
+        }
+    }
+
+    //=================================================================================================================================== Make Network SpringJoint Work
+
+    [ServerRpc] 
+    void AttachRopeServerRpc(ulong clientId, int attachPositionIndex)
+    {
+        ShowRopeClientRpc(clientId, attachPositionIndex);
+    }
+
+    //Make the Rope Spawn on all clients instances of this players game object: 
+    [ClientRpc]
+    void ShowRopeClientRpc(ulong clientId, int attachPositionIndex)
+    {
+        var playerNet = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+
+        SpringTugSystem pTugSystem = playerNet.gameObject.GetComponent<SpringTugSystem>();
+
+        var towPoints = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList;
+
+       
+        //get the tow point at the given index 
+        pTugSystem.VisualRope.EndPoint = towPoints[attachPositionIndex];
+        pTugSystem.VisualRope.gameObject.SetActive(true);
+    }
 
     /// <summary>
     /// Will add a Spring joint to the boat and connect it to the target object(Barge) 
@@ -573,6 +657,24 @@ public class SpringTugSystem : NetworkBehaviour
             // display the rope:
             visualRope.gameObject.SetActive(true);
 
+            var towPoints = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList;
+
+            int index = towPoints.IndexOf(targetAttachPoint);
+
+
+            AttachRopeServerRpc(OwnerClientId, index);
+
+
+
+            //only the host can derectly attach the spring joint 
+            if (!IsServer)
+            {
+                //request to attach a joint on the server side copy of the client game object 
+                RequestSpringJoint(this.gameObject, towedObject.gameObject);
+            }
+
+            //ALWAYS create a spring locally as well:
+
             //Create and attach the Spring Joint 
             springJoint = gameObject.AddComponent<SpringJoint>(); // attach a spring joint to this gameobject plus set it as springJoint
 
@@ -582,6 +684,7 @@ public class SpringTugSystem : NetworkBehaviour
             springJoint.damper = 1;
             springJoint.maxDistance = springMaxDistance;
 
+            
 
             //Set attached state 
             isAttached = true;
@@ -600,7 +703,7 @@ public class SpringTugSystem : NetworkBehaviour
     {
         if (springJoint != null)
         {
-            //Disconnect Joint
+            //Disconnect local Joint
             Destroy(springJoint);
 
             //Hide Rope Mesh:
@@ -608,7 +711,14 @@ public class SpringTugSystem : NetworkBehaviour
             //or just the gameobject itself 
             visualRope.gameObject.SetActive(false);
 
-           
+
+            //Make sure the Spring joint is destroyed on the Server side copy of the player as well 
+            if (!IsServer)
+            {
+                //request to attach a joint on the server side copy of the client game object 
+                RequestDetach(this.gameObject);
+            }
+
         }
 
         isAttached = false; // no longer attached 

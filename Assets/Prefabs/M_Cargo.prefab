@@ -9744,8 +9744,8 @@ GameObject:
   - component: {fileID: 3328851534445424993}
   - component: {fileID: 3040236863860052559}
   - component: {fileID: 8378375503774197285}
-  - component: {fileID: 7897607542108420257}
-  - component: {fileID: 4624073795177338753}
+  - component: {fileID: 942357711560469661}
+  - component: {fileID: 8133350768631771271}
   m_Layer: 0
   m_Name: M_Cargo
   m_TagString: Barge
@@ -9819,7 +9819,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 80
   m_CollisionDetection: 2
 --- !u!114 &1914046281948396831
@@ -9958,7 +9958,7 @@ MonoBehaviour:
   orientationSmoothSpeed: 0
   pitchAngleMultiplier: 0
   rollAngleMultiplier: 0
---- !u!114 &7897607542108420257
+--- !u!114 &942357711560469661
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9974,7 +9974,7 @@ MonoBehaviour:
   NetworkTransformExpanded: 0
   AutoOwnerAuthorityTickOffset: 1
   PositionInterpolationType: 0
-  RotationInterpolationType: 0
+  RotationInterpolationType: 2
   ScaleInterpolationType: 0
   PositionLerpSmoothing: 1
   PositionMaxInterpolationTime: 0.1
@@ -9988,23 +9988,23 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
+  SyncRotAngleX: 1
   SyncRotAngleY: 1
-  SyncRotAngleZ: 0
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
+  UseQuaternionSynchronization: 1
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &4624073795177338753
+--- !u!114 &8133350768631771271
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

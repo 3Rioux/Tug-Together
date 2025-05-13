@@ -7,11 +7,11 @@ using UnityEngine.InputSystem;
 public class UnitHealthController : MonoBehaviour, IDamageable
 {
     [Header("Player Health: ")]
-    public int maxHealth = 100;
+    [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth;
-    [SerializeField] private TextMeshPro m_tempHealthText;
-    
-    public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit *** Can change to private 
+    [SerializeField] private TextMeshProUGUI healthText;
+
+    public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
 
     // public HealthBar _playerHealthBar; //reference to the healthBar or your damaged parts script stuff 
 
@@ -53,20 +53,20 @@ public class UnitHealthController : MonoBehaviour, IDamageable
 
         }else
         {
-            m_tempHealthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
+            healthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
         }
         //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
 
         //------------------TESTING--------------------------
         //test taking damage current key == q
-        if (Keyboard.current.qKey.wasPressedThisFrame)
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
             UnitTakeDamage(20);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
         }
 
         //test healing damage current key == e
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
             UnitHeal(10);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
