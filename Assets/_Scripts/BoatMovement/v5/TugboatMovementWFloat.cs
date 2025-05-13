@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
 using Unity.Mathematics;
@@ -35,6 +36,12 @@ public class TugboatMovementWFloat : NetworkBehaviour
     [SerializeField] Material bowWaveMaterial; 
     [SerializeField] WaterFoamGenerator foamGenerator; 
     [SerializeField] VisualEffect rearSplashVFX;
+    [SerializeField] private Material speedLinesMaterial;
+    
+    [Header("Ship Sails")]
+    [SerializeField] private GameObject[] sailObjects; // Changed from Material[] sailMaterials
+    private Material[] _sailMaterials; // Will store extracted materials
+    private float _currentSailStrength = 0.2f;
     
 
     private Vector3 _dampVelocity = Vector3.zero;
@@ -93,8 +100,6 @@ public class TugboatMovementWFloat : NetworkBehaviour
     private readonly NetworkVariable<float> _syncedSpeed = new NetworkVariable<float>(0f, 
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-
-
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -112,13 +117,31 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     private void Start()
     {
-        //set the default throttle force Multiplier to the currently set throttleForceMultiplier
+        // Existing code
         defaultThrottleForceMultiplier = throttleForceMultiplier;
 
-        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component ALWAYS FOR ALL PLAYERS 
+        // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
         if (targetSurface == null)
         {
-            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface;
+        }
+    
+        // Extract materials from sail GameObjects
+        if (sailObjects != null && sailObjects.Length > 0)
+        {
+            List<Material> materials = new List<Material>();
+            foreach (GameObject sail in sailObjects)
+            {
+                if (sail != null)
+                {
+                    Renderer renderer = sail.GetComponent<Renderer>();
+                    if (renderer != null && renderer.material != null)
+                    {
+                        materials.Add(renderer.material);
+                    }
+                }
+            }
+            _sailMaterials = materials.ToArray();
         }
     }
 
@@ -198,24 +221,82 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // Normalize speed to a value between 0 and 1
         float normalizedSpeed = Mathf.InverseLerp(0, maxSpeed - 10f, currentSpeed);
 
+        // == Wave Bow Effect ==
         
         // Smoothly transition amplitude between 0 and 3 based on normalized speed
         bowWaveDecal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
         
         // Smoothly transition bow wave decal region size
-        Vector2 minSize = new Vector2(30.5f, 43f);
-        Vector2 maxSize = new Vector2(45f, 55f);
+        Vector2 minSize = new(30.5f, 43f);
+        Vector2 maxSize = new(45f, 55f);
         bowWaveDecal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
-        
-        // Smoothly transition rear splash size from 0.3 to 2.5
-        float splashSize = Mathf.Lerp(0.3f, 2.5f, normalizedSpeed);
-        rearSplashVFX.SetFloat("Size", splashSize);
-        rearSplashVFX.gameObject.SetActive(currentSpeed > 1.0f);
-        
-        // Reset floating offset if needed
-        if (currentSpeed <= 1f)
+
+        // == Water Splash Effect ==
+        if (currentSpeed > 1.0f && targetSurface != null)
         {
-            floatingOffset = new float3(0, 0, 0);
+            // Get current position of the splash effect
+            Vector3 splashPosition = rearSplashVFX.transform.position;
+    
+            // Create search parameters just for the splash
+            WaterSearchParameters splashParams = new WaterSearchParameters
+            {
+                startPositionWS = splashPosition + Vector3.up * 2f,
+                targetPositionWS = splashPosition,
+                includeDeformation = includeDeformation,
+                excludeSimulation = excludeSimulation,
+                error = 0.01f,
+                maxIterations = 4
+            };
+
+            // Find water height at splash position
+            if (targetSurface.ProjectPointOnWaterSurface(splashParams, out WaterSearchResult splashResult))
+            {
+                // Only update the Y position to match water height
+                splashPosition.y = splashResult.projectedPositionWS.y;
+                rearSplashVFX.transform.position = splashPosition;
+            }
+    
+            // Set VFX size based on speed
+            float splashSize = Mathf.Lerp(0.3f, 2.5f, normalizedSpeed);
+            rearSplashVFX.SetFloat("Size", splashSize);
+            rearSplashVFX.gameObject.SetActive(true);
+        }
+        else
+        {
+            rearSplashVFX.gameObject.SetActive(false);
+        }
+
+        // == Sails Effect ==
+        
+        // Calculate sail strength but round to 2 decimal places
+        float rawStrength = Mathf.Lerp(0.2f, 0.8f, normalizedSpeed);
+        float roundedStrength = Mathf.Round(rawStrength * 100) / 100f; // Round to 2 decimal places (0.XX)
+    
+        // Only update if the rounded value actually changed
+        if (Mathf.Abs(_currentSailStrength - roundedStrength) > 0.001f)
+        {
+            _currentSailStrength = roundedStrength;
+        
+            if (_sailMaterials != null)
+            {
+                foreach (Material sail in _sailMaterials)
+                {
+                    if (sail != null)
+                    {
+                        sail.SetFloat("_Strength", _currentSailStrength);
+                    }
+                }
+            }
+        }
+        
+        // == Speed Lines Effect ==
+        
+        // Handle speed lines material
+        if (speedLinesMaterial != null)
+        {
+            // Calculate density directly from sail strength rather than separately from speed
+            float linesDensity = Mathf.InverseLerp(0.2f, 0.8f, _currentSailStrength) * 0.32f;
+            speedLinesMaterial.SetFloat("_Lines_Density", linesDensity);
         }
     }
 

@@ -186,25 +186,49 @@ public class SceneTransition : MonoBehaviour
                 DebugLog("Client received show loading image command");
         
                 MainThreadDispatcher.RunOnMainThread(() => {
-                    // Make sure loading image is properly initialized
-                    if (_loadingImage != null && _loadingImage.material != null) 
-                    {
-                        _loadingImage.enabled = true;
-                        _loadingImage.material.SetFloat("_Fade", 0f);
-                
-                        // Animate loading image fade-in
-                        _loadingImage.material.DOFloat(1f, "_Fade", _defaultFadeDuration * 0.5f)
-                            .SetEase(Ease.InOutQuad)
-                            .SetUpdate(true);
-                
-                        DebugLog("Client showing loading image");
-                    }
-                    else
-                    {
-                        DebugLog("Client loading image or material is null!");
+                    // First check if we're still fading the main transition image
+                    if (_clientIsFadingOut) {
+                        // We need to wait until the fade out is complete before showing loading
+                        StartCoroutine(ShowLoadingImageWhenFadeComplete());
+                    } else {
+                        // Main fade is already complete, show loading image now
+                        ShowLoadingImageImmediate();
                     }
                 });
             });
+    }
+    
+    private IEnumerator ShowLoadingImageWhenFadeComplete()
+    {
+        // Wait until the fade out flag is cleared or maximum of 2 seconds
+        float timeout = 2f;
+        float elapsed = 0f;
+    
+        while (_clientIsFadingOut && elapsed < timeout) {
+            yield return null;
+            elapsed += Time.deltaTime;
+        }
+    
+        // Now show the loading image
+        ShowLoadingImageImmediate();
+    }
+
+    private void ShowLoadingImageImmediate()
+    {
+        if (_loadingImage != null && _loadingImage.material != null) {
+            _loadingImage.enabled = true;
+            _loadingImage.material.SetFloat("_Fade", 0f);
+        
+            // Animate loading image fade-in
+            _loadingImage.material.DOFloat(1f, "_Fade", _defaultFadeDuration * 0.5f)
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true);
+        
+            DebugLog("Client showing loading image");
+        }
+        else {
+            DebugLog("Client loading image or material is null!");
+        }
     }
 
     private void UnregisterNetworkHandlers()
@@ -410,6 +434,7 @@ public class SceneTransition : MonoBehaviour
 
         // Ensure we end fully faded
         _transitionMaterial.SetFloat("_Fade", 1f);
+        _clientIsFadingOut = false; // Mark fade as complete
         DebugLog("Client fade out complete");
     }
 

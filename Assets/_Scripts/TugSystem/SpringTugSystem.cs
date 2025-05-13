@@ -79,6 +79,16 @@ public class SpringTugSystem : NetworkBehaviour
 #endif
         }
     }
+    
+    private void Awake()
+    {
+        // Make sure the towedObject rigidbody is properly set up
+        if (towedObject != null)
+        {
+            // Freeze rotation on X and Z axes, allowing only Y rotation
+            towedObject.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+    }
 
 
     private void Start()
@@ -311,6 +321,27 @@ public class SpringTugSystem : NetworkBehaviour
         }
 
         CameraRotation();
+    }
+    
+    private void FixedUpdate()
+    {
+        // Only apply if we're attached and towing
+        if (isAttached && towedObject != null)
+        {
+            // Get the current rotation
+            Quaternion currentRotation = towedObject.transform.rotation;
+        
+            // Create a corrected rotation that only preserves Y rotation
+            Vector3 eulerAngles = currentRotation.eulerAngles;
+            Quaternion targetRotation = Quaternion.Euler(0, eulerAngles.y, 0);
+        
+            // Apply the corrected rotation
+            towedObject.MoveRotation(targetRotation);
+        
+            // Alternative approach - reset angular velocity on unwanted axes
+            Vector3 angularVelocity = towedObject.angularVelocity;
+            towedObject.angularVelocity = new Vector3(0, angularVelocity.y, 0);
+        }
     }
 
     private void CameraRotation()

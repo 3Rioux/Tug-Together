@@ -1071,7 +1071,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _playerPrefab: {fileID: 812348049185974291, guid: e1acebebeeb25f64d9e5e748f07559c6, type: 3}
+  _playerPrefabVariants:
+  - {fileID: 6991341534524269065, guid: dbcecdcb5b6c8f24ab96eb4725bc1b40, type: 3}
+  - {fileID: 6991341534524269065, guid: 61d6fdb968798d644bda59be1cad946b, type: 3}
+  - {fileID: 6991341534524269065, guid: 49e8e681d51e3984793a7f04af00377f, type: 3}
+  - {fileID: 6991341534524269065, guid: 19e25112c4a080e4fa9903668ffdda4a, type: 3}
   _spawnPoints:
   - {fileID: 1665469920}
   - {fileID: 2057810934}
@@ -32925,7 +32929,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1579008097}
   - component: {fileID: 1579008098}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Ocean
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32995,8 +32999,8 @@ MonoBehaviour:
   causticsPlaneBlendDistance: 3
   causticsResolution: 256
   causticsBand: 1
-  virtualPlaneDistance: 4
-  causticsTilingFactor: 1
+  virtualPlaneDistance: 20
+  causticsTilingFactor: 0.5
   causticsDirectionalShadow: 1
   causticsDirectionalShadowDimmer: 0.184
   renderingLayerMask: 2
@@ -44176,7 +44180,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _playerPrefab: {fileID: 6633722382031350369, guid: d7b0b96fc713cd74287b7a729965a5ac, type: 3}
+  _playerPrefabVariants:
+  - {fileID: 6991341534524269065, guid: dbcecdcb5b6c8f24ab96eb4725bc1b40, type: 3}
+  - {fileID: 6991341534524269065, guid: 61d6fdb968798d644bda59be1cad946b, type: 3}
+  - {fileID: 6991341534524269065, guid: 49e8e681d51e3984793a7f04af00377f, type: 3}
+  - {fileID: 6991341534524269065, guid: 19e25112c4a080e4fa9903668ffdda4a, type: 3}
   _spawnPoints:
   - {fileID: 1569079121}
   - {fileID: 1573025382}

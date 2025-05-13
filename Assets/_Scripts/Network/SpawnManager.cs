@@ -1,20 +1,23 @@
-// C#
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
-using UnityEngine.SceneManagement;
 
 public class SpawnManager : NetworkBehaviour
 {
-    [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private GameObject[] _playerPrefabVariants; // Array of player prefab variants
     [SerializeField] private Transform[] _spawnPoints;
     private int _nextSpawnIndex = 0;
     private bool _sceneLoaded;
 
-    // Track spawned client IDs to avoid duplicate spawns.
+    // Track spawned client IDs
     private HashSet<ulong> _spawnedClients = new HashSet<ulong>();
+    
+    // Track which client has which prefab variant
+    private Dictionary<ulong, int> _clientPrefabVariants = new Dictionary<ulong, int>();
+    
+    // Track which prefab variants are currently in use
+    private HashSet<int> _usedPrefabVariants = new HashSet<int>();
 
     public override void OnNetworkSpawn()
     {
@@ -22,6 +25,7 @@ public class SpawnManager : NetworkBehaviour
             return;
 
         NetworkManager.Singleton.SceneManager.OnSceneEvent += HandleSceneEvent;
+        NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnect;
     }
 
     private void HandleSceneEvent(SceneEvent sceneEvent)
@@ -36,13 +40,22 @@ public class SpawnManager : NetworkBehaviour
         }
     }
 
+    private void HandleClientDisconnect(ulong clientId)
+    {
+        _spawnedClients.Remove(clientId);
+        
+        // Don't remove from _clientPrefabVariants to preserve their variant when reconnecting
+        if (_clientPrefabVariants.TryGetValue(clientId, out int prefabIndex))
+        {
+            _usedPrefabVariants.Remove(prefabIndex);
+        }
+    }
+
     private void SpawnForClient(ulong clientId)
     {
-        // Only spawn if this client hasn't been spawned yet.
         if (_spawnedClients.Contains(clientId))
             return;
 
-        // If the scene isn't loaded, delay the spawn.
         if (!_sceneLoaded)
         {
             StartCoroutine(DelaySpawn(clientId));
@@ -52,29 +65,57 @@ public class SpawnManager : NetworkBehaviour
         Transform spawn = _spawnPoints[_nextSpawnIndex % _spawnPoints.Length];
         _nextSpawnIndex++;
 
-        GameObject go = Instantiate(_playerPrefab, spawn.position, spawn.rotation);
+        // Determine which prefab variant to use
+        int prefabIndex;
+        
+        // Check if client is reconnecting
+        if (_clientPrefabVariants.TryGetValue(clientId, out prefabIndex))
+        {
+            Debug.Log($"Client {clientId} reconnected, using previous variant {prefabIndex}");
+            _usedPrefabVariants.Add(prefabIndex);
+        }
+        else
+        {
+            // Assign new random variant that's not in use
+            prefabIndex = GetUnusedPrefabVariant();
+            _clientPrefabVariants[clientId] = prefabIndex;
+            _usedPrefabVariants.Add(prefabIndex);
+            Debug.Log($"Assigned new variant {prefabIndex} to client {clientId}");
+        }
 
-        //Add Player to leaderboard:
+        // Instantiate the selected prefab variant
+        GameObject go = Instantiate(_playerPrefabVariants[prefabIndex], spawn.position, spawn.rotation);
 
-        // Try to get the component, and add it if it doesn't exist
         var boatMovement = go.GetComponent<TugboatMovementWFloat>();
         if (boatMovement == null)
         {
-            Debug.LogWarning("TugboatMovementWFloat component not found, attempting to add it.", this);
+            Debug.LogWarning("TugboatMovementWFloat component not found, adding it.", this);
             boatMovement = go.AddComponent<TugboatMovementWFloat>();
         }
-    
-        // Initialize water surface
-        if (boatMovement != null && boatMovement.targetSurface == null)
-        {
-            StartCoroutine(WaitForWaterSurface(boatMovement));
-        }
-    
+
         go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
         _spawnedClients.Add(clientId);
+    }
 
-        // Update leaderboard now that the player is spawned
-        LeaderboardManager.Instance?.UpdateLeaderboard();
+    private int GetUnusedPrefabVariant()
+    {
+        // If all variants are in use, find an available one
+        if (_usedPrefabVariants.Count >= _playerPrefabVariants.Length)
+        {
+            Debug.Log("All variants in use, selecting least used variant");
+            return 0; // Default to first variant as fallback
+        }
+
+        // Get available variants
+        List<int> availableVariants = new List<int>();
+        for (int i = 0; i < _playerPrefabVariants.Length; i++)
+        {
+            if (!_usedPrefabVariants.Contains(i))
+                availableVariants.Add(i);
+        }
+
+        // Select random available variant
+        return availableVariants[Random.Range(0, availableVariants.Count)];
     }
 
     private IEnumerator DelaySpawn(ulong clientId)
@@ -86,33 +127,12 @@ public class SpawnManager : NetworkBehaviour
         SpawnForClient(clientId);
     }
 
-    private IEnumerator WaitForWaterSurface(TugboatMovementWFloat boatMovement)
-    {
-        GameObject ocean = GameObject.Find("Ocean");
-        if (ocean != null)
-        {
-            boatMovement.targetSurface = ocean.GetComponent<WaterSurface>();
-            if (boatMovement.targetSurface != null)
-            {
-                Debug.Log("WaterSurface found on Ocean object: " + ocean.name);
-                yield break;
-            }
-        }
-        boatMovement.targetSurface = FindObjectOfType<WaterSurface>();
-        if (boatMovement.targetSurface != null)
-        {
-            Debug.Log("WaterSurface found via FindObjectOfType on: " + boatMovement.targetSurface.gameObject.name);
-        }
-        else
-        {
-            Debug.LogError("WaterSurface component not found in the scene.", this);
-        }
-        yield break;
-    }
-
     private void OnDestroy()
     {
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.SceneManager.OnSceneEvent -= HandleSceneEvent;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnect;
+        }
     }
 }
