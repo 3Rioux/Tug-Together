@@ -597,10 +597,11 @@ public class SpringTugSystem : NetworkBehaviour
 
     //=================================================================================================================================== Make Network SpringJoint Work
 
-    [ServerRpc] 
-    void AttachRopeServerRpc(ulong clientId, int attachPositionIndex)
+
+    [ServerRpc]
+    public void AttachRopeServerRpc(NetworkObjectReference ropeOwnerRef, int attachPositionIndex)
     {
-        ShowRopeClientRpc(clientId, attachPositionIndex);
+        ShowRopeClientRpc(ropeOwnerRef, attachPositionIndex);
     }
 
     //Make the Rope Spawn on all clients instances of this players game object: 
@@ -617,6 +618,23 @@ public class SpringTugSystem : NetworkBehaviour
         //get the tow point at the given index 
         pTugSystem.VisualRope.EndPoint = towPoints[attachPositionIndex];
         pTugSystem.VisualRope.gameObject.SetActive(true);
+    }
+
+    [ClientRpc]
+    void ShowRopeClientRpc(NetworkObjectReference ropeOwnerRef, int attachPositionIndex)
+    {
+        Debug.Log($"==={ropeOwnerRef}=== Attach Rope Client");
+
+        if (ropeOwnerRef.TryGet(out NetworkObject playerNet))
+        {
+            SpringTugSystem pTugSystem = playerNet.GetComponent<SpringTugSystem>();
+
+            var towPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
+
+            // Set endpoint and activate the rope
+            pTugSystem.VisualRope.EndPoint = towPoints[attachPositionIndex];
+            pTugSystem.VisualRope.gameObject.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -656,11 +674,11 @@ public class SpringTugSystem : NetworkBehaviour
 
             var towPoints = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList;
 
-            int index = towPoints.IndexOf(targetAttachPoint);
+            int attachPointIndex = towPoints.IndexOf(targetAttachPoint);
 
 
-            AttachRopeServerRpc(OwnerClientId, index);
-
+            //AttachRopeServerRpc(OwnerClientId, index);
+            AttachRopeServerRpc(NetworkObject, attachPointIndex);
 
 
             //only the host can derectly attach the spring joint 
