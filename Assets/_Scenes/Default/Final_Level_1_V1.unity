@@ -13337,6 +13337,7 @@ MonoBehaviour:
   graphicsPresetOptionList: {fileID: 486854948}
   resolutionDropdown: {fileID: 486854946}
   windowModeOptionList: {fileID: 486854947}
+  applyButton: {fileID: 0}
 --- !u!4 &673042763
 Transform:
   m_ObjectHideFlags: 0
@@ -19725,8 +19726,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 13.115428, y: 9.881821, z: 14.497388}
-  m_Center: {x: 0.3358589, y: 6.9272933, z: 0.9734985}
+  m_Size: {x: 15.739014, y: 9.881821, z: 17.799026}
+  m_Center: {x: -0.042681884, y: 6.9272933, z: -0.6773178}
 --- !u!1001 &907943430
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28900,7 +28901,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1400501294
 Transform:
   m_ObjectHideFlags: 0
@@ -44789,6 +44790,9 @@ MonoBehaviour:
   - {fileID: 1074649357}
   - {fileID: 1175460373}
   - {fileID: 2114720986}
+  stabilizationStrength: 0.5
+  stabilizationThreshold: 0.8
+  maxTiltAngle: 8
 --- !u!54 &2048888992
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -49697,6 +49701,8 @@ MonoBehaviour:
     x: 0
     y: -1
     z: 0
+  enableDamping: 0
+  dampingTime: 0.2
   targetSurface: {fileID: 1146493789}
   includeDeformation: 1
   excludeSimulation: 0

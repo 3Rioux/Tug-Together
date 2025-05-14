@@ -828,7 +828,7 @@ public class SpringTugSystem : NetworkBehaviour
         //Move the rope endPoint to the attachpoint 
         visualRope.EndPoint = targetAttachPoint;
 
-        visualRope.ropeLength = 1f; // this should create a cool effect when next attaching 
+        visualRope.ropeLength = springMaxDistance; // this should create a cool effect when next attaching 
        
 
        //wait for a second before disableing the hook?
@@ -839,7 +839,7 @@ public class SpringTugSystem : NetworkBehaviour
 
     private void DetatchRopeWEffect()
     {
-        visualRope.ropeLength = 1f; // this should create a cool effect when next attaching 
+        visualRope.ropeLength = springMaxDistance; // this should create a cool effect when next attaching 
         visualRope.EndPoint = boatHook.transform; // this should create a cool effect when next attaching 
         visualRope.gameObject.SetActive(false);
 
