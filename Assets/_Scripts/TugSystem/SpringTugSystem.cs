@@ -42,6 +42,11 @@ public class SpringTugSystem : NetworkBehaviour
     [SerializeField] private float hookSwitchCooldown = 1f; // Cooldown in seconds
     [SerializeField] private CinemachineCamera aimCamera; // aim Camera 
 
+    //Stuff To Disable when Aiming:
+    //[SerializeField] private GameObject sails;
+    //[SerializeField] private GameObject flags;
+    //[SerializeField] private GameObject face; // all good i hand the LayerMask as max distance lol
+
     [Tooltip("How far in degrees can you move the aim camera up")]
     [SerializeField] private float TopClamp = 70.0f;
 
@@ -109,6 +114,12 @@ public class SpringTugSystem : NetworkBehaviour
         //visualRope.gameObject.GetComponent<NetworkObject>().Spawn();
         visualRope.gameObject.SetActive(false); //needs to create the network object before being deactivated 
 
+        if (towedObject == null)
+        {
+            towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+            hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
+        }
+
         // springJoint.autoConfigureConnectedAnchor = false;
         //springJoint.connectedAnchor = ropeAttachPoint.position;
     }
@@ -142,6 +153,12 @@ public class SpringTugSystem : NetworkBehaviour
         //set aim cam to off by default 
         aimCamera.gameObject.SetActive(false);// off by default 
         isAimMode = false;
+
+        if (towedObject == null)
+        {
+            towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+            hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
+        }
     }
 
     private void OnDisable()
@@ -159,21 +176,21 @@ public class SpringTugSystem : NetworkBehaviour
     {
         // *** Always update this even if its just a copy on another client ***
         //Only update the visual rope length if we are attached
-        if (isAttached)
-        {
-            //set ropeLength to max lenght to simulate tention in the rope.
-            // * if not here it will make the rope length == the the distance between the boat & cargo when attached *
+        //if (isAttached)
+        //{
+        //    //set ropeLength to max lenght to simulate tention in the rope.
+        //    // * if not here it will make the rope length == the the distance between the boat & cargo when attached *
 
-            //Check if we are passed the max tow distance 
-            if (distanceToTowedObject >= springMaxDistance)
-            {
-                visualRope.ropeLength = springMaxDistance;
-            }
-            else
-            {
-               // visualRope.ropeLength = distanceToTowedObject;
-            }
-        }
+        //    //Check if we are passed the max tow distance 
+        //    if (distanceToTowedObject >= springMaxDistance)
+        //    {
+        //        visualRope.ropeLength = springMaxDistance;
+        //    }
+        //    else
+        //    {
+        //       // visualRope.ropeLength = distanceToTowedObject;
+        //    }
+        //}
         // *** Always update this even if its just a copy on another client ***
 
         if (towedObject == null || !IsOwner)
@@ -330,12 +347,11 @@ public class SpringTugSystem : NetworkBehaviour
         //{
         //    return;
         //}
-
-        if (towedObject == null)
-        {
-            towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
-            hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
-        }
+        //if (towedObject == null)
+        //{
+        //    towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+        //    hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
+        //}
 
         CameraRotation();
     }
@@ -465,7 +481,7 @@ public class SpringTugSystem : NetworkBehaviour
             //Debug.DrawRay(camPosition, direction, Color.red, 1f);
 
             // if(Physics.Linecast(camPosition, direction, out hit))
-            if (Physics.Raycast(camPosition, direction, out hit, aimColliderLayerMask))
+            if (Physics.Raycast(camPosition, direction, out hit, maxTowDistance + 5f, aimColliderLayerMask))
             {
                 Debug.DrawRay(camPosition, direction, Color.magenta, 1f);
                 if (hit.collider != null)
@@ -477,6 +493,7 @@ public class SpringTugSystem : NetworkBehaviour
                         visibleHooks.Add(hook);
                     }else
                     {
+                        Debug.Log($"Failled collision = {hit.collider.tag}");
                         Debug.DrawRay(camPosition, direction, Color.red, 1f);
                     }
                 }else
@@ -726,9 +743,10 @@ public class SpringTugSystem : NetworkBehaviour
             //// display the rope:
             //visualRope.gameObject.SetActive(true);
 
-            StartCoroutine("AttachRopeEffect");
+            // StartCoroutine("AttachRopeEffect");
+            AttachRopeWEffect();
 
-            var towPoints = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList;
+             var towPoints = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList;
 
             int attachPointIndex = towPoints.IndexOf(targetAttachPoint);
 
@@ -780,8 +798,11 @@ public class SpringTugSystem : NetworkBehaviour
             //Hide Rope Mesh:
             //visualRope.gameObject.GetComponent<RopeMesh>().enabled = false;
             //or just the gameobject itself 
-            visualRope.ropeLength = 5f; // this should create a cool effect 
-            visualRope.gameObject.SetActive(false);
+            //visualRope.ropeLength = 5f; // this should create a cool effect 
+            //visualRope.gameObject.SetActive(false);
+
+
+            DetatchRopeWEffect();
 
 
 
@@ -798,28 +819,29 @@ public class SpringTugSystem : NetworkBehaviour
     }
 
 
-    private IEnumerator AttachRopeWEffect()
+    private void AttachRopeWEffect()
     {
+        visualRope.gameObject.SetActive(true);
+
+        visualRope.EndPoint = boatHook.transform; // this should create a cool effect when next attaching 
+
         //Move the rope endPoint to the attachpoint 
         visualRope.EndPoint = targetAttachPoint;
 
-        visualRope.ropeLength = 5f; // this should create a cool effect when next attaching 
-        visualRope.gameObject.SetActive(true);
+        visualRope.ropeLength = 1f; // this should create a cool effect when next attaching 
+       
 
-        yield return new WaitForSeconds(1f);
+       //wait for a second before disableing the hook?
 
         boatHook.SetActive(false); // make sure it off when hooked in 
     }
 
 
-    private IEnumerator DetatchRopeWEffect()
+    private void DetatchRopeWEffect()
     {
-        visualRope.ropeLength = 5f; // this should create a cool effect when next attaching 
+        visualRope.ropeLength = 1f; // this should create a cool effect when next attaching 
+        visualRope.EndPoint = boatHook.transform; // this should create a cool effect when next attaching 
         visualRope.gameObject.SetActive(false);
-
-        yield return new WaitForSeconds(1f);
-
-
 
         boatHook.SetActive(true); // make sure it active 
     }

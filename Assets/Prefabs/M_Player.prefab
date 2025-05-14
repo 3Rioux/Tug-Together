@@ -872,7 +872,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   debugSpeedText: {fileID: 2128844027111585695}
-  maxSpeed: 30
+  maxSpeed: 40
   throttleForce: 2000
   throttleForceMultiplier: 200
   defaultThrottleForceMultiplier: 10
@@ -893,8 +893,8 @@ MonoBehaviour:
   minPitch: -30
   maxPitch: 60
   dragWhenNotMoving: 2
-  angularDrag: 0.6
-  dampingTime: 0.125
+  angularDrag: 0.35
+  dampingTime: 0.1
   floatingOffset:
     x: 0
     y: 0
@@ -923,6 +923,7 @@ MonoBehaviour:
   distanceText: {fileID: 2869372099696369650}
   springJoint: {fileID: 0}
   visualRope: {fileID: 1173568696392976096}
+  boatHook: {fileID: 1642469682631021456}
   towedObject: {fileID: 0}
   towAnchor: {fileID: 5192927246685989186}
   targetAttachPoint: {fileID: 0}
@@ -937,9 +938,10 @@ MonoBehaviour:
   cameraAimFollowPoint: {fileID: 3379224255306894814}
   aimColliderLayerMask:
     serializedVersion: 2
-    m_Bits: 247
+    m_Bits: 215
   isAimMode: 0
   visibleHooks: []
+  hookPoints: []
   hookSwitchCooldown: 0.5
   aimCamera: {fileID: 4419256085884882140}
   TopClamp: 70
@@ -973,7 +975,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 375ac34d0f77fdd45833ae0f53eaa610, type: 2}
+  - {fileID: 2100000, guid: 510a9e5c5acdfbc498551ffbb0637890, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -996,7 +998,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
+  - {x: 55, y: 55, z: 55}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -1048,7 +1050,7 @@ LineRenderer:
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
-    textureMode: 0
+    textureMode: 1
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
@@ -1136,7 +1138,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   healthText: {fileID: 3016659806351485906}
-  canAutoHeal: 0
+  canAutoHeal: 1
   healDelay: 5
   healAmountPerSecond: 1
   healTimeDelay: 1
@@ -2402,7 +2404,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.2
+        value: 0.3
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2411,7 +2413,7 @@ LineRenderer:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 0.2
+        value: 0.3
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -2481,7 +2483,7 @@ MonoBehaviour:
   stiffness: 350
   damping: 15
   ropeLength: 60
-  ropeWidth: 0.2
+  ropeWidth: 0.3
   midPointWeight: 1
   midPointPosition: 0.5
 --- !u!114 &8222249454983195299
