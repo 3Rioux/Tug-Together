@@ -1,4 +1,5 @@
 using GogoGaga.OptimizedRopesAndCables;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
@@ -9,11 +10,14 @@ using UnityEngine.InputSystem;
 
 public class SpringTugSystem : NetworkBehaviour
 {
+
+    #region Variables
     [SerializeField] private TextMeshProUGUI distanceText;
 
    
     [SerializeField] private SpringJoint springJoint;
     [SerializeField] private Rope visualRope;
+    [SerializeField] private GameObject boatHook;
     public Rope VisualRope { get => visualRope; set => visualRope = value; }
 
     [Header("Tow Settings")]
@@ -34,16 +38,17 @@ public class SpringTugSystem : NetworkBehaviour
     [SerializeField] private LayerMask aimColliderLayerMask = new LayerMask();//the layer the player will hit (i want to ignore the player layer) (Cant hit itself with a ray)
     [SerializeField] private bool isAimMode = false; // bool to stop the auto target closest hook code
     [SerializeField] private List<Transform> visibleHooks = new List<Transform>();
+    [SerializeField] private List<Transform> hookPoints;
     [SerializeField] private float hookSwitchCooldown = 1f; // Cooldown in seconds
     [SerializeField] private CinemachineCamera aimCamera; // aim Camera 
 
-    [Tooltip("How far in degrees can you move the camera up")]
+    [Tooltip("How far in degrees can you move the aim camera up")]
     [SerializeField] private float TopClamp = 70.0f;
 
-    [Tooltip("How far in degrees can you move the camera down")]
+    [Tooltip("How far in degrees can you move the aim camera down")]
     [SerializeField] private float BottomClamp = -30.0f;
 
-    [Tooltip("Additional degress to override the camera. Useful for fine tuning camera position when locked")]
+    [Tooltip("Additional degress to override the aim camera. Useful for fine tuning camera position when locked")]
     [SerializeField] private float CameraAngleOverride = 0.0f;
 
     public float Sensitivity = 1.0f;//----------------reduce the mouse sensitivity when aiming--------------------------------------------------------------------------------------
@@ -78,8 +83,8 @@ public class SpringTugSystem : NetworkBehaviour
 #endif
         }
     }
+#endregion
 
-   
 
     private void Awake()
     {
@@ -88,6 +93,11 @@ public class SpringTugSystem : NetworkBehaviour
         {
             // Freeze rotation on X and Z axes, allowing only Y rotation
             towedObject.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+
+        if(boatHook != null)
+        {
+            boatHook.SetActive(true); // make sure it active 
         }
     }
 
@@ -106,19 +116,19 @@ public class SpringTugSystem : NetworkBehaviour
     private void OnEnable()
     {
         //if (!IsOwner) return;
-        
-            controls = new BoatInputActions();
-            controls.Boat.Enable();
 
-            // Register event handlers
-            controls.Boat.Hook.performed += OnHookTriggered;
-            controls.Boat.AimHook.performed += OnAimTriggered;
-            controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
-            controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
+        controls = new BoatInputActions();
+        controls.Boat.Enable();
 
-            //cam look 
-            controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
-            controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
+        // Register event handlers
+        controls.Boat.Hook.performed += OnHookTriggered;
+        controls.Boat.AimHook.performed += OnAimTriggered;
+        controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
+        controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
+
+        //cam look 
+        controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
+        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
         //}else
         //{
         //    // Unregister event handlers
@@ -147,6 +157,25 @@ public class SpringTugSystem : NetworkBehaviour
 
     private void Update()
     {
+        // *** Always update this even if its just a copy on another client ***
+        //Only update the visual rope length if we are attached
+        if (isAttached)
+        {
+            //set ropeLength to max lenght to simulate tention in the rope.
+            // * if not here it will make the rope length == the the distance between the boat & cargo when attached *
+
+            //Check if we are passed the max tow distance 
+            if (distanceToTowedObject >= springMaxDistance)
+            {
+                visualRope.ropeLength = springMaxDistance;
+            }
+            else
+            {
+               // visualRope.ropeLength = distanceToTowedObject;
+            }
+        }
+        // *** Always update this even if its just a copy on another client ***
+
         if (towedObject == null || !IsOwner)
         {
            
@@ -293,21 +322,6 @@ public class SpringTugSystem : NetworkBehaviour
         // ====== 
 
 
-        //Only update the visual rope length if we are attached 
-        if (isAttached)
-        {
-            if (distanceToTowedObject >= springJoint.maxDistance)
-            {
-                //set to max lenght to simulate tention 
-                visualRope.ropeLength = springJoint.maxDistance;
-            }
-            else
-            {
-                visualRope.ropeLength = distanceToTowedObject;
-            }
-        }
-       
-
     }//end update 
 
     private void LateUpdate()
@@ -320,6 +334,7 @@ public class SpringTugSystem : NetworkBehaviour
         if (towedObject == null)
         {
             towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+            hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
         }
 
         CameraRotation();
@@ -328,7 +343,7 @@ public class SpringTugSystem : NetworkBehaviour
     private void FixedUpdate()
     {
         // Only apply if we're attached and towing
-        if (isAttached && towedObject != null)
+        if (IsHost && isAttached && towedObject != null)
         {
             // Get the current rotation
             Quaternion currentRotation = towedObject.transform.rotation;
@@ -339,12 +354,17 @@ public class SpringTugSystem : NetworkBehaviour
         
             // Apply the corrected rotation
             towedObject.MoveRotation(targetRotation);
-        
+
             // Alternative approach - reset angular velocity on unwanted axes
-            //Vector3 angularVelocity = towedObject.angularVelocity;
-            //towedObject.angularVelocity = new Vector3(0, angularVelocity.y, 0);
+            Vector3 angularVelocity = towedObject.angularVelocity;
+            towedObject.angularVelocity = new Vector3(0, angularVelocity.y, 0);
         }
     }
+
+   
+
+
+    #region AimCameraMotion
 
     private void CameraRotation()
     {
@@ -376,25 +396,15 @@ public class SpringTugSystem : NetworkBehaviour
         return Mathf.Clamp(lfAngle, lfMin, lfMax);
     }
 
-    /// <summary>
-    /// Method triggered my Hook Action ("R") that will attach and deattach the player from the barge 
-    /// </summary>
-    /// <param name="context"></param>
-    private void OnHookTriggered(InputAction.CallbackContext context)
-    {
-        Debug.Log($"===Hook Triggered  isAttached == {isAttached}===");
-        if (isAttached)
-        {
-            Detach();
-        }else
-        {
-            Attach();
-        }
-    }
+    #endregion
 
 
+    #region AimMethods
+
     /// <summary>
-    /// Method to aim the camera towards the hookable object and allow the user to aim at the Hook they want to connect to 
+    /// Event/Action triggered method to switch to the aim camera.
+    /// Now -> just toggles the aim camera + runs an initial visible hook check 
+    /// Used to -> aim the camera towards the closest hookable object and allow the user to aim at the Hook they want to connect to 
     /// </summary>
     /// <param name="context"></param>
     private void OnAimTriggered(InputAction.CallbackContext context)
@@ -478,7 +488,10 @@ public class SpringTugSystem : NetworkBehaviour
 
     }
 
-
+    /// <summary>
+    /// Changes the currently selected hook point based on if its in view of the player & 
+    /// the proximity to the center of the screen.
+    /// </summary>
     private void SelectClosestVisibleHook()
     {
         if (visibleHooks.Count == 0)
@@ -513,6 +526,12 @@ public class SpringTugSystem : NetworkBehaviour
         HighlightSelectedHook();
     }
 
+
+    /// <summary>
+    /// Changes the current aimed at hook point to the next one in the visible hook points list when the player moves the mouse. (Depreciated instead use SelectClosestVisibleHook())
+    /// (This method was used when the aim was hard locking to the hook points) (Depreciated but keeping incase we give the setting to turn this back on)
+    /// </summary>
+    /// <param name="direction"></param>
     private void SelectNextHook(int direction)
     {
         if (visibleHooks.Count == 0)
@@ -531,15 +550,24 @@ public class SpringTugSystem : NetworkBehaviour
         HighlightSelectedHook();
     }
 
+    #endregion
+
+   
+    /// <summary>
+    /// sets the color of all hook point by looping through them. (
+    /// If the hook == the Current selected hookpoint on the towable object (barge) 
+    /// change green else change to orange.
+    /// </summary>
     private void HighlightSelectedHook()
     {
-        foreach (Transform hook in visibleHooks)
+        //foreach (Transform hook in visibleHooks) // <-- had an error where if the selected hook point became out of view before changing the point in would remain green
+        foreach (Transform hook in hookPoints)
         {
             SetAttachPointHighlight(hook, hook == currentClosestAttachPoint);
         }
     }
 
-    //public NetworkVariable<SpringJoint> PlayerNetSpringJoint = new NetworkVariable<SpringJoint>(;
+    #region RPCMethods
 
     //=================================================================================================================================== Make Network SpringJoint Work
 
@@ -597,6 +625,7 @@ public class SpringTugSystem : NetworkBehaviour
 
     //=================================================================================================================================== Make Network SpringJoint Work
 
+    //===================================================START SHOW ROPE ON ALL CLIENT INSTANCES================================================================================
 
     [ServerRpc]
     public void AttachRopeServerRpc(NetworkObjectReference ropeOwnerRef, int attachPositionIndex)
@@ -637,6 +666,31 @@ public class SpringTugSystem : NetworkBehaviour
         }
     }
 
+    //===================================================END SHOW ROPE ON ALL CLIENT INSTANCES================================================================================
+
+    #endregion
+
+    #region Hook-Attach/Detach
+
+    /// <summary>
+    /// Method triggered my Hook Action ("R") that will attach and deattach the player from the barge 
+    /// </summary>
+    /// <param name="context"></param>
+    private void OnHookTriggered(InputAction.CallbackContext context)
+    {
+        Debug.Log($"===Hook Triggered  isAttached == {isAttached}===");
+        if (isAttached)
+        {
+            Detach();
+        }
+        else
+        {
+            Attach();
+        }
+    }
+
+
+
     /// <summary>
     /// Will add a Spring joint to the boat and connect it to the target object(Barge) 
     /// as well as connect the rope end point to the closest attachpoint on the target object
@@ -666,11 +720,13 @@ public class SpringTugSystem : NetworkBehaviour
                 return;
             }
 
-            //Move the rope endPoint to the attachpoint 
-            visualRope.EndPoint = targetAttachPoint;
+            ////Move the rope endPoint to the attachpoint 
+            //visualRope.EndPoint = targetAttachPoint;
 
-            // display the rope:
-            visualRope.gameObject.SetActive(true);
+            //// display the rope:
+            //visualRope.gameObject.SetActive(true);
+
+            StartCoroutine("AttachRopeEffect");
 
             var towPoints = towedObject.gameObject.GetComponent<TowableObjectController>().TowPointList;
 
@@ -724,7 +780,9 @@ public class SpringTugSystem : NetworkBehaviour
             //Hide Rope Mesh:
             //visualRope.gameObject.GetComponent<RopeMesh>().enabled = false;
             //or just the gameobject itself 
+            visualRope.ropeLength = 5f; // this should create a cool effect 
             visualRope.gameObject.SetActive(false);
+
 
 
             //Make sure the Spring joint is destroyed on the Server side copy of the player as well 
@@ -739,6 +797,36 @@ public class SpringTugSystem : NetworkBehaviour
         isAttached = false; // no longer attached 
     }
 
+
+    private IEnumerator AttachRopeWEffect()
+    {
+        //Move the rope endPoint to the attachpoint 
+        visualRope.EndPoint = targetAttachPoint;
+
+        visualRope.ropeLength = 5f; // this should create a cool effect when next attaching 
+        visualRope.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(1f);
+
+        boatHook.SetActive(false); // make sure it off when hooked in 
+    }
+
+
+    private IEnumerator DetatchRopeWEffect()
+    {
+        visualRope.ropeLength = 5f; // this should create a cool effect when next attaching 
+        visualRope.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(1f);
+
+
+
+        boatHook.SetActive(true); // make sure it active 
+    }
+
+    #endregion
+
+    #region AutoHookConnection
 
     /// <summary>
     /// Finds the closest attach point (Transform) on the towed object.
@@ -814,7 +902,9 @@ public class SpringTugSystem : NetworkBehaviour
         }
     }
 
+    #endregion
 
+    #region Debuging
 
     private void OnDrawGizmos()
     {
@@ -840,5 +930,6 @@ public class SpringTugSystem : NetworkBehaviour
         }
     }
 
+    #endregion
 
 }
