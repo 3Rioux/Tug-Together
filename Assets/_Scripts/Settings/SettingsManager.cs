@@ -15,8 +15,17 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private QUI_OptionList graphicsPresetOptionList;
     [SerializeField] private TMP_Dropdown       resolutionDropdown;
     [SerializeField] private QUI_OptionList     windowModeOptionList;
+    
+    [Header("Buttons")]
+    [SerializeField] private Button applyButton;
 
     private Resolution[] availableResolutions;
+    
+    // Add these fields to store pending changes
+    private int pendingGraphicsPreset;
+    private int pendingResolutionIndex;
+    private int pendingWindowMode;
+    private bool hasPendingChanges = false;
 
     // PlayerPrefs keys
     private const string GraphicsPresetKey = "GraphicsPreset";
@@ -35,15 +44,24 @@ public class SettingsManager : MonoBehaviour
         int savedRes    = Mathf.Clamp(PlayerPrefs.GetInt(ResolutionKey, 0), 0, availableResolutions.Length - 1);
         int savedMode   = Mathf.Clamp(PlayerPrefs.GetInt(WindowModeKey, 0), 0, windowModeOptionList.options.Count - 1);
 
+        // initialize pending values
+        pendingGraphicsPreset = savedPreset;
+        pendingResolutionIndex = savedRes;
+        pendingWindowMode = savedMode;
+
         // initialize the controls without firing callbacks
         graphicsPresetOptionList.SetOption(savedPreset);
-        resolutionDropdown.value    = savedRes;
+        resolutionDropdown.value = savedRes;
         windowModeOptionList.SetOption(savedMode);
 
         // now hook up their change-listeners
         graphicsPresetOptionList.onChangeOption.AddListener(OnGraphicsPresetChanged);
         resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
         windowModeOptionList.onChangeOption.AddListener(OnWindowModeChanged);
+    
+        // hook up apply button
+        if (applyButton != null)
+            applyButton.onClick.AddListener(ApplySettings);
     }
 
     private IEnumerator Start()
@@ -51,11 +69,9 @@ public class SettingsManager : MonoBehaviour
         // wait one frame so Unity's UI / InputSystems are fully ready
         yield return null;
 
-        // apply whatever the player had last time
-        OnGraphicsPresetChanged(graphicsPresetOptionList.optionIndex);
-        OnResolutionChanged(resolutionDropdown.value);
-        OnWindowModeChanged(windowModeOptionList.optionIndex);
-        
+        // apply settings on game start
+        ApplySettings();
+
         // set the initial state to avoid sound at the game start
         settingsInitialized = true;
     }
@@ -105,17 +121,9 @@ public class SettingsManager : MonoBehaviour
 
     public void OnGraphicsPresetChanged(int idx)
     {
-        int maxQ  = QualitySettings.names.Length - 1;
-        int count = graphicsPresetOptionList.options.Count;
-        // Map index from 0 (lowest) to maxQ (highest)
-        int level = count > 1 
-            ? Mathf.RoundToInt(Mathf.Lerp(0, maxQ, (float)idx / (count - 1)))
-            : maxQ;
-
-        QualitySettings.SetQualityLevel(level, true);
-        PlayerPrefs.SetInt(GraphicsPresetKey, idx);
-        PlayerPrefs.Save();
-
+        pendingGraphicsPreset = idx;
+        hasPendingChanges = true;
+    
         if (settingsInitialized)
             ClickSound();
     }
@@ -124,40 +132,55 @@ public class SettingsManager : MonoBehaviour
     {
         if (idx < 0 || idx >= availableResolutions.Length)
             return;
-
-        var r = availableResolutions[idx];
-        // preserve the current fullscreen mode
-        Screen.SetResolution(r.width, r.height,
-                             Screen.fullScreenMode,
-                             r.refreshRate);
-
-        PlayerPrefs.SetInt(ResolutionKey, idx);
-        PlayerPrefs.Save();
         
+        pendingResolutionIndex = idx;
+        hasPendingChanges = true;
+    
         if (settingsInitialized)
             ClickSound();
     }
 
     public void OnWindowModeChanged(int idx)
     {
-        var mode = (WindowMode)idx;
-        var fs   = mode switch
+        pendingWindowMode = idx;
+        hasPendingChanges = true;
+    
+        if (settingsInitialized)
+            ClickSound();
+    }
+    
+    public void ApplySettings()
+    {
+        // Apply Graphics Preset
+        int maxQ = QualitySettings.names.Length - 1;
+        int count = graphicsPresetOptionList.options.Count;
+        int level = count > 1
+            ? Mathf.RoundToInt(Mathf.Lerp(0, maxQ, (float)pendingGraphicsPreset / (count - 1)))
+            : maxQ;
+
+        QualitySettings.SetQualityLevel(level, true);
+        PlayerPrefs.SetInt(GraphicsPresetKey, pendingGraphicsPreset);
+
+        // Apply Window Mode and Resolution together
+        var mode = (WindowMode)pendingWindowMode;
+        var fs = mode switch
         {
             WindowMode.Fullscreen => FullScreenMode.ExclusiveFullScreen,
             WindowMode.Borderless => FullScreenMode.FullScreenWindow,
-            WindowMode.Windowed   => FullScreenMode.Windowed,
-            _                     => FullScreenMode.Windowed
+            WindowMode.Windowed => FullScreenMode.Windowed,
+            _ => FullScreenMode.Windowed
         };
 
-        // reapply the chosen resolution under the new mode
-        int resIdx = Mathf.Clamp(PlayerPrefs.GetInt(ResolutionKey, 0),
-                                 0, availableResolutions.Length - 1);
-        var r = availableResolutions[resIdx];
+        // Apply resolution with the selected window mode
+        var r = availableResolutions[pendingResolutionIndex];
         Screen.SetResolution(r.width, r.height, fs, r.refreshRate);
-
-        PlayerPrefs.SetInt(WindowModeKey, idx);
+    
+        PlayerPrefs.SetInt(ResolutionKey, pendingResolutionIndex);
+        PlayerPrefs.SetInt(WindowModeKey, pendingWindowMode);
         PlayerPrefs.Save();
-        
+    
+        hasPendingChanges = false;
+    
         if (settingsInitialized)
             ClickSound();
     }

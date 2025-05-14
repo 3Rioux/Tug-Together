@@ -186,5 +186,7 @@ public class CreditsController : MonoBehaviour
             skipButton = null;
             thankYouCanvasGroup = null;
         }
+
+        DOTween.KillAll();
     }
 }

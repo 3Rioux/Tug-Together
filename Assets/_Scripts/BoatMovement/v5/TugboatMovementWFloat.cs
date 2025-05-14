@@ -295,7 +295,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (speedLinesMaterial != null)
         {
             // Calculate density directly from sail strength rather than separately from speed
-            float linesDensity = Mathf.InverseLerp(0.2f, 0.8f, _currentSailStrength) * 0.32f;
+            float linesDensity = Mathf.InverseLerp(0.2f, 0.8f, _currentSailStrength) * 0.33f;
             speedLinesMaterial.SetFloat("_Lines_Density", linesDensity);
         }
     }
@@ -451,12 +451,12 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     }
 
-    private void OnApplicationFocus(bool focus)
-    {
-        if(SceneManager.GetActiveScene().name != "MainMenu")
-        Cursor.lockState = CursorLockMode.Locked;
-        
-    }
+    // private void OnApplicationFocus(bool focus)
+    // {
+    //     if(SceneManager.GetActiveScene().name != "MainMenu")
+    //     Cursor.lockState = CursorLockMode.Locked;
+    //     
+    // }
 
 
    

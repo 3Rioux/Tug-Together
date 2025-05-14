@@ -278,8 +278,8 @@ public class GameMenuManager : MonoBehaviour
 
     public void OnMainMenuButtonClicked()
     {
-        DOTween.KillAll();
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
+        DOTween.KillAll();
         SceneTransition.Instance.LoadScene("MainMenu");
         Cursor.lockState = CursorLockMode.None;
         Debug.Log("Returning to main menu.");

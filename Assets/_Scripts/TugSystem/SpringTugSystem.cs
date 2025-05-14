@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Cinemachine;
 using Unity.Netcode;
-using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Windows;
 
 
 public class SpringTugSystem : NetworkBehaviour
