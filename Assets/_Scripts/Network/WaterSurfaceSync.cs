@@ -12,6 +12,11 @@ public class WaterSurfaceNetworkSync : NetworkBehaviour
     // Use double for DateTime storage (OADate conversion).
     public NetworkVariable<double> networkSimulationStart = new NetworkVariable<double>(0);
     public NetworkVariable<float> networkSimulationTime = new NetworkVariable<float>(0);
+    
+    private float lastReceivedSimTime = 0f;
+    private float localSimTime = 0f;
+    private const float INTERPOLATION_SPEED = 5f; // Adjust as needed
+
 
     private void Awake()
     {
@@ -45,8 +50,14 @@ public class WaterSurfaceNetworkSync : NetworkBehaviour
     {
         if (IsServer && waterSurface != null)
         {
-            // Update simulation time on the host.
+            // Server code unchanged
             networkSimulationTime.Value = waterSurface.simulationTime;
+        }
+        else if (!IsServer && waterSurface != null)
+        {
+            // Client-side interpolation
+            localSimTime = Mathf.Lerp(localSimTime, lastReceivedSimTime, Time.deltaTime * INTERPOLATION_SPEED);
+            waterSurface.simulationTime = localSimTime;
         }
     }
 
@@ -58,10 +69,11 @@ public class WaterSurfaceNetworkSync : NetworkBehaviour
 
     private void OnSimulationTimeChanged(float previousValue, float newValue)
     {
-        waterSurface.simulationTime = newValue;
+        // Store the received value but don't apply directly
+        lastReceivedSimTime = newValue;
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
         if (!IsServer)
         {
