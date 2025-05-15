@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using Unity.Cinemachine;
 using Unity.Mathematics;
@@ -32,7 +33,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
     public float accelerationSmoothing = 2f;
 
     [Header("Movement Effects")]
-    [SerializeField] WaterDecal bowWaveDecal; 
+    [SerializeField] WaterDecal[] bowWaveDecals; 
     [SerializeField] Material bowWaveMaterial; 
     [SerializeField] WaterFoamGenerator foamGenerator; 
     [SerializeField] VisualEffect rearSplashVFX;
@@ -82,6 +83,29 @@ public class TugboatMovementWFloat : NetworkBehaviour
     // Internal search params
     WaterSearchParameters searchParameters = new WaterSearchParameters();
     WaterSearchResult searchResult = new WaterSearchResult();
+    
+    
+    [Header("Pole Rotation")]
+    [SerializeField] private Transform[] poleMasts; // Assign main pole first, then secondary
+    [SerializeField] private float mainPoleMaxRotation = 15f;
+    [SerializeField] private float secondaryPoleMaxRotation = 8f;
+    [SerializeField] private float poleRotationDuration = 0.5f; // DOTween duration
+    
+    // Add to TugboatMovementWFloat.cs
+    [Header("Camera Shake")]
+    [SerializeField] private CinemachineImpulseSource impulseSource;
+    [SerializeField] private CinemachineInputAxisController inputProvider;
+    [SerializeField] private float collisionShakeThreshold = 2f;
+    [SerializeField] private float collisionShakeMultiplier = 0.5f;
+    [SerializeField] private float hookShakeIntensity = 0.3f;
+
+// NetworkVariable to sync pole rotation across clients
+    private readonly NetworkVariable<float> _syncedPoleRotation = new NetworkVariable<float>(0f,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+// Track last local rotation value for smoothing
+    private float _lastPoleRotationValue = 0f;
+    private bool _isRotating = false;
 
 
     private Rigidbody rb;
@@ -94,7 +118,6 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     private BoatInputActions controls;
     
-    [SerializeField] private CinemachineInputAxisController inputProvider;
 
 
     private readonly NetworkVariable<float> _syncedSpeed = new NetworkVariable<float>(0f, 
@@ -113,6 +136,37 @@ public class TugboatMovementWFloat : NetworkBehaviour
         //Look input
         controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
         controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
+        
+        // Pole rotation input handling
+        controls.Boat.Move.performed += ctx => {
+            Vector2 input = ctx.ReadValue<Vector2>();
+
+            // Check for A/D press (horizontal input)
+            if (Mathf.Abs(input.x) > 0.1f) {
+                _isRotating = true;
+                float targetRotation = input.x * mainPoleMaxRotation;
+
+                if (IsOwner) {
+                    // Only owner updates network variable
+                    _syncedPoleRotation.Value = targetRotation;
+                    // Local visual feedback (only for owner)
+                    RotatePoles(targetRotation);
+                }
+            }
+        };
+
+        controls.Boat.Move.canceled += _ => {
+            if (_isRotating) {
+                _isRotating = false;
+        
+                if (IsOwner) {
+                    // Only owner updates network variable
+                    _syncedPoleRotation.Value = 0f;
+                    // Local visual feedback (only for owner)
+                    RotatePoles(0f);
+                }
+            }
+        };
     }
 
     private void Start()
@@ -143,6 +197,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
             }
             _sailMaterials = materials.ToArray();
         }
+        // Get or add impulse source
+        if (impulseSource == null)
+            impulseSource = GetComponent<CinemachineImpulseSource>() ?? gameObject.AddComponent<CinemachineImpulseSource>();
     }
 
     public override void OnNetworkSpawn()
@@ -214,6 +271,35 @@ public class TugboatMovementWFloat : NetworkBehaviour
             // Apply visual effects for remote player using network-synced speed
             ApplyMovementEffects(_syncedSpeed.Value);
         }
+        
+        // Handle pole rotation for remote players
+        if (!IsOwner) {
+            // Only update when the network value changes
+            if (!Mathf.Approximately(_syncedPoleRotation.Value, _lastPoleRotationValue)) {
+                _lastPoleRotationValue = _syncedPoleRotation.Value;
+                RotatePoles(_syncedPoleRotation.Value);
+            }
+        }
+    }
+    private void RotatePoles(float targetRotation)
+    {
+        if (poleMasts == null || poleMasts.Length == 0)
+            return;
+        
+        // Main pole (first in array)
+        if (poleMasts[0] != null) {
+            DOTween.Kill(poleMasts[0]); // Stop any existing tweens
+            poleMasts[0].DOLocalRotate(new Vector3(0, targetRotation, 0), poleRotationDuration)
+                .SetEase(Ease.OutQuad);
+        }
+    
+        // Secondary pole (second in array) with reduced rotation
+        if (poleMasts.Length > 1 && poleMasts[1] != null) {
+            float secondaryRotation = targetRotation * (secondaryPoleMaxRotation / mainPoleMaxRotation);
+            DOTween.Kill(poleMasts[1]); // Stop any existing tweens
+            poleMasts[1].DOLocalRotate(new Vector3(0, secondaryRotation, 0), poleRotationDuration)
+                .SetEase(Ease.OutQuad);
+        }
     }
     
     private void ApplyMovementEffects(float currentSpeed)
@@ -221,16 +307,22 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // Normalize speed to a value between 0 and 1
         float normalizedSpeed = Mathf.InverseLerp(0, maxSpeed - 10f, currentSpeed);
 
-        // == Wave Bow Effect ==
-        
-        // Smoothly transition amplitude between 0 and 3 based on normalized speed
-        bowWaveDecal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
-        
-        // Smoothly transition bow wave decal region size
-        Vector2 minSize = new(30.5f, 43f);
-        Vector2 maxSize = new(45f, 55f);
-        bowWaveDecal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
-
+        // == Wave Bow Effects (now handles array) ==
+        if (bowWaveDecals != null && bowWaveDecals.Length > 0)
+        {
+            foreach (WaterDecal decal in bowWaveDecals)
+            {
+                if (decal == null) continue;
+            
+                // Smoothly transition amplitude between 0 and 3 based on normalized speed
+                decal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
+            
+                // Smoothly transition bow wave decal region size
+                Vector2 minSize = new(30.5f, 43f);
+                Vector2 maxSize = new(45f, 55f);
+                decal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
+            }
+        }
         // == Water Splash Effect ==
         if (currentSpeed > 1.0f && targetSurface != null)
         {
@@ -449,6 +541,30 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
 
+    }
+    
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!IsOwner) return;
+    
+        // Calculate impact force based on relative velocity
+        float impactForce = collision.relativeVelocity.magnitude;
+    
+        // Only shake if impact is significant
+        if (impactForce > collisionShakeThreshold)
+        {
+            float shakeIntensity = Mathf.Min(impactForce * collisionShakeMultiplier, 1.3f); // Cap maximum shake
+            GenerateScreenShake(shakeIntensity);
+        }
+    }
+    
+    // Method to trigger screen shake
+    public void GenerateScreenShake(float intensity)
+    {
+        if (impulseSource != null && IsOwner)
+        {
+            impulseSource.GenerateImpulse(intensity);
+        }
     }
 
     // private void OnApplicationFocus(bool focus)

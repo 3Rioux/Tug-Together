@@ -1,6 +1,7 @@
 using GogoGaga.OptimizedRopesAndCables;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using Unity.Cinemachine;
 using Unity.Netcode;
@@ -32,6 +33,7 @@ public class SpringTugSystem : NetworkBehaviour
     [SerializeField] private LineRenderer lineRenderer;
 
     [Header("Aim Settings ")]
+    [SerializeField] private CinemachineCamera freeLookCamera; // FreeLook Camera
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform cameraFollowPoint;
     [SerializeField] private Transform cameraAimFollowPoint;
@@ -41,6 +43,20 @@ public class SpringTugSystem : NetworkBehaviour
     [SerializeField] private List<Transform> hookPoints;
     [SerializeField] private float hookSwitchCooldown = 1f; // Cooldown in seconds
     [SerializeField] private CinemachineCamera aimCamera; // aim Camera 
+    [SerializeField] private float cameraBlendTime = 0.2f;
+    private Quaternion lastFreeLookRotation;
+    private bool isTransitioning = false;
+    private float lastSwitchTime;
+    private Vector3 lastAimingEulerAngles;
+    private Vector3 lastFreeLookEulerAngles;
+    
+    [Header("UI Elements")]
+    [SerializeField] private GameObject crosshair;
+    [SerializeField] private RectTransform crosshairRect;  // Reference to the RectTransform component
+    [SerializeField] private float crosshairFadeDuration = 0.3f;  // Animation duration
+    [SerializeField] private Ease crosshairShowEase = Ease.OutBack;
+    [SerializeField] private Ease crosshairHideEase = Ease.InQuad;
+    private Tween crosshairTween;  // To track and kill active animations
 
     //Stuff To Disable when Aiming:
     //[SerializeField] private GameObject sails;
@@ -74,6 +90,11 @@ public class SpringTugSystem : NetworkBehaviour
     // Different material for highlight
     [SerializeField] private Material highlightMaterial;
     [SerializeField] private Material defaultMaterial;
+    
+    private TugboatMovementWFloat boatMovement;
+    
+    private Dictionary<Transform, AttachPointUI> hookPointUIs = new Dictionary<Transform, AttachPointUI>();
+
 
 
 
@@ -110,6 +131,17 @@ public class SpringTugSystem : NetworkBehaviour
     private void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        
+        if (crosshair != null)
+        {
+            crosshair.SetActive(false);
+            if (crosshairRect == null)
+                crosshairRect = crosshair.GetComponent<RectTransform>();
+            if (crosshairRect != null)
+                crosshairRect.localScale = Vector3.zero;
+        }
+        
+        InitializeAttachPointUIs(); // shit doesnt work for now
 
         //visualRope.gameObject.GetComponent<NetworkObject>().Spawn();
         visualRope.gameObject.SetActive(false); //needs to create the network object before being deactivated 
@@ -120,44 +152,178 @@ public class SpringTugSystem : NetworkBehaviour
             hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
         }
 
+        boatMovement = GetComponent<TugboatMovementWFloat>();
         // springJoint.autoConfigureConnectedAnchor = false;
         //springJoint.connectedAnchor = ropeAttachPoint.position;
     }
 
     private void OnEnable()
     {
-        //if (!IsOwner) return;
-
+        // //if (!IsOwner) return;
+        //
+        // controls = new BoatInputActions();
+        // controls.Boat.Enable();
+        //
+        // // Register event handlers
+        // controls.Boat.Hook.performed += OnHookTriggered;
+        // controls.Boat.AimHook.performed += OnAimTriggered;
+        // controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
+        // controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
+        //
+        // //cam look 
+        // controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
+        // controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
+        // //}else
+        // //{
+        // //    // Unregister event handlers
+        // //    //controls.Boat.Hook.performed -= OnHookTriggered;
+        // //    //controls.Boat.AimHook.performed -= OnHookTriggered;
+        //
+        // //    lookVector = Vector2.zero;
+        // //}
+        //
+        //
+        // //set aim cam to off by default 
+        // //aimCamera.gameObject.SetActive(false);// off by default 
+        // isAimMode = false;
+        
         controls = new BoatInputActions();
         controls.Boat.Enable();
 
-        // Register event handlers
+        // Register aim events
+        controls.Boat.AimHook.performed += OnAimModeEnter;
+        controls.Boat.AimHook.canceled += OnAimModeExit;
+        
         controls.Boat.Hook.performed += OnHookTriggered;
-        controls.Boat.AimHook.performed += OnAimTriggered;
-        controls.Boat.AimHook.performed += ctx => isAimMode = true; //set to true when pressed 
-        controls.Boat.AimHook.canceled += ctx => isAimMode = false; // set to false when cancelled 
-
-        //cam look 
+    
+        // Look input
         controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
-        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
-        //}else
-        //{
-        //    // Unregister event handlers
-        //    //controls.Boat.Hook.performed -= OnHookTriggered;
-        //    //controls.Boat.AimHook.performed -= OnHookTriggered;
-
-        //    lookVector = Vector2.zero;
-        //}
-
-
-        //set aim cam to off by default 
-        aimCamera.gameObject.SetActive(false);// off by default 
+        controls.Boat.Look.canceled += _ => lookVector = Vector2.zero;
+    
+        // Set initial priorities but don't disable
+        aimCamera.Priority = freeLookCamera.Priority - 10; // Lower than third-person by default
         isAimMode = false;
 
         if (towedObject == null)
         {
             towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
             hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
+        }
+    }
+    
+    private void OnAimModeEnter(InputAction.CallbackContext ctx)
+    {
+        isAimMode = true;
+        lastSwitchTime = Time.time;
+
+        ShowCrosshair();
+    
+        // Get the ACTUAL current view direction instead of camera euler angles
+        Vector3 currentViewDirection = Camera.main.transform.forward;
+    
+        // Set aim camera to look in exactly the same direction
+        cameraAimFollowPoint.rotation = Quaternion.LookRotation(currentViewDirection);
+    
+        // Store these initial values for aim camera reference
+        yaw = cameraAimFollowPoint.eulerAngles.y;
+        pitch = cameraAimFollowPoint.eulerAngles.x;
+        if (pitch > 180) pitch -= 360f; // Convert to -180 to 180 range
+
+        // Switch camera priority
+        aimCamera.Priority = freeLookCamera.Priority + 10;
+
+        // Only show UIs if not currently attached
+        if (!isAttached)
+        {
+            FindVisibleHooks();
+            SelectClosestVisibleHook();
+        }
+    }
+
+    private void OnAimModeExit(InputAction.CallbackContext ctx)
+    {
+        isAimMode = false;
+        lastSwitchTime = Time.time;
+        
+        HideCrosshair();
+    
+        // Store the aim camera rotation BEFORE changing priority
+        if (Camera.main != null)
+            lastAimingEulerAngles = Camera.main.transform.eulerAngles;
+    
+        // Hide hook UIs
+        foreach (var ui in hookPointUIs.Values)
+        {
+            ui.Hide();
+        }
+    
+        // Apply aim rotation to freelook camera
+        CinemachineOrbitalFollow orbitalFollow = freeLookCamera.GetComponent<CinemachineOrbitalFollow>();
+        if (orbitalFollow != null)
+        {
+            // Set horizontal rotation directly from stored aim angles
+            orbitalFollow.HorizontalAxis.Value = lastAimingEulerAngles.y;
+        
+            // Convert pitch to normalized 0-1 value
+            float verticalAngle = lastAimingEulerAngles.x;
+            if (verticalAngle > 180) verticalAngle -= 360; // Convert to -180 to 180 range
+        
+            // Clamp and normalize
+            verticalAngle = Mathf.Clamp(verticalAngle, BottomClamp, TopClamp);
+            orbitalFollow.VerticalAxis.Value = Mathf.InverseLerp(BottomClamp, TopClamp, verticalAngle);
+        }
+    
+        // Switch camera priority
+        aimCamera.Priority = freeLookCamera.Priority - 10;
+    }
+    
+    private void ShowCrosshair()
+    {
+        if (crosshair == null) return;
+    
+        // Kill any active animation
+        if (crosshairTween != null) crosshairTween.Kill();
+    
+        // Make sure the object is active
+        crosshair.SetActive(true);
+    
+        // Get RectTransform if not already set
+        if (crosshairRect == null)
+            crosshairRect = crosshair.GetComponent<RectTransform>();
+    
+        if (crosshairRect != null)
+        {
+            // Set initial scale to zero
+            crosshairRect.localScale = Vector3.zero;
+        
+            // Animate to full scale
+            crosshairTween = crosshairRect.DOScale(Vector3.one, crosshairFadeDuration)
+                .SetEase(crosshairShowEase);
+        }
+    }
+
+    private void HideCrosshair()
+    {
+        if (crosshair == null) return;
+    
+        // Kill any active animation
+        if (crosshairTween != null) crosshairTween.Kill();
+    
+        // Get RectTransform if not already set
+        if (crosshairRect == null)
+            crosshairRect = crosshair.GetComponent<RectTransform>();
+    
+        if (crosshairRect != null)
+        {
+            // Animate to zero scale
+            crosshairTween = crosshairRect.DOScale(Vector3.zero, crosshairFadeDuration)
+                .SetEase(crosshairHideEase)
+                .OnComplete(() => crosshair.SetActive(false));  // Hide after animation completes
+        }
+        else
+        {
+            // Fallback if no RectTransform
+            crosshair.SetActive(false);
         }
     }
 
@@ -200,6 +366,12 @@ public class SpringTugSystem : NetworkBehaviour
             return;
         }
         
+        if (Time.time < lastSwitchTime + cameraBlendTime)
+        {
+            // Block camera input during transitions to avoid desync
+            lookVector = Vector2.zero;
+        }
+        
         
         //Visual Rope Length
         distanceToTowedObject = Vector3.Distance(transform.position, towedObject.position);
@@ -219,17 +391,17 @@ public class SpringTugSystem : NetworkBehaviour
 
         //Quaternion newRot = Quaternion.LookRotation(cameraForward);
 
-        //cameraAimFollowPoint.rotation = Quaternion.LookRotation(cameraForward); // instant snap
-        cameraAimFollowPoint.forward = Camera.main.transform.forward;
-
-        cameraAimFollowPoint.rotation = Quaternion.LookRotation(cameraForward); // instant snap
+        // //cameraAimFollowPoint.rotation = Quaternion.LookRotation(cameraForward); // instant snap
+        // cameraAimFollowPoint.forward = Camera.main.transform.forward;
+        //
+        // cameraAimFollowPoint.rotation = Quaternion.LookRotation(cameraForward); // instant snap
 
         if (isAimMode)
         {//can always aim 
 
            
             // turn on aim cam when aim button pressed
-            aimCamera.gameObject.SetActive(true);
+            //aimCamera.gameObject.SetActive(true);
 
             // Camera snap to look direction        
             //Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
@@ -243,7 +415,7 @@ public class SpringTugSystem : NetworkBehaviour
             //targetAttachPoint.forward = Camera.main.transform.position;//  aimDirection - Camera.main.transform.position;// Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 20.0f);
             
 
-            if (distanceToTowedObject <= maxTowDistance)
+            if (distanceToTowedObject <= maxTowDistance && !isAttached)
             {
                 //Logic to determine the closest hook to the camera center 
                 FindVisibleHooks();
@@ -254,8 +426,8 @@ public class SpringTugSystem : NetworkBehaviour
 
                 if (!isAttached && visibleHooks.Count > 0)
                 {
-                    lineRenderer.enabled = true;
                     //draw a line 
+                    lineRenderer.enabled = true;
                     lineRenderer.SetPosition(0, visualRope.StartPoint.position);
                     lineRenderer.SetPosition(1, currentClosestAttachPoint.position);
                 }
@@ -289,7 +461,12 @@ public class SpringTugSystem : NetworkBehaviour
         }//end if aimMode 
         else
         {
-            aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
+            //aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
+            // Hide all UIs when not in aim mode
+            foreach (var ui in hookPointUIs.Values)
+            {
+                ui.Hide();
+            }
         }
 
         //Auto Mode (Only active while close)
@@ -302,7 +479,7 @@ public class SpringTugSystem : NetworkBehaviour
                 UpdateClosestAttachPoint();
 
                
-                aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
+                //aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
 
                 //only draw the line if not already attached
                 if (!isAttached)
@@ -338,6 +515,23 @@ public class SpringTugSystem : NetworkBehaviour
         // ===Hooking Mechanic End=== 
         // ====== 
 
+        // Add rotation sync only during transitions
+        if (isTransitioning)
+        {
+            if (isAimMode)
+            {
+                // Keep aim point synced with current camera view during transition
+                cameraAimFollowPoint.rotation = Camera.main.transform.rotation;
+            }
+            else
+            {
+                // Keep freelook direction when transitioning back
+                if (cameraFollowPoint != null)
+                {
+                    cameraFollowPoint.rotation = Camera.main.transform.rotation;
+                }
+            }
+        }
 
     }//end update 
 
@@ -417,6 +611,23 @@ public class SpringTugSystem : NetworkBehaviour
 
     #region AimMethods
 
+    private void InitializeAttachPointUIs()
+    {
+        hookPointUIs.Clear();
+    
+        if (hookPoints != null)
+        {
+            foreach (Transform point in hookPoints)
+            {
+                AttachPointUI ui = point.GetComponentInChildren<AttachPointUI>();
+                if (ui != null)
+                {
+                    hookPointUIs[point] = ui;
+                }
+            }
+        }
+    }
+    
     /// <summary>
     /// Event/Action triggered method to switch to the aim camera.
     /// Now -> just toggles the aim camera + runs an initial visible hook check 
@@ -437,7 +648,7 @@ public class SpringTugSystem : NetworkBehaviour
         isAimMode = true;
 
         //toggle the Aim Camera:
-        aimCamera.gameObject.SetActive(true);// turn off aim when not aiming  
+        //aimCamera.gameObject.SetActive(true);// turn off aim when not aiming  
 
         //Logic to determine the closest hook to the camera center 
         FindVisibleHooks();
@@ -453,6 +664,12 @@ public class SpringTugSystem : NetworkBehaviour
     /// </summary>
     private void FindVisibleHooks()
     {
+        // Hide all UIs first
+        foreach (var ui in hookPointUIs.Values)
+        {
+            ui.Hide();
+        }
+        
         visibleHooks.Clear();
 
         // Use the provided camera, or fall back to Camera.main if none set.
@@ -491,14 +708,20 @@ public class SpringTugSystem : NetworkBehaviour
                         // Draw the ray in red with a duration of 0.5 seconds.
                         Debug.DrawRay(camPosition, direction, Color.green, 1f);
                         visibleHooks.Add(hook);
+                        
+                        // Show UI for visible hook
+                        if (hookPointUIs.TryGetValue(hook, out AttachPointUI ui))
+                        {
+                            ui.Show();
+                        }
                     }else
                     {
-                        Debug.Log($"Failled collision = {hit.collider.tag}");
-                        Debug.DrawRay(camPosition, direction, Color.red, 1f);
+                        // Debug.Log($"Failled collision = {hit.collider.tag}");
+                        // Debug.DrawRay(camPosition, direction, Color.red, 1f);
                     }
                 }else
                 {
-                    Debug.Log($"Failled collision = {hit.collider.tag}");
+                    // Debug.Log($"Failled collision = {hit.collider.tag}");
                 }
             }
         }//end foreach
@@ -580,7 +803,14 @@ public class SpringTugSystem : NetworkBehaviour
         //foreach (Transform hook in visibleHooks) // <-- had an error where if the selected hook point became out of view before changing the point in would remain green
         foreach (Transform hook in hookPoints)
         {
-            SetAttachPointHighlight(hook, hook == currentClosestAttachPoint);
+            bool isSelected = hook == currentClosestAttachPoint;
+            SetAttachPointHighlight(hook, isSelected);
+        
+            // Update UI highlight state
+            if (hookPointUIs.TryGetValue(hook, out AttachPointUI ui))
+            {
+                ui.SetHighlighted(isSelected);
+            }
         }
     }
 
@@ -777,11 +1007,23 @@ public class SpringTugSystem : NetworkBehaviour
 
             //Set attached state 
             isAttached = true;
+        
+            // Hide all UIs when attached
+            foreach (var ui in hookPointUIs.Values)
+            {
+                ui.Hide();
+            }
 
         }else
         {
             // attach failled VFX + SFX due to boat being to far from target 
             Debug.LogWarning("Attach failed: too far from target.");
+        }
+        
+        // Hide all UIs when attached
+        foreach (var ui in hookPointUIs.Values)
+        {
+            ui.Hide();
         }
     }
 
@@ -816,11 +1058,24 @@ public class SpringTugSystem : NetworkBehaviour
         }
 
         isAttached = false; // no longer attached 
+        
+        // If still in aim mode, show UIs again
+        if (isAimMode)
+        {
+            FindVisibleHooks();
+            SelectClosestVisibleHook();
+        }
     }
 
 
     private void AttachRopeWEffect()
     {
+        // Add screen shake when hooking
+        if (boatMovement != null)
+        {
+            boatMovement.GenerateScreenShake(0.4f);
+        }
+        
         visualRope.gameObject.SetActive(true);
 
         visualRope.EndPoint = boatHook.transform; // this should create a cool effect when next attaching 
