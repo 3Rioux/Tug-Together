@@ -6,12 +6,13 @@ using UnityEngine.Rendering.HighDefinition;
 /// <summary>
 /// This script is no longer used for anything other than the boat to get the water Source from a scene.
 /// </summary>
-public class JR_NetBoatRequiredComponentsSource : NetworkBehaviour
+public class LevelVariableManager : NetworkBehaviour
 {
-    public static JR_NetBoatRequiredComponentsSource Instance;
+    public static LevelVariableManager Instance;
 
     public WaterSurface GlobalWaterSurface;
     public Rigidbody GlobalBargeRigidBody;
+    public GameObject GlobalEndGameTrigger;
 
     //NetworkVariable<DateTime> referenceSurface = new NetworkVariable<DateTime>();
 

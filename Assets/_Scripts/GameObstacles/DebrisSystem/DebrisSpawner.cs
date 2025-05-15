@@ -73,7 +73,7 @@ public class DebrisSpawner : MonoBehaviour
         if (waterSurface == null)
         {
             //set water surface to the Gobal Water surface 
-            waterSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface;
+            waterSurface = LevelVariableManager.Instance.GlobalWaterSurface;
         }
 
         //Initialize All Pools:

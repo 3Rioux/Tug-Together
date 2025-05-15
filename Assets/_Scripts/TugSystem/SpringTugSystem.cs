@@ -148,7 +148,7 @@ public class SpringTugSystem : NetworkBehaviour
 
         if (towedObject == null)
         {
-            towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+            towedObject = LevelVariableManager.Instance.GlobalBargeRigidBody;
             hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
         }
 
@@ -206,7 +206,7 @@ public class SpringTugSystem : NetworkBehaviour
 
         if (towedObject == null)
         {
-            towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+            towedObject = LevelVariableManager.Instance.GlobalBargeRigidBody;
             hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
         }
     }
@@ -543,7 +543,7 @@ public class SpringTugSystem : NetworkBehaviour
         //}
         //if (towedObject == null)
         //{
-        //    towedObject = JR_NetBoatRequiredComponentsSource.Instance.GlobalBargeRigidBody;
+        //    towedObject = LevelVariableManager.Instance.GlobalBargeRigidBody;
         //    hookPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
         //}
 

@@ -177,7 +177,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component
         if (targetSurface == null)
         {
-            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface;
+            targetSurface = LevelVariableManager.Instance.GlobalWaterSurface;
         }
     
         // Extract materials from sail GameObjects
@@ -214,7 +214,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
     {
         if (targetSurface == null)
         {
-            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = LevelVariableManager.Instance.GlobalWaterSurface; // get the water surface 
         }
         controls.Enable();
     }
@@ -455,7 +455,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (targetSurface == null)
         {
             //Get teh Scenes Water Surface 
-            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface; 
+            targetSurface = LevelVariableManager.Instance.GlobalWaterSurface; 
 
             // Log an error if still not found.
             if (targetSurface == null)

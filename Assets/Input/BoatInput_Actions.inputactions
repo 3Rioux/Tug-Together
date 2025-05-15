@@ -123,6 +123,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ToggleMap",
+                    "type": "PassThrough",
+                    "id": "77c4b708-66e2-492c-a110-0ad9f24f08e7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "AimHook",
                     "type": "Button",
                     "id": "a699ab68-850c-4748-b556-44e73110a4c1",
@@ -559,6 +568,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Hook",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d8a53fd-aa22-44cb-a420-8bdac09fd1ab",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ToggleMap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

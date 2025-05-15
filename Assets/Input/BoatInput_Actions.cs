@@ -209,6 +209,15 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""ToggleMap"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""77c4b708-66e2-492c-a110-0ad9f24f08e7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""AimHook"",
                     ""type"": ""Button"",
                     ""id"": ""a699ab68-850c-4748-b556-44e73110a4c1"",
@@ -650,6 +659,17 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""9d8a53fd-aa22-44cb-a420-8bdac09fd1ab"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ToggleMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""5ce108d7-862e-437f-83dc-f814c2dd1081"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
@@ -740,6 +760,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         m_Boat_BoostLeft = m_Boat.FindAction("BoostLeft", throwIfNotFound: true);
         m_Boat_BoostNormal = m_Boat.FindAction("BoostNormal", throwIfNotFound: true);
         m_Boat_Hook = m_Boat.FindAction("Hook", throwIfNotFound: true);
+        m_Boat_ToggleMap = m_Boat.FindAction("ToggleMap", throwIfNotFound: true);
         m_Boat_AimHook = m_Boat.FindAction("AimHook", throwIfNotFound: true);
     }
 
@@ -834,6 +855,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Boat_BoostLeft;
     private readonly InputAction m_Boat_BoostNormal;
     private readonly InputAction m_Boat_Hook;
+    private readonly InputAction m_Boat_ToggleMap;
     private readonly InputAction m_Boat_AimHook;
     /// <summary>
     /// Provides access to input actions defined in input action map "Boat".
@@ -898,6 +920,10 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Boat/Hook".
         /// </summary>
         public InputAction @Hook => m_Wrapper.m_Boat_Hook;
+        /// <summary>
+        /// Provides access to the underlying input action "Boat/ToggleMap".
+        /// </summary>
+        public InputAction @ToggleMap => m_Wrapper.m_Boat_ToggleMap;
         /// <summary>
         /// Provides access to the underlying input action "Boat/AimHook".
         /// </summary>
@@ -967,6 +993,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @Hook.started += instance.OnHook;
             @Hook.performed += instance.OnHook;
             @Hook.canceled += instance.OnHook;
+            @ToggleMap.started += instance.OnToggleMap;
+            @ToggleMap.performed += instance.OnToggleMap;
+            @ToggleMap.canceled += instance.OnToggleMap;
             @AimHook.started += instance.OnAimHook;
             @AimHook.performed += instance.OnAimHook;
             @AimHook.canceled += instance.OnAimHook;
@@ -1020,6 +1049,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @Hook.started -= instance.OnHook;
             @Hook.performed -= instance.OnHook;
             @Hook.canceled -= instance.OnHook;
+            @ToggleMap.started -= instance.OnToggleMap;
+            @ToggleMap.performed -= instance.OnToggleMap;
+            @ToggleMap.canceled -= instance.OnToggleMap;
             @AimHook.started -= instance.OnAimHook;
             @AimHook.performed -= instance.OnAimHook;
             @AimHook.canceled -= instance.OnAimHook;
@@ -1219,6 +1251,13 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHook(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleMap(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "AimHook" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

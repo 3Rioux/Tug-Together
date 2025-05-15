@@ -26,7 +26,7 @@ public class FitToWaterSurface : MonoBehaviour
         // If targetSurface is not set, find the Ocean game object and get its WaterSurface component ALWAYS FOR ALL PLAYERS 
         if (targetSurface == null)
         {
-            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface; // get the water surface 
+            targetSurface = LevelVariableManager.Instance.GlobalWaterSurface; // get the water surface 
         }
     }
 
