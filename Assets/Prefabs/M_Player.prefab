@@ -2116,8 +2116,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1809828204959572730}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
-  m_LocalPosition: {x: -0.14, y: 51.2, z: -62.7}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 20, y: 36.98, z: -71.520004}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2156,9 +2156,9 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 2000
-  field of view: 60.000004
+  field of view: 62
   orthographic: 0
-  orthographic size: 10
+  orthographic size: 5
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -2344,7 +2344,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  CustomBlends: {fileID: 0}
+  CustomBlends: {fileID: 11400000, guid: 6bac07931101cda4bac21aaf7d30319a, type: 2}
 --- !u!1 &1978397013126658884
 GameObject:
   m_ObjectHideFlags: 0
@@ -3462,7 +3462,7 @@ MonoBehaviour:
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
-    TrackingTarget: {fileID: 3401820402259678436}
+    TrackingTarget: {fileID: 7194045838710157403}
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
