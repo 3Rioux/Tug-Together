@@ -457,7 +457,7 @@ Transform:
   m_GameObject: {fileID: 802356251614203371}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.330368, y: -0.33234024, z: -2.2832642}
+  m_LocalPosition: {x: 2.330368, y: -0.3323393, z: -2.2832642}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -795,9 +795,9 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 0
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
 --- !u!114 &8132552865346916059
@@ -895,7 +895,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 812348049185974291}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cae55719299fab942bd7ef219baf3bdb, type: 3}
   m_Name: 
@@ -940,21 +940,21 @@ MonoBehaviour:
   sailObjects:
   - {fileID: 843791269980516697}
   - {fileID: 4469540483690397810}
-  turnTorque: 155000
-  turnResponsiveness: 6
+  turnTorque: 200000
+  turnResponsiveness: 50
   cameraRig: {fileID: 915205053341260719}
   lookSensitivity: 1.5
   minPitch: -30
   maxPitch: 60
   dragWhenNotMoving: 2
   angularDrag: 0.35
-  dampingTime: 0.1
+  dampingTime: 0.2
   floatingOffset:
     x: 0
     y: 0
     z: 0
   targetSurface: {fileID: 0}
-  includeDeformation: 1
+  includeDeformation: 0
   excludeSimulation: 0
   alignToWaterNormal: 1
   orientationSmoothSpeed: 2.62
@@ -1588,7 +1588,7 @@ Transform:
   m_GameObject: {fileID: 1137667217209453887}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.9108353, y: -6.18227, z: 3.8900385}
+  m_LocalPosition: {x: 1.9108353, y: -6.182268, z: 3.8900375}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3107,7 +3107,7 @@ Transform:
   m_GameObject: {fileID: 2297080941451854888}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.9039345, y: 0.4871769, z: -1.2588892}
+  m_LocalPosition: {x: 2.9039345, y: 0.48717785, z: -1.2588892}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3169,7 +3169,7 @@ Transform:
   m_GameObject: {fileID: 2434712022561489458}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.17218399, y: -6.1946526, z: 3.8900385}
+  m_LocalPosition: {x: 0.17218399, y: -6.1946507, z: 3.8900375}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3817,7 +3817,7 @@ Transform:
   m_GameObject: {fileID: 3390688197359104320}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.3469467, y: 0.5260229, z: -1.252409}
+  m_LocalPosition: {x: 3.3469467, y: 0.52602386, z: -1.252409}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5856,7 +5856,7 @@ Transform:
   m_GameObject: {fileID: 5669288116444999729}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.1393356, y: -5.9014606, z: 1.716203}
+  m_LocalPosition: {x: 1.1393356, y: -5.9014587, z: 1.716203}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5977,7 +5977,7 @@ Transform:
   m_GameObject: {fileID: 5766792277614884160}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5448494, y: -6.508173, z: 1.7162033}
+  m_LocalPosition: {x: 0.5448456, y: -6.508173, z: 1.7162032}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7330,7 +7330,7 @@ Transform:
   m_GameObject: {fileID: 6541630095762528905}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.8343887, y: -0.33702946, z: -2.3040318}
+  m_LocalPosition: {x: 2.8343887, y: -0.3370285, z: -2.3040318}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

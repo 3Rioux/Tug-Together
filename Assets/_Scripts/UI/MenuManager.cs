@@ -398,7 +398,7 @@ private void AnimateButtonEnable()
         ClickSound();
         DOTween.KillAll();
         //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Level1", LoadSceneMode.Single);
-        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Default/Final_Level_1_V1", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Complete_Level_1", LoadSceneMode.Single);
     }
 
     private void ExecuteBackNavigation()

@@ -155,14 +155,14 @@ MonoBehaviour:
   targetSurface: {fileID: 0}
   includeDeformation: 1
   sphereRadiusApproximation: 0.25
-  waveForceMultiplier: 1
+  waveForceMultiplier: 2
   currentSpeedMultiplier: 1
   dragMultiplier: 1
   defaultRigidbodyDrag: 0.25
   underwaterRigidbodyAngularDrag: 1
-  overwaterRigidbodyAngularDrag: 0.25
+  overwaterRigidbodyAngularDrag: 1
   surfaceTensionDamping: 50
-  applyForceWithRandomOffset: 1
+  applyForceWithRandomOffset: 0
   isWaterSurfaceACustomMesh: 0
   drawDebug: 0
 --- !u!114 &3711604379218630779
@@ -177,6 +177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b689dfa981ef4e479cd9bc8fc8db2b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableDamping: 0
+  dampingTime: 0.2
   targetSurface: {fileID: 0}
   includeDeformation: 1
   excludeSimulation: 0

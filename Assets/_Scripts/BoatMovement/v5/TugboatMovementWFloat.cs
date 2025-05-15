@@ -272,35 +272,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
             ApplyMovementEffects(_syncedSpeed.Value);
         }
         
-        // Handle pole rotation for remote players
-        if (!IsOwner) {
-            // Only update when the network value changes
-            if (!Mathf.Approximately(_syncedPoleRotation.Value, _lastPoleRotationValue)) {
-                _lastPoleRotationValue = _syncedPoleRotation.Value;
-                RotatePoles(_syncedPoleRotation.Value);
-            }
-        }
+       
     }
-    private void RotatePoles(float targetRotation)
-    {
-        if (poleMasts == null || poleMasts.Length == 0)
-            return;
-        
-        // Main pole (first in array)
-        if (poleMasts[0] != null) {
-            DOTween.Kill(poleMasts[0]); // Stop any existing tweens
-            poleMasts[0].DOLocalRotate(new Vector3(0, targetRotation, 0), poleRotationDuration)
-                .SetEase(Ease.OutQuad);
-        }
-    
-        // Secondary pole (second in array) with reduced rotation
-        if (poleMasts.Length > 1 && poleMasts[1] != null) {
-            float secondaryRotation = targetRotation * (secondaryPoleMaxRotation / mainPoleMaxRotation);
-            DOTween.Kill(poleMasts[1]); // Stop any existing tweens
-            poleMasts[1].DOLocalRotate(new Vector3(0, secondaryRotation, 0), poleRotationDuration)
-                .SetEase(Ease.OutQuad);
-        }
-    }
+   
     
     private void ApplyMovementEffects(float currentSpeed)
     {
@@ -404,6 +378,15 @@ public class TugboatMovementWFloat : NetworkBehaviour
         HandleTurning();
         //HandleDrag();
 
+         // Handle pole rotation for remote players
+        if (!IsOwner) {
+            // Only update when the network value changes
+            if (!Mathf.Approximately(_syncedPoleRotation.Value, _lastPoleRotationValue)) {
+                _lastPoleRotationValue = _syncedPoleRotation.Value;
+                RotatePoles(_syncedPoleRotation.Value);
+            }
+        }
+
 
         if (targetSurface == null)
             return;
@@ -438,6 +421,29 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (alignToWaterNormal)
         {
             AlignToWaterNormal(searchResult.normalWS);
+        }
+    }
+
+    private void RotatePoles(float targetRotation)
+    {
+        if (poleMasts == null || poleMasts.Length == 0)
+            return;
+
+        // Main pole (first in array)
+        if (poleMasts[0] != null)
+        {
+            DOTween.Kill(poleMasts[0]); // Stop any existing tweens
+            poleMasts[0].DOLocalRotate(new Vector3(0, targetRotation, 0), poleRotationDuration)
+                .SetEase(Ease.OutQuad);
+        }
+
+        // Secondary pole (second in array) with reduced rotation
+        if (poleMasts.Length > 1 && poleMasts[1] != null)
+        {
+            float secondaryRotation = targetRotation * (secondaryPoleMaxRotation / mainPoleMaxRotation);
+            DOTween.Kill(poleMasts[1]); // Stop any existing tweens
+            poleMasts[1].DOLocalRotate(new Vector3(0, secondaryRotation, 0), poleRotationDuration)
+                .SetEase(Ease.OutQuad);
         }
     }
 

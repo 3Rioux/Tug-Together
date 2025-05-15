@@ -155,7 +155,7 @@ MonoBehaviour:
   targetSurface: {fileID: 0}
   includeDeformation: 1
   sphereRadiusApproximation: 0.25
-  waveForceMultiplier: 1
+  waveForceMultiplier: 2
   currentSpeedMultiplier: 1
   dragMultiplier: 1
   defaultRigidbodyDrag: 0.25
@@ -177,6 +177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b689dfa981ef4e479cd9bc8fc8db2b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableDamping: 0
+  dampingTime: 0.2
   targetSurface: {fileID: 0}
   includeDeformation: 1
   excludeSimulation: 0
@@ -205,6 +207,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d8f068bba72867438c77da7d34efa9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 10
+  damageAmount: 15
   useTrigger: 1
   destroyOnImpact: 0
