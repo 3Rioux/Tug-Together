@@ -955,7 +955,7 @@ MonoBehaviour:
     y: 0
     z: 0
   targetSurface: {fileID: 0}
-  includeDeformation: 0
+  includeDeformation: 1
   excludeSimulation: 0
   alignToWaterNormal: 1
   orientationSmoothSpeed: 2.62
@@ -1186,8 +1186,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  currentHealth: 0
   healthText: {fileID: 3016659806351485906}
+  healthBar: {fileID: 0}
   canAutoHeal: 1
   healDelay: 5
   healAmountPerSecond: 1
@@ -10969,6 +10969,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3081362950534817128, guid: abe6f6dd31846274a8cdd4c45e103a9f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4259040610800856989, guid: abe6f6dd31846274a8cdd4c45e103a9f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4259040610800856989, guid: abe6f6dd31846274a8cdd4c45e103a9f, type: 3}
+      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8622808245055506776, guid: abe6f6dd31846274a8cdd4c45e103a9f, type: 3}

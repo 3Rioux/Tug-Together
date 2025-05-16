@@ -24,8 +24,6 @@ public class ActivateNavigation : NetworkBehaviour
 
         controls = new BoatInputActions();
 
-       
-
         if (isToggle)
         {//Active till button pressed again 
             //Map Input
