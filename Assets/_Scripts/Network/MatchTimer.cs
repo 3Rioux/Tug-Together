@@ -5,6 +5,8 @@ using TMPro;
 public class MatchTimer : NetworkBehaviour 
 {
 
+    [SerializeField] private bool isCountdown = false; // is it countdown or timer Game Mode
+
     [SerializeField] private float matchDuration = 300f; // 5 mins
     [SerializeField] private TextMeshProUGUI timerText;
 
@@ -28,16 +30,27 @@ public class MatchTimer : NetworkBehaviour
     {
         if (!matchRunning) return;
 
-        timeRemaining -= Time.deltaTime;
-        totalTimePlayed += Time.deltaTime;
-
-        UpdateTimerUIClientRpc((int)timeRemaining);
-
-        if (timeRemaining <= 0f)
+        if (isCountdown)
         {
-            matchRunning = false;
-            TriggerGameOverClientRpc((int)totalTimePlayed); // Notify all clients
+            timeRemaining -= Time.deltaTime;
+            UpdateTimerUIClientRpc((int)timeRemaining);
+
+            if (timeRemaining <= 0f)
+            {
+                matchRunning = false;
+                TriggerGameOverClientRpc((int)totalTimePlayed); // Notify all clients
+            }
+
         }
+        else
+        {
+            totalTimePlayed += Time.deltaTime;
+            UpdateTimerUIClientRpc((int)totalTimePlayed);
+        }
+
+       
+
+       
     }
 
     [ServerRpc(RequireOwnership = false)]
