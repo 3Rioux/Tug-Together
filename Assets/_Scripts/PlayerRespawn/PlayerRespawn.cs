@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections;
 using Unity.Cinemachine;
 
-public class PlayerRespawn : NetworkBehaviour
+public class PlayerRespawn : MonoBehaviour
 {
     public static PlayerRespawn Instance;
 
@@ -19,7 +19,7 @@ public class PlayerRespawn : NetworkBehaviour
 
     [Header("Respawn Settings")]
     public float respawnDelay = 5f;
-    private Vector3 respawnPosition;  // last checkpoint location
+    private Transform respawnPosition;  // last checkpoint location
     [SerializeField] private Transform deathTempPosition; // this is the position ALL players go to when they die 
 
     [Header("References")]
@@ -42,7 +42,7 @@ public class PlayerRespawn : NetworkBehaviour
 
     private void Awake()
     {
-        if (!IsLocalPlayer) return;
+       // if (!IsOwner) return;
 
         if (Instance == null )
         {
@@ -56,36 +56,35 @@ public class PlayerRespawn : NetworkBehaviour
 
     void Start()
     {
-        respawnPosition = transform.position;  // default spawn
+        //LocalPlayerHealthController = this.gameObject.GetComponent<UnitHealthController>();
+        deathTempPosition = LevelVariableManager.Instance.GlobalRespawnTempMovePoint;
+
+        respawnPosition = transform;  // default spawn
 
         spectatorCamera.enabled = false;
         respawnUICanvas.SetActive(false);
 
-        // Ensure spectator camera is off initially (on client)
-        if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) 
-        {
-           
-            //LocalPlayerHealthController = this.gameObject.GetComponent<UnitHealthController>();
-            deathTempPosition = LevelVariableManager.Instance.GlobalRespawnTempMovePoint;
+        //// Ensure spectator camera is off initially (on client)
+        //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner)
+        //{
 
-            _localPlayerGameObject = LocalPlayerHealthController.gameObject;
-            _tugboatMovement = _localPlayerGameObject.GetComponent<TugboatMovementWFloat>();
-        }
-    }
+        //    //LocalPlayerHealthController = this.gameObject.GetComponent<UnitHealthController>();
+        //    deathTempPosition = LevelVariableManager.Instance.GlobalRespawnTempMovePoint;
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-    }
-
-    private void OnEnable()
-    {
-       
+        //    _localPlayerGameObject = LocalPlayerHealthController.gameObject;
+        //    _tugboatMovement = _localPlayerGameObject.GetComponent<TugboatMovementWFloat>();
+        //}
     }
 
     public void TriggerDeath(int currentHealth)
     {
-        if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
+        if (_localPlayerGameObject == null)
+        {
+            _localPlayerGameObject = LocalPlayerHealthController.gameObject;
+            _tugboatMovement = _localPlayerGameObject.GetComponent<TugboatMovementWFloat>();
+        }
+
+        //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
         if (!isDead && currentHealth <= 0)
         {
             isDead = true;
@@ -99,10 +98,10 @@ public class PlayerRespawn : NetworkBehaviour
     private void ShowRespawnUI()
     {
         // Only the owning client executes this block
-        if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
+        //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
 
         // Hide player visuals and disable input locally
-        playerModel.SetActive(false);
+        //playerModel.SetActive(false);
         _tugboatMovement.SetControlEnabled(false);
         //playerController.enabled = false;
 
@@ -114,6 +113,8 @@ public class PlayerRespawn : NetworkBehaviour
         //respawnUI = Instantiate(respawnUICanvas);
         respawnUICanvas.SetActive(true);
 
+        _localPlayerGameObject.transform.position = deathTempPosition.position;
+
         // Start the countdown on the UI
         StartCoroutine(RespawnCountdown(respawnDelay));
     }
@@ -122,7 +123,7 @@ public class PlayerRespawn : NetworkBehaviour
     // hide respawn UI and restore player view
     private void HideRespawnUI()
     {
-        if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
+        //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
 
         // hide the respawn UI
         if (respawnUICanvas != null)
@@ -142,6 +143,7 @@ public class PlayerRespawn : NetworkBehaviour
     // Coroutine for the UI countdown (runs on client)
     private IEnumerator RespawnCountdown(float seconds)
     {
+
        if(countdownText == null) countdownText = respawnUICanvas.GetComponentInChildren<TextMeshProUGUI>();
         float remaining = seconds;
         while (remaining > 0)
@@ -169,16 +171,17 @@ public class PlayerRespawn : NetworkBehaviour
     // Server-side respawn: move player and restore health
     private void Respawn()
     {
-      if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
+      //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
 
         // Teleport to last checkpoint and reset health
-        transform.position = respawnPosition;
+        _localPlayerGameObject.transform.position = respawnPosition.position;
 
         //allow user to control the boat again 
         _tugboatMovement.SetControlEnabled(true);
 
         // LocalPlayerHealthController.HealServerRpc(LocalPlayerHealthController.MaxHealth);
-        LocalPlayerHealthController.CurrentUnitHeath = LocalPlayerHealthController.MaxHealth;
+        //LocalPlayerHealthController.CurrentUnitHeath = LocalPlayerHealthController.MaxHealth;
+        LocalPlayerHealthController.RespawnHealthSet(respawnPosition);
 
         //he is alive again!!!
         isDead = false;
@@ -197,7 +200,7 @@ public class PlayerRespawn : NetworkBehaviour
 
     // Update the checkpoint/respawn position (called from client trigger)
 
-    public void UpdateSpawnPoint(Vector3 newPosition)
+    public void UpdateSpawnPoint(Transform newPosition)
     {
         respawnPosition = newPosition;
     }

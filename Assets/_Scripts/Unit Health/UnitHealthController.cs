@@ -10,6 +10,8 @@ using UnityEngine.UI;
 public class UnitHealthController : NetworkBehaviour, IDamageable
 {
     public NetworkObject PlayerNetObj;
+    [SerializeField] private GameObject boatModel;
+
 
     [Header("Player Health: ")]
     public int MaxHealth = 100;
@@ -43,33 +45,35 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         OnHealthChanged();
 
-        //Get set the local net object to this gameobject:
-        if (IsOwner && IsLocalPlayer)
-        {
-            PlayerNetObj = GetComponent<NetworkObject>();
-            PlayerRespawn.Instance.LocalPlayerHealthController = this;
-        }
+       
     }
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+    //public override void OnNetworkSpawn()
+    //{
+    //    base.OnNetworkSpawn();
 
-        //Get set the local net object to this gameobject:
-        if (IsOwner && IsLocalPlayer)
-        {
-            PlayerNetObj = GetComponent<NetworkObject>();
-            PlayerRespawn.Instance.LocalPlayerHealthController = this;
-        }
-    }
+    //    //Get set the local net object to this gameobject:
+    //    if (IsOwner)
+    //    {
+    //        PlayerNetObj = GetComponent<NetworkObject>();
+    //        PlayerRespawn.Instance.LocalPlayerHealthController = this;
+    //    }
+    //}
 
     void Start()
     {
-
+        //Get set the local net object to this gameobject:
+        if (IsOwner && IsLocalPlayer)
+        {
+            PlayerNetObj = GetComponent<NetworkObject>();
+            PlayerRespawn.Instance.LocalPlayerHealthController = this;
+            Debug.Log("Set LocalPlayerHealthController", this);
+        }else
+        {
+            Debug.LogError($"Not owner{IsOwner} or player{IsLocalPlayer} LocalPlayerHealthController", this);
+        }
         // Initialize health and checkpoint on server
         CurrentUnitHeath = MaxHealth;
-
-       
     }
 
 
@@ -202,17 +206,44 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     //    CurrentUnitHeath.Value = Mathf.Min(CurrentUnitHeath.Value + healing, MaxHealth);
     //}
 
+    public void RespawnHealthSet(Transform respawnPos)
+    {
+        this.gameObject.transform.position = respawnPos.position;
 
+        CurrentUnitHeath = MaxHealth;
+        //Show boat: 
+        boatModel.SetActive(true);
+
+        OnHealthChanged();
+    }
     private void OnHealthChanged()
     {
         healthBar.value = CurrentUnitHeath;
     }
 
+  
+
     public void Die()
     {
-        LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
-        // Your death logic here...
-        Debug.Log($"{name} died!");
+        if (IsLocalPlayer)
+        {
+            if (PlayerRespawn.Instance.LocalPlayerHealthController == null)
+            {
+                PlayerRespawn.Instance.LocalPlayerHealthController = this;
+            }
+
+            //hide boat: 
+            boatModel.SetActive(false);
+
+            this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+
+            LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
+            // Your death logic here...
+            Debug.Log($"{name} died!");
+        }else
+        {
+            Debug.Log($"{name} Cant die here not local player!");
+        }
     }
 
     //===============Not yet part of the game===============
