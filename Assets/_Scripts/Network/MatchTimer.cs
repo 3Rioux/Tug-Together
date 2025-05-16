@@ -4,7 +4,6 @@ using TMPro;
 
 public class MatchTimer : NetworkBehaviour 
 {
-
     [SerializeField] private bool isCountdown = false; // is it countdown or timer Game Mode
 
     [SerializeField] private float matchDuration = 300f; // 5 mins
@@ -58,6 +57,20 @@ public class MatchTimer : NetworkBehaviour
     {
         StartMatch();
     }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void EndMatchServerRpc()
+    {
+        EndMatch();
+    }
+
+    public void EndMatch()
+    {
+        matchRunning = false;
+        timerText.gameObject.SetActive(false);
+    }
+
 
     private void StartMatch()
     {

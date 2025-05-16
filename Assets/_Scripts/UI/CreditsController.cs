@@ -10,6 +10,7 @@ public class CreditsController : MonoBehaviour
 
     [Header("Prefab and Scene")]
     [SerializeField] private GameObject creditsCanvasPrefab;
+    [SerializeField] private GameObject creditsEndGameCanvasPrefab;
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     [Header("Fade and Scroll")]
@@ -61,7 +62,14 @@ public class CreditsController : MonoBehaviour
             return;
         }
 
-        canvasInstance = Instantiate(creditsCanvasPrefab);
+        if (SceneManager.GetActiveScene().name == mainMenuSceneName)
+        {
+            canvasInstance = Instantiate(creditsCanvasPrefab);
+        }else
+        {
+            canvasInstance = Instantiate(creditsEndGameCanvasPrefab);
+        }
+
         DontDestroyOnLoad(canvasInstance);
 
         Transform panel = canvasInstance.transform.Find("Panel");
