@@ -39,6 +39,10 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     private float timeSinceLastDamage = 0f; // Tracks time since last damage
     private bool isUnitHealing = false; // Tracks if healing coroutine is running
 
+    [Header("Invincible State")]
+    [SerializeField] private float invincibilityDuration = 2f; // seconds
+    private bool isInvincible = false;
+
     private bool isDead = false;
 
 
@@ -160,16 +164,18 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     /// <param name="damage"></param>
     public void UnitTakeDamage(int damage)
     {
+        if (isInvincible) return; // Ignore damage if invincible
+
         // Reset the damage timer
         timeSinceLastDamage = 0f;
 
-        //change current player health
-
+        /// Apply damage
         CurrentUnitHeath = Mathf.Max(CurrentUnitHeath - damage, 0);
-        //TakeDamageServerRpc(damage);
-
-
         OnHealthChanged();
+        
+
+        // Start invincibility period
+        StartCoroutine(InvincibilityCoroutine());
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
@@ -183,6 +189,14 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             CurrentUnitHeath = MaxHealth; //reset Health 
             OnHealthChanged();
         }
+    }
+
+
+    private IEnumerator InvincibilityCoroutine()
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(invincibilityDuration);
+        isInvincible = false;
     }
 
     // Public ServerRpc for taking damage (clients request server to apply damage)
