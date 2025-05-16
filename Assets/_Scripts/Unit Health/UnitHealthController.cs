@@ -224,6 +224,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     public void RespawnHealthSet(Transform respawnPos)
     {
         //if (!IsOwner) return;
+        this.isDead = false;
+
         this.gameObject.transform.position = respawnPos.position;
 
         CurrentUnitHeath = MaxHealth;
@@ -253,6 +255,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             {
                 PlayerRespawn.Instance.LocalPlayerHealthController = this;
             }
+            this.isDead = true;
 
             //hide boat: 
             boatModel.SetActive(false);
