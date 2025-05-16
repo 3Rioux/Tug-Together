@@ -106,24 +106,9 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             StartCoroutine(UnitTimeHeal());
         }
 
-
-
-        ////Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
-        //if (CurrentUnitHeath.CurrentHealth <= 0)
-        //{
-        //    //Player is Dead 
-        //    //LevelManager.Instance.PlayerDeath();//call the player death method from the GM when players HP less than or equal 0
-
-        //}else
-        //{
-        //    healthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
-        //}
-        //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
-
         //------------------TESTING--------------------------
 
 #if UNITY_EDITOR
-
         //test taking damage current key == q
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
@@ -137,9 +122,9 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             UnitHeal(10);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
         }
-        //------------------TESTING--------------------------
-    }//end update 
 #endif
+        //------------------TESTING--------------------------
+    }//end update
 
     /// <summary>
     /// Auto Heals the Unit gradually if not damaged for a set amount of time.
@@ -148,7 +133,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     {
         isUnitHealing = true;
 
-        //While Healt is not = Max Health && apply heal delay 
+        //While Healt is not = Max Health && apply heal delay
         while (CurrentUnitHeath < MaxHealth && timeSinceLastDamage >= healDelay)
         {
             //healt Unit

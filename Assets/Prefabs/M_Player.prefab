@@ -2259,6 +2259,7 @@ GameObject:
   - component: {fileID: 8475625314658388714}
   - component: {fileID: 2732382375787684641}
   - component: {fileID: 5588763639869888362}
+  - component: {fileID: 1038269843897812735}
   m_Layer: 3
   m_Name: BoatMainCam (Close)
   m_TagString: MainCamera
@@ -2503,6 +2504,20 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 11400000, guid: 6bac07931101cda4bac21aaf7d30319a, type: 2}
+--- !u!114 &1038269843897812735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809828204959572730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 1809828204959572730}
 --- !u!1 &1978397013126658884
 GameObject:
   m_ObjectHideFlags: 0
@@ -2787,7 +2802,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5637339961528835951}
-  - component: {fileID: 8609647740611718369}
   m_Layer: 3
   m_Name: Cameras
   m_TagString: PlayerCameras
@@ -2815,20 +2829,6 @@ Transform:
   - {fileID: 7822837798955252856}
   m_Father: {fileID: 9207008279184288006}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8609647740611718369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2092738007227132063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nonRigidbodyVelocity: 0
-  attenuationObject: {fileID: 1809828204959572730}
 --- !u!1 &2128685596453680048
 GameObject:
   m_ObjectHideFlags: 0

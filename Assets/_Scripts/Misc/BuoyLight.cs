@@ -8,7 +8,7 @@ public class BuoyLight : MonoBehaviour
 
     [SerializeField] private float rotationSpeed = 30f; // Degrees per second
 
-    void Update()
+     void Update()
     {
         transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
     }

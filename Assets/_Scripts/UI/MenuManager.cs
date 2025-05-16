@@ -96,6 +96,8 @@ public class MenuManager : MonoBehaviour
 
         // Get or add CanvasGroup to loadingMenu
         loadingMenuCanvasGroup = loadingMenu.GetComponent<CanvasGroup>();
+        
+        Cursor.lockState = CursorLockMode.None;
     
         // Ensure initial state
         loadingMenuCanvasGroup.alpha = 0f;
