@@ -209,6 +209,15 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""KillPlayer"",
+                    ""type"": ""Button"",
+                    ""id"": ""1210c246-af84-44e7-8609-3595dc4bb5be"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""ToggleMap"",
                     ""type"": ""PassThrough"",
                     ""id"": ""77c4b708-66e2-492c-a110-0ad9f24f08e7"",
@@ -668,6 +677,17 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""4bdd8a07-5f9a-4682-83d7-ea335dfda1c4"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""KillPlayer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""9d8a53fd-aa22-44cb-a420-8bdac09fd1ab"",
                     ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
@@ -780,6 +800,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         m_Boat_BoostLeft = m_Boat.FindAction("BoostLeft", throwIfNotFound: true);
         m_Boat_BoostNormal = m_Boat.FindAction("BoostNormal", throwIfNotFound: true);
         m_Boat_Hook = m_Boat.FindAction("Hook", throwIfNotFound: true);
+        m_Boat_KillPlayer = m_Boat.FindAction("KillPlayer", throwIfNotFound: true);
         m_Boat_ToggleMap = m_Boat.FindAction("ToggleMap", throwIfNotFound: true);
         m_Boat_AimHook = m_Boat.FindAction("AimHook", throwIfNotFound: true);
         m_Boat_Horn = m_Boat.FindAction("Horn", throwIfNotFound: true);
@@ -876,6 +897,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Boat_BoostLeft;
     private readonly InputAction m_Boat_BoostNormal;
     private readonly InputAction m_Boat_Hook;
+    private readonly InputAction m_Boat_KillPlayer;
     private readonly InputAction m_Boat_ToggleMap;
     private readonly InputAction m_Boat_AimHook;
     private readonly InputAction m_Boat_Horn;
@@ -942,6 +964,10 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Boat/Hook".
         /// </summary>
         public InputAction @Hook => m_Wrapper.m_Boat_Hook;
+        /// <summary>
+        /// Provides access to the underlying input action "Boat/KillPlayer".
+        /// </summary>
+        public InputAction @KillPlayer => m_Wrapper.m_Boat_KillPlayer;
         /// <summary>
         /// Provides access to the underlying input action "Boat/ToggleMap".
         /// </summary>
@@ -1019,6 +1045,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @Hook.started += instance.OnHook;
             @Hook.performed += instance.OnHook;
             @Hook.canceled += instance.OnHook;
+            @KillPlayer.started += instance.OnKillPlayer;
+            @KillPlayer.performed += instance.OnKillPlayer;
+            @KillPlayer.canceled += instance.OnKillPlayer;
             @ToggleMap.started += instance.OnToggleMap;
             @ToggleMap.performed += instance.OnToggleMap;
             @ToggleMap.canceled += instance.OnToggleMap;
@@ -1078,6 +1107,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @Hook.started -= instance.OnHook;
             @Hook.performed -= instance.OnHook;
             @Hook.canceled -= instance.OnHook;
+            @KillPlayer.started -= instance.OnKillPlayer;
+            @KillPlayer.performed -= instance.OnKillPlayer;
+            @KillPlayer.canceled -= instance.OnKillPlayer;
             @ToggleMap.started -= instance.OnToggleMap;
             @ToggleMap.performed -= instance.OnToggleMap;
             @ToggleMap.canceled -= instance.OnToggleMap;
@@ -1283,6 +1315,13 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHook(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "KillPlayer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnKillPlayer(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "ToggleMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

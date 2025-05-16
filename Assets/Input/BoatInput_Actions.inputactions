@@ -123,6 +123,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "KillPlayer",
+                    "type": "Button",
+                    "id": "1210c246-af84-44e7-8609-3595dc4bb5be",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ToggleMap",
                     "type": "PassThrough",
                     "id": "77c4b708-66e2-492c-a110-0ad9f24f08e7",
@@ -577,6 +586,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Hook",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4bdd8a07-5f9a-4682-83d7-ea335dfda1c4",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "KillPlayer",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
