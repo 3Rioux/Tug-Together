@@ -13,6 +13,8 @@ public class LevelVariableManager : NetworkBehaviour
     public WaterSurface GlobalWaterSurface;
     public Rigidbody GlobalBargeRigidBody;
     public GameObject GlobalEndGameTrigger;
+    public PlayerRespawn GlobalPlayerRespawnController;
+    public Transform GlobalRespawnTempMovePoint;
 
     //NetworkVariable<DateTime> referenceSurface = new NetworkVariable<DateTime>();
 

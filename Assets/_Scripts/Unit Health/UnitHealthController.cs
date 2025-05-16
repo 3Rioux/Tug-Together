@@ -1,19 +1,25 @@
 using System.Collections;
 using TMPro;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Collider))] // needs a collider of any kind attached 
-public class UnitHealthController : MonoBehaviour, IDamageable
+public class UnitHealthController : NetworkBehaviour, IDamageable
 {
+    public NetworkObject PlayerNetObj;
+
     [Header("Player Health: ")]
-    [SerializeField] private int maxHealth = 100;
+    public int MaxHealth = 100;
+    public int CurrentUnitHeath = 100;
     //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Slider healthBar;
 
-    public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
+    //public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
+    //public NetworkVariable<int> CurrentUnitHeath = new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     // public HealthBar _playerHealthBar; //reference to the healthBar or your damaged parts script stuff 
 
@@ -29,14 +35,43 @@ public class UnitHealthController : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        //currentHealth = maxHealth;
-        CurrentUnitHeath = new UnitHealth(maxHealth, maxHealth);
+        //currentHealth = MaxHealth;
+        //CurrentUnitHeath.Value = new UnitHealth(MaxHealth, MaxHealth);
 
         //lets simplify things lol:
-        healthBar.maxValue = maxHealth;
+        healthBar.maxValue = MaxHealth;
 
         OnHealthChanged();
+
+        //Get set the local net object to this gameobject:
+        if (IsOwner && IsLocalPlayer)
+        {
+            PlayerNetObj = GetComponent<NetworkObject>();
+            PlayerRespawn.Instance.LocalPlayerHealthController = this;
+        }
     }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        //Get set the local net object to this gameobject:
+        if (IsOwner && IsLocalPlayer)
+        {
+            PlayerNetObj = GetComponent<NetworkObject>();
+            PlayerRespawn.Instance.LocalPlayerHealthController = this;
+        }
+    }
+
+    void Start()
+    {
+
+        // Initialize health and checkpoint on server
+        CurrentUnitHeath = MaxHealth;
+
+       
+    }
+
 
 
     private void Update()
@@ -90,14 +125,12 @@ public class UnitHealthController : MonoBehaviour, IDamageable
         isUnitHealing = true;
 
         //While Healt is not = Max Health && apply heal delay 
-        while (CurrentUnitHeath.CurrentHealth < CurrentUnitHeath.MaxHealth && timeSinceLastDamage >= healDelay)
+        while (CurrentUnitHeath < MaxHealth && timeSinceLastDamage >= healDelay)
         {
             //healt Unit
             UnitHeal(healAmountPerSecond);
             yield return new WaitForSeconds(healTimeDelay); // Heal every second
         }
-
-
 
         //Done healing -> change state 
         isUnitHealing = false;
@@ -114,20 +147,33 @@ public class UnitHealthController : MonoBehaviour, IDamageable
         timeSinceLastDamage = 0f;
 
         //change current player health
-        CurrentUnitHeath.DamageUnits(damage);
+
+        CurrentUnitHeath = Mathf.Max(CurrentUnitHeath - damage, 0);
+        //TakeDamageServerRpc(damage);
+
 
         OnHealthChanged();
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
-        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath.CurrentHealth}.");
+        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath}.");
 
         // Debug.Log(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth.ToString());
 
-        if (CurrentUnitHeath.CurrentHealth <= 0) Die();
+        if (CurrentUnitHeath <= 0)
+        {
+            Die();
+        }
     }
 
-   
+    // Public ServerRpc for taking damage (clients request server to apply damage)
+    //[ServerRpc(RequireOwnership = false)]
+    //public void TakeDamageServerRpc(int damage)
+    //{
+    //    if (!IsServer) return;
+    //    CurrentUnitHeath.Value = Mathf.Max(CurrentUnitHeath.Value - damage, 0);
+    //}
+
 
     /// <summary>
     /// Method to handle the player healing. 
@@ -138,42 +184,52 @@ public class UnitHealthController : MonoBehaviour, IDamageable
     private void UnitHeal(int healing)
     {
         //change current player health
-        CurrentUnitHeath.HealUnits(healing);
 
+        //HealServerRpc(healing);
+        CurrentUnitHeath = Mathf.Min(CurrentUnitHeath + healing, MaxHealth);
         OnHealthChanged();
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
 
-        Debug.Log("Current Health" + CurrentUnitHeath.CurrentHealth.ToString());
+        Debug.Log("Current Health" + CurrentUnitHeath.ToString());
     }
+
+    //[ServerRpc(RequireOwnership = false)]
+    //public void HealServerRpc(int healing)
+    //{
+    //    if (!IsServer) return;
+    //    CurrentUnitHeath.Value = Mathf.Min(CurrentUnitHeath.Value + healing, MaxHealth);
+    //}
+
 
     private void OnHealthChanged()
     {
-        healthBar.value = CurrentUnitHeath.CurrentHealth;
+        healthBar.value = CurrentUnitHeath;
     }
 
-    void Die()
+    public void Die()
     {
+        LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
         // Your death logic here...
         Debug.Log($"{name} died!");
     }
 
     //===============Not yet part of the game===============
 
-    /// <summary>
-    /// method called when player Uses a medkit in the inventory 
-    /// </summary>
-    /// <param name="healing"></param>
-    /// <returns></returns>
-    public bool TryHealthItemPlayerHeal(int healing)
-    {
-        if (!CurrentUnitHeath.IsUnitHealthFull())
-        {
-            UnitHeal(healing);
-            return true;//item was used 
-        }
-        else return false; // item not used health was already full 
-    }
+    ///// <summary>
+    ///// method called when player Uses a medkit in the inventory 
+    ///// </summary>
+    ///// <param name="healing"></param>
+    ///// <returns></returns>
+    //public bool TryHealthItemPlayerHeal(int healing)
+    //{
+    //    if (!CurrentUnitHeath.IsUnitHealthFull())
+    //    {
+    //        UnitHeal(healing);
+    //        return true;//item was used 
+    //    }
+    //    else return false; // item not used health was already full 
+    //}
 
 }
