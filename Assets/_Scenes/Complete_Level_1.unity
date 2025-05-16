@@ -5862,6 +5862,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   respawnDelay: 5
+  respawnPosition: {fileID: 0}
+  listRespawnPosition:
+  - {fileID: 1724956746}
+  - {fileID: 1724956745}
   deathTempPosition: {fileID: 556542383}
   playerModel: {fileID: 0}
   spectatorCamera: {fileID: 1724956744}
@@ -32053,7 +32057,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1399400950357912117, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -30.931206
+      value: -30.93121
       objectReference: {fileID: 0}
     - target: {fileID: 1399400950357912117, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -32545,7 +32549,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4174995971121168286, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -11.795036
+      value: -11.795032
       objectReference: {fileID: 0}
     - target: {fileID: 4174995971121168286, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -33181,7 +33185,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5445977640432200113, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -23.053143
+      value: -23.053152
       objectReference: {fileID: 0}
     - target: {fileID: 5445977640432200113, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -34040,6 +34044,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1724956745 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8340722164628604326, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
+  m_PrefabInstance: {fileID: 1724956740}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1724956746 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3910934802821953337, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}
+  m_PrefabInstance: {fileID: 1724956740}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1724956752 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4920383196361316974, guid: b9a5c10ab05b6d344ba5d34645aabae9, type: 3}

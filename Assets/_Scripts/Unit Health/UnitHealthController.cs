@@ -11,6 +11,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 {
     public NetworkObject PlayerNetObj;
     [SerializeField] private GameObject boatModel;
+    [SerializeField] private GameObject boatEffect;
+    [SerializeField] private GameObject boatName;
 
 
     [Header("Player Health: ")]
@@ -213,6 +215,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         CurrentUnitHeath = MaxHealth;
         //Show boat: 
         boatModel.SetActive(true);
+        boatEffect.SetActive(true);
+        boatName.SetActive(true);
 
         OnHealthChanged();
     }
@@ -234,6 +238,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
             //hide boat: 
             boatModel.SetActive(false);
+            boatName.SetActive(false);
+            boatEffect.SetActive(false);
 
             this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
 
