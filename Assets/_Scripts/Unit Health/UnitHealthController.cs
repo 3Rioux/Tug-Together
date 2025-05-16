@@ -13,11 +13,13 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     [SerializeField] private GameObject boatModel;
     [SerializeField] private GameObject boatEffect;
     [SerializeField] private GameObject boatName;
+    [SerializeField] private TugboatMovementWFloat tugMovement;
+    [SerializeField] private SpringTugSystem tugSpringTugSystem;
 
 
     [Header("Player Health: ")]
     public int MaxHealth = 100;
-    public int CurrentUnitHeath = 100;
+    [SerializeField] private int CurrentUnitHeath = 100;
     //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Slider healthBar;
@@ -37,8 +39,12 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     private float timeSinceLastDamage = 0f; // Tracks time since last damage
     private bool isUnitHealing = false; // Tracks if healing coroutine is running
 
+    private bool isDead = false;
+
+
     private void Awake()
     {
+       
         //currentHealth = MaxHealth;
         //CurrentUnitHeath.Value = new UnitHealth(MaxHealth, MaxHealth);
 
@@ -64,10 +70,14 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     void Start()
     {
+       
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
         {
             PlayerNetObj = GetComponent<NetworkObject>();
+            tugMovement = GetComponent<TugboatMovementWFloat>();
+            tugSpringTugSystem = GetComponent<SpringTugSystem>();
+
             PlayerRespawn.Instance.LocalPlayerHealthController = this;
             Debug.Log("Set LocalPlayerHealthController", this);
         }else
@@ -92,6 +102,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             StartCoroutine(UnitTimeHeal());
         }
 
+        
 
         ////Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
         //if (CurrentUnitHeath.CurrentHealth <= 0)
@@ -169,6 +180,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         if (CurrentUnitHeath <= 0)
         {
             Die();
+            CurrentUnitHeath = MaxHealth; //reset Health 
+            OnHealthChanged();
         }
     }
 
@@ -210,16 +223,20 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     public void RespawnHealthSet(Transform respawnPos)
     {
+        //if (!IsOwner) return;
         this.gameObject.transform.position = respawnPos.position;
 
         CurrentUnitHeath = MaxHealth;
         //Show boat: 
         boatModel.SetActive(true);
         boatEffect.SetActive(true);
-        boatName.SetActive(true);
+
+        tugSpringTugSystem.isDead = this.isDead;
 
         OnHealthChanged();
     }
+
+
     private void OnHealthChanged()
     {
         healthBar.value = CurrentUnitHeath;
@@ -229,6 +246,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     public void Die()
     {
+       
         if (IsLocalPlayer)
         {
             if (PlayerRespawn.Instance.LocalPlayerHealthController == null)
@@ -238,10 +256,14 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
             //hide boat: 
             boatModel.SetActive(false);
-            boatName.SetActive(false);
             boatEffect.SetActive(false);
 
             this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+
+            //Make sure to Detach the player when dead 
+            this.gameObject.GetComponent<SpringTugSystem>().Detach();
+            this.gameObject.GetComponent<SpringTugSystem>().isDead = this.isDead;
+
 
             LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
             // Your death logic here...

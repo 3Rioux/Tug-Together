@@ -140,7 +140,7 @@ public class PlayerRespawn : MonoBehaviour
         //playerCamera.enabled = true;
 
         // Re-enable player visuals and input locally
-        playerModel.SetActive(true);
+        //playerModel.SetActive(true);
     }
 
 
@@ -179,7 +179,8 @@ public class PlayerRespawn : MonoBehaviour
 
         // Teleport to last checkpoint and reset health
         respawnPosition = listRespawnPosition[Random.Range(0, listRespawnPosition.Count)];
-        _localPlayerGameObject.transform.position = respawnPosition.position;
+        respawnPosition = listRespawnPosition[0];
+        //_localPlayerGameObject.transform.position = respawnPosition.position;
 
         //allow user to control the boat again 
         _tugboatMovement.SetControlEnabled(true);
