@@ -178,7 +178,7 @@ public class PlayerRespawn_Server : NetworkBehaviour
         transform.position = respawnPosition;
        
        // LocalPlayerHealthController.HealServerRpc(LocalPlayerHealthController.MaxHealth);
-        _localPlayerHealthController.CurrentUnitHeath = _localPlayerHealthController.MaxHealth;
+        //_localPlayerHealthController.CurrentUnitHeath = _localPlayerHealthController.MaxHealth;
 
         //he is alive again!!!
         isDead = false;

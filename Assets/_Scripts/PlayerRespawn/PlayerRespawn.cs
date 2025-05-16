@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 
 public class PlayerRespawn : MonoBehaviour
@@ -19,7 +20,8 @@ public class PlayerRespawn : MonoBehaviour
 
     [Header("Respawn Settings")]
     public float respawnDelay = 5f;
-    private Transform respawnPosition;  // last checkpoint location
+    [SerializeField] private Transform respawnPosition;  // last checkpoint location
+    [SerializeField] private List<Transform> listRespawnPosition;  // last checkpoint location
     [SerializeField] private Transform deathTempPosition; // this is the position ALL players go to when they die 
 
     [Header("References")]
@@ -29,6 +31,7 @@ public class PlayerRespawn : MonoBehaviour
     [SerializeField] private CinemachineCamera spectatorCamera;         // a spectator/free camera
     [SerializeField] private GameObject respawnUICanvas;                // UI prefab with a countdown TextMeshProUGUI
     [SerializeField] private TextMeshProUGUI countdownText;
+    [SerializeField] private Transform cameraDefaultLocation;
 
     public UnitHealthController LocalPlayerHealthController;
    
@@ -59,7 +62,7 @@ public class PlayerRespawn : MonoBehaviour
         //LocalPlayerHealthController = this.gameObject.GetComponent<UnitHealthController>();
         deathTempPosition = LevelVariableManager.Instance.GlobalRespawnTempMovePoint;
 
-        respawnPosition = transform;  // default spawn
+        respawnPosition = listRespawnPosition[Random.Range(0, listRespawnPosition.Count)];  // default spawn
 
         spectatorCamera.enabled = false;
         respawnUICanvas.SetActive(false);
@@ -107,6 +110,7 @@ public class PlayerRespawn : MonoBehaviour
 
         // Switch to spectator camera
         //playerCamera.enabled = false;
+        //spectatorCamera.transform = cameraDefaultLocation;
         spectatorCamera.enabled = true;
 
         // Instantiate and show respawn UI (with a TextMeshPro countdown)
@@ -136,7 +140,7 @@ public class PlayerRespawn : MonoBehaviour
         //playerCamera.enabled = true;
 
         // Re-enable player visuals and input locally
-        playerModel.SetActive(true);
+        //playerModel.SetActive(true);
     }
 
 
@@ -171,10 +175,12 @@ public class PlayerRespawn : MonoBehaviour
     // Server-side respawn: move player and restore health
     private void Respawn()
     {
-      //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
+        //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
 
         // Teleport to last checkpoint and reset health
-        _localPlayerGameObject.transform.position = respawnPosition.position;
+        respawnPosition = listRespawnPosition[Random.Range(0, listRespawnPosition.Count)];
+        respawnPosition = listRespawnPosition[0];
+        //_localPlayerGameObject.transform.position = respawnPosition.position;
 
         //allow user to control the boat again 
         _tugboatMovement.SetControlEnabled(true);

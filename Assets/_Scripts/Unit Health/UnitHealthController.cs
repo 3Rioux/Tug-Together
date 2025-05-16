@@ -11,11 +11,15 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 {
     public NetworkObject PlayerNetObj;
     [SerializeField] private GameObject boatModel;
+    [SerializeField] private GameObject boatEffect;
+    [SerializeField] private GameObject boatName;
+    [SerializeField] private TugboatMovementWFloat tugMovement;
+    [SerializeField] private SpringTugSystem tugSpringTugSystem;
 
 
     [Header("Player Health: ")]
     public int MaxHealth = 100;
-    public int CurrentUnitHeath = 100;
+    [SerializeField] private int CurrentUnitHeath = 100;
     //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Slider healthBar;
@@ -35,8 +39,16 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     private float timeSinceLastDamage = 0f; // Tracks time since last damage
     private bool isUnitHealing = false; // Tracks if healing coroutine is running
 
+    [Header("Invincible State")]
+    [SerializeField] private float invincibilityDuration = 2f; // seconds
+    private bool isInvincible = false;
+
+    private bool isDead = false;
+
+
     private void Awake()
     {
+       
         //currentHealth = MaxHealth;
         //CurrentUnitHeath.Value = new UnitHealth(MaxHealth, MaxHealth);
 
@@ -62,10 +74,14 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     void Start()
     {
+       
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
         {
             PlayerNetObj = GetComponent<NetworkObject>();
+            tugMovement = GetComponent<TugboatMovementWFloat>();
+            tugSpringTugSystem = GetComponent<SpringTugSystem>();
+
             PlayerRespawn.Instance.LocalPlayerHealthController = this;
             Debug.Log("Set LocalPlayerHealthController", this);
         }else
@@ -91,6 +107,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         }
 
 
+
         ////Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
         //if (CurrentUnitHeath.CurrentHealth <= 0)
         //{
@@ -104,6 +121,9 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
 
         //------------------TESTING--------------------------
+
+#if UNITY_EDITOR
+
         //test taking damage current key == q
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
@@ -119,7 +139,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         }
         //------------------TESTING--------------------------
     }//end update 
-
+#endif
 
     /// <summary>
     /// Auto Heals the Unit gradually if not damaged for a set amount of time.
@@ -147,16 +167,18 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     /// <param name="damage"></param>
     public void UnitTakeDamage(int damage)
     {
+        if (isInvincible) return; // Ignore damage if invincible
+
         // Reset the damage timer
         timeSinceLastDamage = 0f;
 
-        //change current player health
-
+        /// Apply damage
         CurrentUnitHeath = Mathf.Max(CurrentUnitHeath - damage, 0);
-        //TakeDamageServerRpc(damage);
-
-
         OnHealthChanged();
+        
+
+        // Start invincibility period
+        StartCoroutine(InvincibilityCoroutine());
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
@@ -167,7 +189,17 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         if (CurrentUnitHeath <= 0)
         {
             Die();
+            CurrentUnitHeath = MaxHealth; //reset Health 
+            OnHealthChanged();
         }
+    }
+
+
+    private IEnumerator InvincibilityCoroutine()
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(invincibilityDuration);
+        isInvincible = false;
     }
 
     // Public ServerRpc for taking damage (clients request server to apply damage)
@@ -208,14 +240,22 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     public void RespawnHealthSet(Transform respawnPos)
     {
+        //if (!IsOwner) return;
+        this.isDead = false;
+
         this.gameObject.transform.position = respawnPos.position;
 
         CurrentUnitHeath = MaxHealth;
         //Show boat: 
         boatModel.SetActive(true);
+        boatEffect.SetActive(true);
+
+        tugSpringTugSystem.isDead = this.isDead;
 
         OnHealthChanged();
     }
+
+
     private void OnHealthChanged()
     {
         healthBar.value = CurrentUnitHeath;
@@ -225,17 +265,25 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     public void Die()
     {
+       
         if (IsLocalPlayer)
         {
             if (PlayerRespawn.Instance.LocalPlayerHealthController == null)
             {
                 PlayerRespawn.Instance.LocalPlayerHealthController = this;
             }
+            this.isDead = true;
 
             //hide boat: 
             boatModel.SetActive(false);
+            boatEffect.SetActive(false);
 
             this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+
+            //Make sure to Detach the player when dead 
+            this.gameObject.GetComponent<SpringTugSystem>().Detach();
+            this.gameObject.GetComponent<SpringTugSystem>().isDead = this.isDead;
+
 
             LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
             // Your death logic here...

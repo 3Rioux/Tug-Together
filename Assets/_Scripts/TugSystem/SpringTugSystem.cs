@@ -13,6 +13,8 @@ public class SpringTugSystem : NetworkBehaviour
 {
 
     #region Variables
+    public bool isDead = false; // stop tuw logic especially auto aim if player is dead;
+    
     [SerializeField] private TextMeshProUGUI distanceText;
 
    
@@ -358,6 +360,13 @@ public class SpringTugSystem : NetworkBehaviour
         //    }
         //}
         // *** Always update this even if its just a copy on another client ***
+
+        if (isDead)// -----Do nothing if dead -----
+        {
+            //reset attached
+            lineRenderer.enabled = false;
+            return; 
+        }
 
         if (towedObject == null || !IsOwner)
         {

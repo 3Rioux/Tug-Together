@@ -1019,6 +1019,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  isDead: 0
   distanceText: {fileID: 2869372099696369650}
   springJoint: {fileID: 0}
   visualRope: {fileID: 1173568696392976096}
@@ -1222,6 +1223,10 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   PlayerNetObj: {fileID: 8132552865346916059}
   boatModel: {fileID: 1353220223590797173}
+  boatEffect: {fileID: 3237968563525795810}
+  boatName: {fileID: 4345953558425995263}
+  tugMovement: {fileID: 0}
+  tugSpringTugSystem: {fileID: 0}
   MaxHealth: 100
   CurrentUnitHeath: 100
   healthText: {fileID: 3016659806351485906}
@@ -1230,6 +1235,7 @@ MonoBehaviour:
   healDelay: 5
   healAmountPerSecond: 1
   healTimeDelay: 1
+  invincibilityDuration: 2
 --- !u!114 &904901310750081861
 MonoBehaviour:
   m_ObjectHideFlags: 0
