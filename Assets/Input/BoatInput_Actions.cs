@@ -225,6 +225,15 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Horn"",
+                    ""type"": ""Button"",
+                    ""id"": ""db55fb94-3689-4366-8988-4c732bcd0d29"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -678,6 +687,17 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""AimHook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f72c5416-7bdd-4184-b956-54822cb7f259"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Horn"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -762,6 +782,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         m_Boat_Hook = m_Boat.FindAction("Hook", throwIfNotFound: true);
         m_Boat_ToggleMap = m_Boat.FindAction("ToggleMap", throwIfNotFound: true);
         m_Boat_AimHook = m_Boat.FindAction("AimHook", throwIfNotFound: true);
+        m_Boat_Horn = m_Boat.FindAction("Horn", throwIfNotFound: true);
     }
 
     ~@BoatInputActions()
@@ -857,6 +878,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Boat_Hook;
     private readonly InputAction m_Boat_ToggleMap;
     private readonly InputAction m_Boat_AimHook;
+    private readonly InputAction m_Boat_Horn;
     /// <summary>
     /// Provides access to input actions defined in input action map "Boat".
     /// </summary>
@@ -929,6 +951,10 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @AimHook => m_Wrapper.m_Boat_AimHook;
         /// <summary>
+        /// Provides access to the underlying input action "Boat/Horn".
+        /// </summary>
+        public InputAction @Horn => m_Wrapper.m_Boat_Horn;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Boat; }
@@ -999,6 +1025,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @AimHook.started += instance.OnAimHook;
             @AimHook.performed += instance.OnAimHook;
             @AimHook.canceled += instance.OnAimHook;
+            @Horn.started += instance.OnHorn;
+            @Horn.performed += instance.OnHorn;
+            @Horn.canceled += instance.OnHorn;
         }
 
         /// <summary>
@@ -1055,6 +1084,9 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @AimHook.started -= instance.OnAimHook;
             @AimHook.performed -= instance.OnAimHook;
             @AimHook.canceled -= instance.OnAimHook;
+            @Horn.started -= instance.OnHorn;
+            @Horn.performed -= instance.OnHorn;
+            @Horn.canceled -= instance.OnHorn;
         }
 
         /// <summary>
@@ -1265,5 +1297,12 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnAimHook(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Horn" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHorn(InputAction.CallbackContext context);
     }
 }

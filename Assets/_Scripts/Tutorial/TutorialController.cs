@@ -18,6 +18,8 @@ public class TutorialController : MonoBehaviour
 
     private void Start()
     {
+        AudioManager.Instance.PlayAmbience(FMODEvents.Instance.Tutorial);
+        
         // subscribe to completion events
         for (int i = 0; i < _stages.Length; i++)
             _stages[i].StageCompleted += OnStageCompleted;

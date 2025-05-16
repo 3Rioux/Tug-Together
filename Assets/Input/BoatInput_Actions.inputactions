@@ -139,6 +139,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Horn",
+                    "type": "Button",
+                    "id": "db55fb94-3689-4366-8988-4c732bcd0d29",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -590,6 +599,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "AimHook",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f72c5416-7bdd-4184-b956-54822cb7f259",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Horn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -47,6 +47,7 @@ public class CreditsController : MonoBehaviour
 
     public void ShowCredits()
     {
+        AudioManager.Instance.PlayAmbience(FMODEvents.Instance.Credits);
         // Ignore if creditsCanvas is already active.
         if (canvasInstance != null)
         {

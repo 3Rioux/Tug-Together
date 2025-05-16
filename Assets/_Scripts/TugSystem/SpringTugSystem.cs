@@ -1076,6 +1076,9 @@ public class SpringTugSystem : NetworkBehaviour
             boatMovement.GenerateScreenShake(0.4f);
         }
         
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.HookShoot, transform.position);
+
+        
         visualRope.gameObject.SetActive(true);
 
         visualRope.EndPoint = boatHook.transform; // this should create a cool effect when next attaching 
@@ -1085,6 +1088,8 @@ public class SpringTugSystem : NetworkBehaviour
 
         visualRope.ropeLength = springMaxDistance; // this should create a cool effect when next attaching 
        
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.HookAttach, targetAttachPoint.position);
+        AudioManager.Instance.StartLoop(FMODEvents.Instance.HookIdle, visualRope.gameObject);
 
        //wait for a second before disableing the hook?
 
@@ -1097,6 +1102,10 @@ public class SpringTugSystem : NetworkBehaviour
         visualRope.ropeLength = springMaxDistance; // this should create a cool effect when next attaching 
         visualRope.EndPoint = boatHook.transform; // this should create a cool effect when next attaching 
         visualRope.gameObject.SetActive(false);
+        
+        // Play detach sound and stop idle loop
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.HookDetach, transform.position);
+        AudioManager.Instance.StopLoop();
 
         boatHook.SetActive(true); // make sure it active 
     }

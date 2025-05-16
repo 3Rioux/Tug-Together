@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using FMOD.Studio;
+using FMODUnity;
 using TMPro;
 using Unity.Cinemachine;
 using Unity.Mathematics;
@@ -99,13 +102,26 @@ public class TugboatMovementWFloat : NetworkBehaviour
     [SerializeField] private float collisionShakeMultiplier = 0.5f;
     [SerializeField] private float hookShakeIntensity = 0.3f;
 
-// NetworkVariable to sync pole rotation across clients
+    // NetworkVariable to sync pole rotation across clients
     private readonly NetworkVariable<float> _syncedPoleRotation = new NetworkVariable<float>(0f,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-// Track last local rotation value for smoothing
+    // Track last local rotation value for smoothing
     private float _lastPoleRotationValue = 0f;
     private bool _isRotating = false;
+    
+    
+    private bool isPlayingIdleSound = false;
+    private bool isPlayingMoveSound = false;
+    private bool isPlayingTurningSound = false;
+    private float minSpeedForMoving = 0.5f;
+    private float turnSoundStopDelay = 1.0f;
+    private float turnSoundTimer = 0f;
+    private EventInstance turningInstance;
+    private EventInstance moveInstance; // To control speed parameter
+
+    private float hornCooldown = 0f;
+    private const float HORN_COOLDOWN_DURATION = 1.5f; // Prevent spam
 
 
     private Rigidbody rb;
@@ -137,32 +153,41 @@ public class TugboatMovementWFloat : NetworkBehaviour
         controls.Boat.Look.performed += ctx => lookVector = ctx.ReadValue<Vector2>();
         controls.Boat.Look.canceled += _ => lookVector = Vector2.zero; // remove this to enable camera drift 
         
+        // Add horn input handling
+        controls.Boat.Horn.performed += ctx => PlayHorn();
+        
         // Pole rotation input handling
         controls.Boat.Move.performed += ctx => {
             Vector2 input = ctx.ReadValue<Vector2>();
 
-            // Check for A/D press (horizontal input)
+            // If horizontal input is significant, rotate poles
             if (Mathf.Abs(input.x) > 0.1f) {
                 _isRotating = true;
                 float targetRotation = input.x * mainPoleMaxRotation;
 
                 if (IsOwner) {
-                    // Only owner updates network variable
                     _syncedPoleRotation.Value = targetRotation;
-                    // Local visual feedback (only for owner)
                     RotatePoles(targetRotation);
                 }
             }
-        };
-
-        controls.Boat.Move.canceled += _ => {
-            if (_isRotating) {
+            // If horizontal input is near zero BUT we were rotating before,
+            // reset rotation (this handles the case of releasing D while still holding W)
+            else if (_isRotating) {
                 _isRotating = false;
         
                 if (IsOwner) {
-                    // Only owner updates network variable
                     _syncedPoleRotation.Value = 0f;
-                    // Local visual feedback (only for owner)
+                    RotatePoles(0f);
+                }
+            }
+        };
+        
+        controls.Boat.Move.canceled += _ => {
+            if (_isRotating) {
+                _isRotating = false;
+
+                if (IsOwner) {
+                    _syncedPoleRotation.Value = 0f;
                     RotatePoles(0f);
                 }
             }
@@ -204,10 +229,16 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        //base.OnNetworkSpawn();
+
+        
         if (targetSurface == null)
         {
             InitializeWaterTarget();
         }
+        
+        // Initialize sound when spawned
+        InitializeSound();
     }
 
     void OnEnable()
@@ -272,6 +303,8 @@ public class TugboatMovementWFloat : NetworkBehaviour
             ApplyMovementEffects(_syncedSpeed.Value);
         }
         
+        UpdateSounds();
+        UpdateHorn();
        
     }
    
@@ -361,7 +394,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (speedLinesMaterial != null)
         {
             // Calculate density directly from sail strength rather than separately from speed
-            float linesDensity = Mathf.InverseLerp(0.2f, 0.8f, _currentSailStrength) * 0.33f;
+            float linesDensity = Mathf.InverseLerp(0.2f, 0.8f, _currentSailStrength) * 0.36f;
             speedLinesMaterial.SetFloat("_Lines_Density", linesDensity);
         }
     }
@@ -548,6 +581,8 @@ public class TugboatMovementWFloat : NetworkBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
 
     }
+
+    #region OnCollisionAndScreenShake
     
     private void OnCollisionEnter(Collision collision)
     {
@@ -560,6 +595,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (impactForce > collisionShakeThreshold)
         {
             float shakeIntensity = Mathf.Min(impactForce * collisionShakeMultiplier, 1.3f); // Cap maximum shake
+            AudioManager.Instance.PlayOneShot(FMODEvents.Instance.PlayerImpact, transform.position);
             GenerateScreenShake(shakeIntensity);
         }
     }
@@ -570,6 +606,205 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (impulseSource != null && IsOwner)
         {
             impulseSource.GenerateImpulse(intensity);
+        }
+    }
+    
+    #endregion
+
+
+
+    #region Sounds
+        
+    private void InitializeSound()
+    {
+        // Start with idle sound
+        if (!isPlayingIdleSound && IsOwner)
+        {
+            AudioManager.Instance.StartLoop(FMODEvents.Instance.PlayerIdle, gameObject);
+            isPlayingIdleSound = true;
+            isPlayingMoveSound = false;
+        }
+    }
+
+    private void UpdateSounds()
+    {
+        if (!IsOwner) return;
+
+        float speed = rb.linearVelocity.magnitude;
+        bool shouldBeMoving = speed > minSpeedForMoving;
+        bool isTurning = Mathf.Abs(moveVector.x) > 0.1f && shouldBeMoving;
+
+        // Handle background engine loops with better transitions
+        if (shouldBeMoving)
+        {
+            // Update speed parameter on move sound if already playing
+            if (isPlayingMoveSound && moveInstance.isValid())
+            {
+                float normalizedSpeed = Mathf.Clamp01(speed / maxSpeed);
+                moveInstance.setParameterByName("Speed", normalizedSpeed);
+            }
+            // Start move sound if not already playing
+            else if (!isPlayingMoveSound)
+            {
+                // First stop idle sound with quick fade
+                if (isPlayingIdleSound)
+                {
+                    AudioManager.Instance.FadeOutLoop(0.3f);
+                    isPlayingIdleSound = false;
+                }
+
+                // Then start move sound
+                moveInstance = RuntimeManager.CreateInstance(FMODEvents.Instance.PlayerMove);
+                RuntimeManager.AttachInstanceToGameObject(moveInstance, transform);
+                moveInstance.start();
+                isPlayingMoveSound = true;
+            }
+        }
+        else // Should be idle
+        {
+            // Handle transition to idle sound
+            if (!isPlayingIdleSound)
+            {
+                // First stop move sound with fade
+                if (isPlayingMoveSound && moveInstance.isValid())
+                {
+                    moveInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                    moveInstance.release();
+                    isPlayingMoveSound = false;
+                }
+
+                // Then start idle sound
+                AudioManager.Instance.StartLoop(FMODEvents.Instance.PlayerIdle, gameObject);
+                isPlayingIdleSound = true;
+            }
+        }
+
+        // Handle turning sound logic (no changes needed here)
+        if (isTurning && !isPlayingTurningSound)
+        {
+            turningInstance = RuntimeManager.CreateInstance(FMODEvents.Instance.PlayerTurning);
+            RuntimeManager.AttachInstanceToGameObject(turningInstance, transform);
+            turningInstance.start();
+            isPlayingTurningSound = true;
+            turnSoundTimer = 0f;
+        }
+        else if (!isTurning && isPlayingTurningSound)
+        {
+            turnSoundTimer += Time.deltaTime;
+            if (turnSoundTimer >= turnSoundStopDelay)
+            {
+                if (turningInstance.isValid())
+                {
+                    turningInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                    turningInstance.release();
+                }
+                isPlayingTurningSound = false;
+            }
+        }
+        else if (isTurning)
+        {
+            turnSoundTimer = 0f;
+        }
+    }
+
+// Update the horn methods in TugboatMovementWFloat.cs
+    [ServerRpc]
+    private void PlayHornServerRpc()
+    {
+        // Use the actual client ID from the server's perspective
+        PlayHornClientRpc(NetworkObjectId);
+    }
+
+    [ClientRpc]
+    private void PlayHornClientRpc(ulong boatNetworkId)
+    {
+        // Find the boat by its network object ID instead of client ID
+        NetworkObject boatObject = null;
+    
+        // If this is our own boat
+        if (NetworkObjectId == boatNetworkId)
+        {
+            boatObject = NetworkObject;
+        }
+        else
+        {
+            // Try to find the boat in the scene by network ID
+            foreach (NetworkObject networkObj in FindObjectsOfType<NetworkObject>())
+            {
+                if (networkObj.NetworkObjectId == boatNetworkId)
+                {
+                    boatObject = networkObj;
+                    break;
+                }
+            }
+        }
+    
+        if (boatObject != null)
+        {
+            // Create horn instance and attach it to the correct boat
+            EventInstance hornInstance = RuntimeManager.CreateInstance(FMODEvents.Instance.PlayerHorn);
+            RuntimeManager.AttachInstanceToGameObject(hornInstance, boatObject.transform);
+            hornInstance.start();
+        
+            // Release after the sound would have finished playing
+            StartCoroutine(ReleaseAfterPlay(hornInstance, 3.0f));
+        }
+    }
+
+    private IEnumerator ReleaseAfterPlay(EventInstance instance, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (instance.isValid())
+        {
+            instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            instance.release();
+        }
+    }
+
+    private void PlayHorn()
+    {
+        // Only owner can trigger horn and only if cooldown elapsed
+        if (!IsOwner || hornCooldown > 0) return;
+    
+        // Set cooldown
+        hornCooldown = HORN_COOLDOWN_DURATION;
+    
+        // Request server to play horn on all clients
+        PlayHornServerRpc();
+    }
+
+    // Add this to your Update method
+    private void UpdateHorn()
+    {
+        // Update horn cooldown
+        if (hornCooldown > 0)
+        {
+            hornCooldown -= Time.deltaTime;
+        }
+    }
+    
+    
+    
+    #endregion
+    
+    public override void OnDestroy()
+    {
+        // Clean up any playing sounds
+        if (IsOwner)
+        {
+            AudioManager.Instance.StopLoop();
+
+            if (isPlayingTurningSound && turningInstance.isValid())
+            {
+                turningInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                turningInstance.release();
+            }
+        
+            if (isPlayingMoveSound && moveInstance.isValid())
+            {
+                moveInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+                moveInstance.release();
+            }
         }
     }
 
