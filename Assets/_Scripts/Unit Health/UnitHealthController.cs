@@ -106,7 +106,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             StartCoroutine(UnitTimeHeal());
         }
 
-        
+
 
         ////Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
         //if (CurrentUnitHeath.CurrentHealth <= 0)
@@ -121,6 +121,9 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
 
         //------------------TESTING--------------------------
+
+#if UNITY_EDITOR
+
         //test taking damage current key == q
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
@@ -136,7 +139,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         }
         //------------------TESTING--------------------------
     }//end update 
-
+#endif
 
     /// <summary>
     /// Auto Heals the Unit gradually if not damaged for a set amount of time.
