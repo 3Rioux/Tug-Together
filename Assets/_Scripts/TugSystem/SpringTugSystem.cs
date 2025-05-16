@@ -408,7 +408,7 @@ public class SpringTugSystem : NetworkBehaviour
         if (isAimMode)
         {//can always aim 
 
-           
+
             // turn on aim cam when aim button pressed
             //aimCamera.gameObject.SetActive(true);
 
@@ -419,10 +419,10 @@ public class SpringTugSystem : NetworkBehaviour
             //worldAimTarget.y = targetAttachPoint.position.y; // 
             //Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
 
-           
+
             ////rotate the player
             //targetAttachPoint.forward = Camera.main.transform.position;//  aimDirection - Camera.main.transform.position;// Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 20.0f);
-            
+
 
             if (distanceToTowedObject <= maxTowDistance && !isAttached)
             {
@@ -462,7 +462,11 @@ public class SpringTugSystem : NetworkBehaviour
                     }
                 }
 
-               
+
+
+            }
+            else
+            {
 
             }//end if close enough to hook 
             

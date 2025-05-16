@@ -4,6 +4,7 @@ using TMPro;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class EndGameTrigger : NetworkBehaviour
@@ -45,6 +46,8 @@ public class EndGameTrigger : NetworkBehaviour
     void TriggerGameOverClientRpc()
     {
         Debug.Log("Triggering Game Over UI on client");
+
+        Cursor.lockState = CursorLockMode.Confined;
 
         // Try to find a canvas tagged or named appropriately, or make this reference explicit
         //GameObject canvas = GameObject.Find("GameOverCanvas"); // or use a static reference/UI manager
