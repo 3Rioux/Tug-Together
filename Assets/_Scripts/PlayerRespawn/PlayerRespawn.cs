@@ -31,6 +31,7 @@ public class PlayerRespawn : MonoBehaviour
     [SerializeField] private CinemachineCamera spectatorCamera;         // a spectator/free camera
     [SerializeField] private GameObject respawnUICanvas;                // UI prefab with a countdown TextMeshProUGUI
     [SerializeField] private TextMeshProUGUI countdownText;
+    [SerializeField] private Transform cameraDefaultLocation;
 
     public UnitHealthController LocalPlayerHealthController;
    
@@ -109,6 +110,7 @@ public class PlayerRespawn : MonoBehaviour
 
         // Switch to spectator camera
         //playerCamera.enabled = false;
+        //spectatorCamera.transform = cameraDefaultLocation;
         spectatorCamera.enabled = true;
 
         // Instantiate and show respawn UI (with a TextMeshPro countdown)

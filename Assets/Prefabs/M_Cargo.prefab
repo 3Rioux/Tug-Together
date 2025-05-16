@@ -358,6 +358,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 737575480822645045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &579232407440287845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2364191232948962530}
+  m_Layer: 0
+  m_Name: CameraStartLocation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2364191232948962530
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579232407440287845}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.15212339, y: -0.000000029455473, z: 0.000000004533631, w: 0.98836154}
+  m_LocalPosition: {x: 0, y: 60.14116, z: -190.74341}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8152847541242594621}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &642147927869935826
 GameObject:
   m_ObjectHideFlags: 0
@@ -4194,6 +4225,7 @@ GameObject:
   - component: {fileID: 4137241668046874402}
   - component: {fileID: 3182756803542045305}
   - component: {fileID: 3009042360547699870}
+  - component: {fileID: 2924998812268389264}
   m_Layer: 0
   m_Name: FreeLook Camera
   m_TagString: Untagged
@@ -4440,6 +4472,20 @@ MonoBehaviour:
   Width: 6.13
   Damping: 3.08
   FovRange: {x: 30, y: 60}
+--- !u!114 &2924998812268389264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3616419489404481180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d81e2cd114833548be376506b438152, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultPosition: {x: 0, y: 0, z: 0}
+  defaultRotation: {x: 0, y: 0, z: 0}
 --- !u!1 &3633924067634244589
 GameObject:
   m_ObjectHideFlags: 0
@@ -5894,6 +5940,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2364191232948962530}
   - {fileID: 3849809989868622985}
   - {fileID: 8579319816646689390}
   - {fileID: 7560630735706750218}
@@ -9893,7 +9940,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4200253645
+  GlobalObjectIdHash: 330570147
   InScenePlacedSourceGlobalObjectIdHash: 4200253645
   DeferredDespawnTick: 0
   Ownership: 1
