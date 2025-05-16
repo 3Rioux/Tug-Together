@@ -2,14 +2,16 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Collider))] // needs a collider of any kind attached 
 public class UnitHealthController : MonoBehaviour, IDamageable
 {
     [Header("Player Health: ")]
     [SerializeField] private int maxHealth = 100;
-    [SerializeField] private int currentHealth;
+    //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private Slider healthBar;
 
     public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
 
@@ -27,8 +29,13 @@ public class UnitHealthController : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        currentHealth = maxHealth;
-        CurrentUnitHeath = new UnitHealth(currentHealth, maxHealth); 
+        //currentHealth = maxHealth;
+        CurrentUnitHeath = new UnitHealth(maxHealth, maxHealth);
+
+        //lets simplify things lol:
+        healthBar.maxValue = maxHealth;
+
+        OnHealthChanged();
     }
 
 
@@ -45,16 +52,16 @@ public class UnitHealthController : MonoBehaviour, IDamageable
         }
 
 
-        //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
-        if (CurrentUnitHeath.CurrentHealth <= 0)
-        {
-            //Player is Dead 
-            //LevelManager.Instance.PlayerDeath();//call the player death method from the GM when players HP less than or equal 0
+        ////Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
+        //if (CurrentUnitHeath.CurrentHealth <= 0)
+        //{
+        //    //Player is Dead 
+        //    //LevelManager.Instance.PlayerDeath();//call the player death method from the GM when players HP less than or equal 0
 
-        }else
-        {
-            healthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
-        }
+        //}else
+        //{
+        //    healthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
+        //}
         //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
 
         //------------------TESTING--------------------------
@@ -109,20 +116,18 @@ public class UnitHealthController : MonoBehaviour, IDamageable
         //change current player health
         CurrentUnitHeath.DamageUnits(damage);
 
+        OnHealthChanged();
+
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
         Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath.CurrentHealth}.");
 
         // Debug.Log(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth.ToString());
 
-        if (currentHealth <= 0) Die();
+        if (CurrentUnitHeath.CurrentHealth <= 0) Die();
     }
 
-    void Die()
-    {
-        // Your death logic here...
-        Debug.Log($"{name} died!");
-    }
+   
 
     /// <summary>
     /// Method to handle the player healing. 
@@ -133,13 +138,28 @@ public class UnitHealthController : MonoBehaviour, IDamageable
     private void UnitHeal(int healing)
     {
         //change current player health
-       CurrentUnitHeath.HealUnits(healing);
+        CurrentUnitHeath.HealUnits(healing);
+
+        OnHealthChanged();
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
 
         Debug.Log("Current Health" + CurrentUnitHeath.CurrentHealth.ToString());
     }
+
+    private void OnHealthChanged()
+    {
+        healthBar.value = CurrentUnitHeath.CurrentHealth;
+    }
+
+    void Die()
+    {
+        // Your death logic here...
+        Debug.Log($"{name} died!");
+    }
+
+    //===============Not yet part of the game===============
 
     /// <summary>
     /// method called when player Uses a medkit in the inventory 
