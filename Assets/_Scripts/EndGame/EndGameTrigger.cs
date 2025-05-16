@@ -4,7 +4,12 @@ using UnityEngine;
 public class EndGameTrigger : NetworkBehaviour
 {
     [Tooltip("Assign the Game Over Canvas that should be shown on all clients.")]
-    public GameObject gameOverCanvasPrefab; // optional if each client has it already
+    [SerializeField] private GameObject gameOverCanvasPrefab; // optional if each client has it already
+
+    private void Start()
+    {
+        gameOverCanvasPrefab.SetActive(false); // off by default
+    }
 
     private void OnTriggerEnter(Collider other)
     {
