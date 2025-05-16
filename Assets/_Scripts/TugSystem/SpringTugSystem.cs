@@ -80,7 +80,7 @@ public class SpringTugSystem : NetworkBehaviour
     private Vector2 lookVector;
 
     private BoatInputActions controls;
-    private bool isAttached = false; // allow re-attaching and detattaching
+    internal bool isAttached = false; // allow re-attaching and detattaching
 
     //Visualise attach points 
     private Transform currentClosestAttachPoint;
