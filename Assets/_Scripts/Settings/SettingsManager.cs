@@ -18,6 +18,8 @@ public class SettingsManager : MonoBehaviour
     
     [Header("Buttons")]
     [SerializeField] private Button applyButton;
+    [SerializeField] private Button backButton;  // Add this line
+
 
     private Resolution[] availableResolutions;
     
@@ -62,6 +64,10 @@ public class SettingsManager : MonoBehaviour
         // hook up apply button
         if (applyButton != null)
             applyButton.onClick.AddListener(ApplySettings);
+        
+        // hook up back button
+        if (backButton != null)
+            backButton.onClick.AddListener(RevertSettings);
     }
 
     private IEnumerator Start()
@@ -183,5 +189,27 @@ public class SettingsManager : MonoBehaviour
     
         if (settingsInitialized)
             ClickSound();
+    }
+    
+    // Add this method to revert UI to the saved settings
+    public void RevertSettings()
+    {
+        // Get the currently saved values
+        int savedPreset = PlayerPrefs.GetInt(GraphicsPresetKey, 0);
+        int savedRes = Mathf.Clamp(PlayerPrefs.GetInt(ResolutionKey, 0), 0, availableResolutions.Length - 1);
+        int savedMode = Mathf.Clamp(PlayerPrefs.GetInt(WindowModeKey, 0), 0, windowModeOptionList.options.Count - 1);
+
+        // Reset pending values to saved values
+        pendingGraphicsPreset = savedPreset;
+        pendingResolutionIndex = savedRes;
+        pendingWindowMode = savedMode;
+
+        // Update UI without triggering callbacks
+        graphicsPresetOptionList.SetOption(savedPreset);
+        resolutionDropdown.value = savedRes;
+        windowModeOptionList.SetOption(savedMode);
+
+        // Reset pending changes flag
+        hasPendingChanges = false;
     }
 }
