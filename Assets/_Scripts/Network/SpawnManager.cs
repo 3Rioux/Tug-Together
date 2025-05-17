@@ -85,7 +85,8 @@ public class SpawnManager : NetworkBehaviour
 
         // Instantiate the selected prefab variant
         GameObject go = Instantiate(_playerPrefabVariants[prefabIndex], spawn.position, spawn.rotation);
-
+        go.tag = "Player";
+        
         var boatMovement = go.GetComponent<TugboatMovementWFloat>();
         if (boatMovement == null)
         {

@@ -1,43 +1,60 @@
-// C#
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Video;
 using TMPro;
 using Unity.Netcode;
 using Unity.Cinemachine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(Collider), typeof(NetworkObject))]
 public class TutorialStageTwo : NetworkBehaviour, ITutorialStage
 {
     public event Action StageCompleted;
 
-    [SerializeField] private VideoPlayer _videoPlayer;
-    [SerializeField] private RawImage    _rawImage;
     [SerializeField] private TextMeshProUGUI _counterText;
-    [SerializeField] private Collider     _triggerCollider;
-
-    [Header("Cutscene")]
-    [SerializeField] private CinemachineVirtualCamera _cutsceneCam;
-    [SerializeField] private CinemachineVirtualCamera _playerCam;
-    [SerializeField] private Transform             _cutsceneTarget;
-    [SerializeField] private GameObject            _underwaterObject;
-    [SerializeField] private CinemachineImpulseSource _impulse;
-    [SerializeField] private float _camMoveTime = 3f;
-    [SerializeField] private float _riseTime    = 5f;
-    [SerializeField] private float _returnTime  = 2f;
-
+    [SerializeField] private Collider _triggerCollider;
+    
+    [Header("Cargo Animation")]
+    [SerializeField] private GameObject _cargo;
+    [SerializeField] private CinemachineCamera _cutsceneCamera;
+    [SerializeField] private float _riseTime = 5f;
+    [SerializeField] private CinemachineImpulseSource _cameraShake;
+    
     private HashSet<ulong> _inside = new();
-    private int TotalPlayers => NetworkManager.Singleton.ConnectedClientsIds.Count;
+    private bool _playersEnabled = false;
+    private bool _animationStarted = false;
+    private TutorialController _tutorialController;
+    
+    private int TotalPlayers => NetworkManager.Singleton != null ? 
+        NetworkManager.Singleton.ConnectedClientsIds.Count : 0;
+    private bool AllPlayersInside => _inside.Count == TotalPlayers && TotalPlayers > 0;
 
+    private void Awake()
+    {
+        _tutorialController = GetComponentInParent<TutorialController>();
+    }
+    
     public void ActivateStage()
     {
         gameObject.SetActive(true);
-        _rawImage.gameObject.SetActive(false);
-        _underwaterObject.SetActive(false);
+        _playersEnabled = false;
+        _animationStarted = false;
+        _inside.Clear(); // Clear the list when activating
+    
+        if (_cutsceneCamera != null)
+            _cutsceneCamera.gameObject.SetActive(false);
+        
+        // Force an immediate update of the counter text
         UpdateCounterText();
+    }
+
+    private void UpdateCounterText()
+    {
+        if (_counterText != null)
+        {
+            int totalPlayers = NetworkManager.Singleton != null ? 
+                NetworkManager.Singleton.ConnectedClientsIds.Count : 0;
+            _counterText.text = $"{_inside.Count} of {totalPlayers} players here";
+        }
     }
 
     public void DeactivateStage()
@@ -45,96 +62,110 @@ public class TutorialStageTwo : NetworkBehaviour, ITutorialStage
         gameObject.SetActive(false);
     }
 
+    private void Update()
+    {
+        if (IsServer && !_animationStarted && AllPlayersInside && NetworkManager.Singleton != null)
+        {
+            _animationStarted = true;
+            StartCargoAnimationClientRpc();
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!IsServer || !other.CompareTag("Player")) return;
-        var id = other.GetComponent<NetworkObject>().OwnerClientId;
+        
+        var networkObject = other.GetComponent<NetworkObject>();
+        if (networkObject == null) return;
+        
+        var id = networkObject.OwnerClientId;
         _inside.Add(id);
         UpdateCounterClientRpc();
-        if (_inside.Count == TotalPlayers)
-            StartStageServerRpc();
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!IsServer || !other.CompareTag("Player")) return;
-        var id = other.GetComponent<NetworkObject>().OwnerClientId;
+        
+        var networkObject = other.GetComponent<NetworkObject>();
+        if (networkObject == null) return;
+        
+        var id = networkObject.OwnerClientId;
         _inside.Remove(id);
         UpdateCounterClientRpc();
+        
+        // If all players have exited the trigger and players were enabled
+        if (_inside.Count == 0 && _playersEnabled)
+        {
+            StageCompleted?.Invoke();
+        }
     }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void StartStageServerRpc() => StartStageClientRpc();
 
     [ClientRpc]
     private void UpdateCounterClientRpc()
     {
         _counterText.text = $"{_inside.Count} of {TotalPlayers} players here";
     }
-
+    
     [ClientRpc]
-    private void StartStageClientRpc()
+    private void StartCargoAnimationClientRpc()
     {
-        _rawImage.gameObject.SetActive(true);
-        _videoPlayer.Play();
-        FindObjectOfType<TutorialController>().DisableAllPlayerControls();
-        StartCoroutine(CutsceneSequence());
-    }
-
-    private IEnumerator CutsceneSequence()
-    {
-        yield return new WaitForSeconds((float)_videoPlayer.clip.length + 0.5f);
-        _videoPlayer.Stop();
-        _rawImage.gameObject.SetActive(false);
-
-        var startPos = _cutsceneCam.transform.position;
-        var startRot = _cutsceneCam.transform.rotation;
-        var endPos   = _cutsceneTarget.position;
-        var endRot   = _cutsceneTarget.rotation;
-        float t = 0f;
-        while (t < _camMoveTime)
-        {
-            t += Time.deltaTime;
-            float f = t / _camMoveTime;
-            _cutsceneCam.transform.position = Vector3.Lerp(startPos, endPos, f);
-            _cutsceneCam.transform.rotation = Quaternion.Slerp(startRot, endRot, f);
-            yield return null;
-        }
-
-        _underwaterObject.SetActive(true);
-        var objStart = _underwaterObject.transform.position;
-        var objEnd   = objStart + Vector3.up * 2f;
-        t = 0f;
-        while (t < _riseTime)
-        {
-            t += Time.deltaTime;
-            float f = t / _riseTime;
-            _underwaterObject.transform.position = Vector3.Lerp(objStart, objEnd, f);
-            _impulse.GenerateImpulse();
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(1f);
-
-        startPos = _cutsceneCam.transform.position;
-        startRot = _cutsceneCam.transform.rotation;
-        endPos   = _playerCam.transform.position;
-        endRot   = _playerCam.transform.rotation;
-        t = 0f;
-        while (t < _returnTime)
-        {
-            t += Time.deltaTime;
-            float f = t / _returnTime;
-            _cutsceneCam.transform.position = Vector3.Lerp(startPos, endPos, f);
-            _cutsceneCam.transform.rotation = Quaternion.Slerp(startRot, endRot, f);
-            yield return null;
-        }
-
-        FindObjectOfType<TutorialController>().EnableAllPlayerControls();
-        if (IsServer)
-            StageCompleted?.Invoke();
+        // Disable player controls
+        FindObjectOfType<TutorialController>()?.DisableAllPlayerControls();
+        
+        // Activate cutscene camera
+        if (_cutsceneCamera != null)
+            _cutsceneCamera.gameObject.SetActive(true);
+        
+        // Disable water surface fitting on cargo
+        CustomFitToWaterSurface cargoWaterFit = _cargo.GetComponent<CustomFitToWaterSurface>();
+        if (cargoWaterFit != null)
+            cargoWaterFit.enabled = false;
+        
+        // Set cargo initial position
+        Vector3 cargoPos = _cargo.transform.position;
+        cargoPos.y = -63.21f;
+        _cargo.transform.position = cargoPos;
+        
+        // Start cargo animation coroutine
+        StartCoroutine(AnimateCargo());
     }
     
-    private void UpdateCounterText()
-        => _counterText.text = $"{_inside.Count} of {TotalPlayers} players here";
+    private System.Collections.IEnumerator AnimateCargo()
+    {
+        Vector3 startPos = _cargo.transform.position;
+        Vector3 endPos = new Vector3(startPos.x, 4f, startPos.z);
+        float elapsed = 0f;
+        
+        while (elapsed < _riseTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / _riseTime;
+            
+            // Move cargo upward
+            _cargo.transform.position = Vector3.Lerp(startPos, endPos, t);
+            
+            // Apply camera shake
+            if (_cameraShake != null)
+                _cameraShake.GenerateImpulse();
+                
+            yield return null;
+        }
+        
+        // Re-enable water surface fitting
+        CustomFitToWaterSurface cargoWaterFit = _cargo.GetComponent<CustomFitToWaterSurface>();
+        if (cargoWaterFit != null)
+            cargoWaterFit.enabled = true;
+            
+        // Disable cutscene camera
+        if (_cutsceneCamera != null)
+            _cutsceneCamera.gameObject.SetActive(false);
+            
+        // Re-enable player controls
+        FindObjectOfType<TutorialController>()?.EnableAllPlayerControls();
+        
+        // Set flag to allow stage completion when players exit
+        if (IsServer)
+            _playersEnabled = true;
+    }
 }

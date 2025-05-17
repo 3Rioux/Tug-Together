@@ -3,9 +3,6 @@ using FMODUnity;
 
 public class FMODEvents : MonoBehaviour
 {
-    [field: Header("Snapshots")]
-    [field: SerializeField] public EventReference UnderwaterSnapshot { get; private set; }
-    
     [field: Header("UI")]
     [field: SerializeField] public EventReference UIClick { get; private set; }
     [field: SerializeField] public EventReference UIBack { get; private set; }

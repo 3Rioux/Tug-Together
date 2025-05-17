@@ -56,6 +56,8 @@ public class GameMenuManager : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        AudioManager.Instance.PlayAmbience(FMODEvents.Instance.Tutorial);
+
     }
 
     void OnDestroy()
