@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 1560077203965756980}
   - component: {fileID: 7673201135087098125}
   - component: {fileID: 825615275576158724}
+  - component: {fileID: 4835176631113610119}
   m_Layer: 0
   m_Name: Crate_Base
   m_TagString: Untagged
@@ -119,8 +120,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 7, y: 7, z: 7}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7968802442001912325}
   m_Father: {fileID: 0}
@@ -279,3 +280,28 @@ MonoBehaviour:
   damageAmount: 25
   useTrigger: 1
   destroyOnImpact: 0
+--- !u!114 &4835176631113610119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2277230814828067953}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46ac0167a5a305c4aa16c4bfd5aed746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetSurface: {fileID: 0}
+  includeDeformation: 1
+  sphereRadiusApproximation: 0.25
+  waveForceMultiplier: 1.5
+  currentSpeedMultiplier: 1
+  dragMultiplier: 1
+  defaultRigidbodyDrag: 0.25
+  underwaterRigidbodyAngularDrag: 1
+  overwaterRigidbodyAngularDrag: 1
+  surfaceTensionDamping: 50
+  applyForceWithRandomOffset: 0
+  isWaterSurfaceACustomMesh: 0
+  drawDebug: 0

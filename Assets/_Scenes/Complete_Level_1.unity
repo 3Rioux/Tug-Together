@@ -4362,6 +4362,7 @@ Transform:
   - {fileID: 1088440864}
   - {fileID: 963446025}
   - {fileID: 292010284}
+  - {fileID: 1214135283}
   m_Father: {fileID: 672547913}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &159389995
@@ -4931,14 +4932,14 @@ MonoBehaviour:
     volumeMask: {fileID: 0}
     textureScrollingSpeed: {x: 0, y: 0, z: 0}
     textureTiling: {x: 1, y: 1, z: 1}
-    positiveFade: {x: 0.11268738, y: 0.23220873, z: 0.27944213}
-    negativeFade: {x: 0.12150955, y: 0.006666533, z: 0.18975097}
+    positiveFade: {x: 0.14835417, y: 0.23220873, z: 0.23690626}
+    negativeFade: {x: 0.31159273, y: 0.006666533, z: 0.26813167}
     m_EditorUniformFade: 0.5
-    m_EditorPositiveFade: {x: 0.11268738, y: 0.23220873, z: 0.27944213}
-    m_EditorNegativeFade: {x: 0.12150955, y: 0.006666533, z: 0.18975097}
+    m_EditorPositiveFade: {x: 0.14835417, y: 0.23220873, z: 0.23690626}
+    m_EditorNegativeFade: {x: 0.31159273, y: 0.006666533, z: 0.26813167}
     m_EditorAdvancedFade: 1
     scaleMode: 0
-    size: {x: 100, y: 15, z: 100}
+    size: {x: 253.12642, y: 15, z: 207.94487}
     invertFade: 0
     distanceFadeStart: 50
     distanceFadeEnd: 200
@@ -14738,7 +14739,6 @@ Transform:
   m_Children:
   - {fileID: 159389994}
   - {fileID: 2003743943}
-  - {fileID: 1214135283}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &673034090
@@ -30621,12 +30621,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1214135282}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -844, y: -14.9, z: -1784}
-  m_LocalScale: {x: 600, y: 25, z: 500}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -133.96428, y: -7.1084175, z: -367.68243}
+  m_LocalScale: {x: 666.6667, y: 25, z: 666.6667}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 672547913}
+  m_Father: {fileID: 159389994}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1214135284
 BoxCollider:
@@ -57000,18 +57000,14 @@ MonoBehaviour:
     initialSize: 45
     isNotBuoyency: 0
     prefabID: 
-  stationaryDebrisPools:
-  - prefab: {fileID: 6418523565824155749, guid: cbf1b87b4873526489ac2f15022ad4e0, type: 3}
-    initialSize: 0
-    isNotBuoyency: 1
-    prefabID: 
+  stationaryDebrisPools: []
   stationarySpawnPoints:
   - {fileID: 919525497133492385}
   - {fileID: 8097868921659980966}
   - {fileID: 803708096546301637}
   waterSurface: {fileID: 0}
   maxDebris: 60
-  spawnInterval: 4
+  spawnInterval: 10
   driftSpeedMin: 0.5
   driftSpeedMax: 2
   spawnRadius: 30
