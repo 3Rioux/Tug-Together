@@ -14,6 +14,8 @@ public class SceneTransition : MonoBehaviour
 
     [SerializeField] private float _defaultFadeDuration = 1f;
     [SerializeField] private Image _fadeImage;
+    [SerializeField] private Image _loadingImage;
+    [SerializeField] private Image _logoImage;
     [SerializeField] private bool _debugMessages = true; // Enable debugging by default
 
     private Material _transitionMaterial;
@@ -49,6 +51,7 @@ public class SceneTransition : MonoBehaviour
             {
                 _transitionMaterial.SetFloat("_Fade", 1f);
                 _clientHasFadedIn = false; // Reset this flag on start
+                _fadeImage.enabled = true; // Enable before initial fade
                 FadeIn(_defaultFadeDuration);
             }
         }
@@ -177,12 +180,63 @@ public class SceneTransition : MonoBehaviour
                     StartCoroutine(DelayedFadeIn(_defaultFadeDuration));
                 });
             });
+        
+        NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(
+            "ShowLoadingImage",
+            (senderClientId, reader) => {
+                DebugLog("Client received show loading image command");
+        
+                MainThreadDispatcher.RunOnMainThread(() => {
+                    // First check if we're still fading the main transition image
+                    if (_clientIsFadingOut) {
+                        // We need to wait until the fade out is complete before showing loading
+                        StartCoroutine(ShowLoadingImageWhenFadeComplete());
+                    } else {
+                        // Main fade is already complete, show loading image now
+                        ShowLoadingImageImmediate();
+                    }
+                });
+            });
+    }
+    
+    private IEnumerator ShowLoadingImageWhenFadeComplete()
+    {
+        // Wait until the fade out flag is cleared or maximum of 2 seconds
+        float timeout = 2f;
+        float elapsed = 0f;
+    
+        while (_clientIsFadingOut && elapsed < timeout) {
+            yield return null;
+            elapsed += Time.deltaTime;
+        }
+    
+        // Now show the loading image
+        ShowLoadingImageImmediate();
+    }
+
+    private void ShowLoadingImageImmediate()
+    {
+        if (_loadingImage != null && _loadingImage.material != null) {
+            _loadingImage.enabled = true;
+            _loadingImage.material.SetFloat("_Fade", 0f);
+        
+            // Animate loading image fade-in
+            _loadingImage.material.DOFloat(1f, "_Fade", _defaultFadeDuration * 0.5f)
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true);
+        
+            DebugLog("Client showing loading image");
+        }
+        else {
+            DebugLog("Client loading image or material is null!");
+        }
     }
 
     private void UnregisterNetworkHandlers()
     {
         NetworkManager.Singleton.CustomMessagingManager.UnregisterNamedMessageHandler("SceneTransitionStart");
         NetworkManager.Singleton.CustomMessagingManager.UnregisterNamedMessageHandler("SceneTransitionComplete");
+        NetworkManager.Singleton.CustomMessagingManager.UnregisterNamedMessageHandler("ShowLoadingImage");
     }
 
     private void InitializeFadeCanvas()
@@ -194,15 +248,12 @@ public class SceneTransition : MonoBehaviour
 
         if (_fadeImage != null)
         {
-            // Ensure fade image is active and visible
-            _fadeImage.gameObject.SetActive(true);
-            
-            // Create a completely unique material instance
             if (_fadeImage.material != null)
             {
                 _fadeImage.material = new Material(_fadeImage.material);
                 _transitionMaterial = _fadeImage.material;
-                _transitionMaterial.SetFloat("_Fade", 1f); // Start fully faded
+                _transitionMaterial.SetFloat("_Fade", 0f);  // Start transparent
+                _fadeImage.enabled = false;  // Start disabled
                 DebugLog("Transition material initialized");
             }
             else
@@ -213,6 +264,33 @@ public class SceneTransition : MonoBehaviour
         else
         {
             Debug.LogError("SceneTransition: Child canvas must contain an Image component!");
+        }
+
+        // Initialize loading image
+        if (_loadingImage != null)
+        {
+            if (_loadingImage.material != null)
+            {
+                _loadingImage.material = new Material(_loadingImage.material);
+                _loadingImage.material.SetFloat("_Fade", 0f);  // Start transparent
+                _loadingImage.enabled = false;  // Start disabled
+                DebugLog("Loading image material initialized");
+            }
+            else
+            {
+                Debug.LogError("SceneTransition: Loading image material is null!");
+            }
+        }
+        
+        // Initialize logo image
+        if (_logoImage != null)
+        {
+            // Set initial transparency
+            Color logoColor = _logoImage.color;
+            logoColor.a = 0f; // Start fully transparent
+            _logoImage.color = logoColor;
+            _logoImage.enabled = false; // Start disabled
+            DebugLog("Logo image initialized");
         }
     }
 
@@ -263,32 +341,35 @@ public class SceneTransition : MonoBehaviour
     {
         // Fade out on host
         float duration = fadeSpeed > 0 ? fadeSpeed : _defaultFadeDuration;
-        DebugLog("Host starting fade out");
-        
-        // Make sure host's material is properly set
+    
         if (_transitionMaterial == null)
         {
             InitializeFadeCanvas();
         }
-        
+    
         // Start with clear fade
         if (_transitionMaterial != null)
         {
             _transitionMaterial.SetFloat("_Fade", 0f);
         }
-        
+    
+        // Complete the full fade out sequence
         yield return FadeOut(duration);
-
-        // Wait a moment to ensure clients have started fading
-        yield return new WaitForSeconds(0.5f);
-
-        // Set fully faded and load scene
-        if (_transitionMaterial != null)
+    
+        // Now tell all clients to show the loading image
+        if (NetworkManager.Singleton.CustomMessagingManager != null)
         {
-            _transitionMaterial.SetFloat("_Fade", 1f);
+            using FastBufferWriter writer = new FastBufferWriter(4, Unity.Collections.Allocator.Temp);
+            NetworkManager.Singleton.CustomMessagingManager.SendNamedMessageToAll("ShowLoadingImage", writer);
+            DebugLog("Sent show loading image command to all clients");
         }
-
+    
+        // Wait to ensure clients have received the message
+        yield return new WaitForSeconds(0.2f);
+    
         DebugLog($"Host loading scene: {sceneName}");
+    
+        // Load the scene
         NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
@@ -365,6 +446,7 @@ public class SceneTransition : MonoBehaviour
 
         // Ensure we end fully faded
         _transitionMaterial.SetFloat("_Fade", 1f);
+        _clientIsFadingOut = false; // Mark fade as complete
         DebugLog("Client fade out complete");
     }
 
@@ -430,67 +512,130 @@ public class SceneTransition : MonoBehaviour
         // 4. The OnSceneLoaded handler will take care of fade in
     }
 
-    private IEnumerator FadeAndLoadNetworkedScene(string sceneName, float fadeSpeed)
+private IEnumerator FadeOut(float fadeSpeed)
+{
+    if (_transitionMaterial == null)
     {
-        // 1. Fade Out completely
-        yield return FadeOut(fadeSpeed);
-
-        // 2. Ensure material is fully faded
-        if (_transitionMaterial != null)
-        {
-            _transitionMaterial.SetFloat("_Fade", 1f);
-        }
-
-        // 3. Load Scene via NetworkManager
-        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-
-        // 4. Register for scene event notification
-        NetworkManager.Singleton.SceneManager.OnLoadComplete += HandleSceneLoaded;
+        Debug.LogError("Fade Out: Transition material is null!");
+        yield break;
     }
 
-    private IEnumerator FadeOut(float fadeSpeed)
+    // 1. Ensure loading image and logo are fully hidden and disabled first
+    if (_loadingImage != null)
     {
-        if (_transitionMaterial == null)
-        {
-            Debug.LogError("Fade Out: Transition material is null!");
-            yield break;
-        }
+        _loadingImage.material.SetFloat("_Fade", 0f);
+        _loadingImage.enabled = false;
+    }
+    
+    if (_logoImage != null)
+    {
+        Color logoColor = _logoImage.color;
+        logoColor.a = 0f;
+        _logoImage.color = logoColor;
+        _logoImage.enabled = false;
+    }
 
-        // Kill any existing tweens on this property
-        DOTween.Kill(_transitionMaterial);
+    // 2. Enable and fade out the main transition image
+    _fadeImage.enabled = true;
+    DOTween.Kill(_transitionMaterial);
+
+    float startValue = _transitionMaterial.GetFloat("_Fade");
+    DebugLog($"Starting fade out animation from {startValue}, duration: {fadeSpeed}s");
+
+    yield return _transitionMaterial.DOFloat(1f, "_Fade", fadeSpeed)
+        .SetEase(Ease.InOutQuad)
+        .SetUpdate(true)
+        .WaitForCompletion();
+
+    DebugLog("Fade out animation complete");
+
+    // 3. Small delay before showing logo
+    yield return new WaitForSeconds(0.2f);
+
+    // 4. Fade in the logo first
+    if (_logoImage != null)
+    {
+        _logoImage.enabled = true;
+        _logoImage.color = new Color(_logoImage.color.r, _logoImage.color.g, _logoImage.color.b, 0f);
         
-        float startValue = _transitionMaterial.GetFloat("_Fade");
-        DebugLog($"Starting fade out animation from {startValue}, duration: {fadeSpeed}s");
+        DebugLog("Starting logo fade in");
         
-        yield return _transitionMaterial.DOFloat(1f, "_Fade", fadeSpeed)
+        yield return _logoImage.DOFade(1f, fadeSpeed * 0.4f)
             .SetEase(Ease.InOutQuad)
-            .SetUpdate(true) // Set to update even when Time.timeScale = 0
+            .SetUpdate(true)
+            .WaitForCompletion();
+            
+        DebugLog("Logo fade-in complete");
+    }
+
+    // 5. Now fade in the loading image
+    if (_loadingImage != null && _loadingImage.material != null)
+    {
+        _loadingImage.enabled = true;
+        _loadingImage.material.SetFloat("_Fade", 0f);  // Start fully transparent
+
+        DebugLog("Starting loading image fade in");
+
+        yield return _loadingImage.material.DOFloat(1f, "_Fade", fadeSpeed * 0.5f)
+            .SetEase(Ease.InOutQuad)
+            .SetUpdate(true)
             .WaitForCompletion();
 
-        DebugLog("Fade out animation complete");
+        DebugLog("Loading image fade-in complete");
+    }
+}
+
+private IEnumerator FadeIn(float fadeSpeed)
+{
+    // First fade out the logo if visible
+    if (_logoImage != null && _logoImage.enabled)
+    {
+        DebugLog("Starting logo fade out");
+        
+        yield return _logoImage.DOFade(0f, fadeSpeed * 0.4f)
+            .SetEase(Ease.InOutQuad)
+            .SetUpdate(true)
+            .WaitForCompletion();
+            
+        _logoImage.enabled = false;
+        DebugLog("Logo fade-out complete");
     }
 
-    private IEnumerator FadeIn(float fadeSpeed)
+    // Then fade out the loading image if visible
+    if (_loadingImage != null && _loadingImage.material != null && _loadingImage.enabled)
     {
-        if (_transitionMaterial == null)
-        {
-            Debug.LogError("Fade In: Transition material is null!");
-            yield break;
-        }
+        DebugLog("Starting loading image fade out");
 
-        // Kill any existing tweens on this property
-        DOTween.Kill(_transitionMaterial);
-        
-        float startValue = _transitionMaterial.GetFloat("_Fade");
-        DebugLog($"Starting fade in animation from {startValue}, duration: {fadeSpeed}s");
-        
-        yield return _transitionMaterial.DOFloat(0f, "_Fade", fadeSpeed)
+        yield return _loadingImage.material.DOFloat(0f, "_Fade", fadeSpeed * 0.5f)
             .SetEase(Ease.InOutQuad)
-            .SetUpdate(true) // Set to update even when Time.timeScale = 0
+            .SetUpdate(true)
             .WaitForCompletion();
 
-        DebugLog("Fade in animation complete");
+        _loadingImage.enabled = false;
+        DebugLog("Loading image fade-out complete");
     }
+
+    // Finally fade out the main transition image
+    if (_transitionMaterial == null)
+    {
+        Debug.LogError("Fade In: Transition material is null!");
+        yield break;
+    }
+
+    _fadeImage.enabled = true;
+    DOTween.Kill(_transitionMaterial);
+
+    float startValue = _transitionMaterial.GetFloat("_Fade");
+    DebugLog($"Starting fade in animation from {startValue}, duration: {fadeSpeed}s");
+
+    yield return _transitionMaterial.DOFloat(0f, "_Fade", fadeSpeed)
+        .SetEase(Ease.InOutQuad)
+        .SetUpdate(true)
+        .WaitForCompletion();
+
+    _fadeImage.enabled = false;
+    DebugLog("Fade in animation complete");
+}
 
     private void DebugLog(string message)
     {

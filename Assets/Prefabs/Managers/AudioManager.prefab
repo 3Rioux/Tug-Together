@@ -44,6 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63538af76b3a2f14bbce581acdcaf848, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <UnderwaterSnapshot>k__BackingField:
+    Guid:
+      Data1: 777303277
+      Data2: 1076979785
+      Data3: -1205111421
+      Data4: -594229438
+    Path: snapshot:/Underwater
   <UIClick>k__BackingField:
     Guid:
       Data1: -1510759811
@@ -65,6 +72,69 @@ MonoBehaviour:
       Data3: -796989268
       Data4: -1847627429
     Path: event:/UI/UI_SCROLL
+  <PlayerIdle>k__BackingField:
+    Guid:
+      Data1: 1328388410
+      Data2: 1199649763
+      Data3: 365727662
+      Data4: -1551204061
+    Path: event:/SFX/Player/PlayerIdle
+  <PlayerMove>k__BackingField:
+    Guid:
+      Data1: 1014557795
+      Data2: 1318285159
+      Data3: 634627506
+      Data4: 1767572049
+    Path: event:/SFX/Player/PlayerGoing
+  <PlayerTurning>k__BackingField:
+    Guid:
+      Data1: 512804474
+      Data2: 1246065920
+      Data3: 667576251
+      Data4: -943141909
+    Path: event:/SFX/Player/PlayerTurning
+  <PlayerHorn>k__BackingField:
+    Guid:
+      Data1: -1041681386
+      Data2: 1325517552
+      Data3: 1179044528
+      Data4: -1685710433
+    Path: event:/SFX/Player/PlayerHorn
+  <HookShoot>k__BackingField:
+    Guid:
+      Data1: 116610354
+      Data2: 1227426387
+      Data3: 43105707
+      Data4: 1341894873
+    Path: event:/SFX/Player/Hook/HookShoot
+  <HookAttach>k__BackingField:
+    Guid:
+      Data1: 435956411
+      Data2: 1171932352
+      Data3: -1746273664
+      Data4: 1356506399
+    Path: event:/SFX/Player/Hook/HookAttach
+  <HookIdle>k__BackingField:
+    Guid:
+      Data1: -1024468143
+      Data2: 1105017469
+      Data3: 758232483
+      Data4: 1060040357
+    Path: event:/SFX/Player/Hook/HookIdle
+  <HookDetach>k__BackingField:
+    Guid:
+      Data1: -347178638
+      Data2: 1327475973
+      Data3: -1496910418
+      Data4: 781099706
+    Path: event:/SFX/Player/Hook/HookDetach
+  <PlayerImpact>k__BackingField:
+    Guid:
+      Data1: 2099835463
+      Data2: 1075156609
+      Data3: 1621969046
+      Data4: -1664182938
+    Path: event:/SFX/Player/Impact/PlayerImpact
   <MainMenu>k__BackingField:
     Guid:
       Data1: -2124364669
@@ -72,6 +142,20 @@ MonoBehaviour:
       Data3: -1996317511
       Data4: 859915945
     Path: event:/Ambience/MainMenu
+  <Tutorial>k__BackingField:
+    Guid:
+      Data1: -359214356
+      Data2: 1143686385
+      Data3: -608877675
+      Data4: -1358611551
+    Path: event:/Ambience/TutorialLevel
+  <Credits>k__BackingField:
+    Guid:
+      Data1: -1764661632
+      Data2: 1206543202
+      Data3: -1069170302
+      Data4: 1420303925
+    Path: event:/Music/CreditsMusic
 --- !u!1 &7683114629300867540
 GameObject:
   m_ObjectHideFlags: 0

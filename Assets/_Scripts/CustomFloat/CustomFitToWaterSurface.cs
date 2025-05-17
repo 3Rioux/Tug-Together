@@ -7,6 +7,16 @@ public class CustomFitToWaterSurface : MonoBehaviour
 {
     [SerializeField] private float3 floatingOffset;
 
+    [Header("Smooth out movement")]
+    //Smooth out the Surface feel 
+    [SerializeField] bool enableDamping = false;
+
+    [Tooltip("How long (in seconds) it takes to catch up to the true water height.")]
+    [SerializeField] float dampingTime = 0.2f;
+
+    private Vector3 _dampVelocity = Vector3.zero;
+
+
     public WaterSurface targetSurface = null;
     public bool includeDeformation = true;
     public bool excludeSimulation = false;
@@ -28,10 +38,10 @@ public class CustomFitToWaterSurface : MonoBehaviour
     private void Start()
     {
         //get the water surface if Null
-        if (targetSurface == null)
+        if (targetSurface == null && LevelVariableManager.Instance != null)
         {
             //set water surface to the Gobal Water surface 
-            targetSurface = JR_NetBoatRequiredComponentsSource.Instance.GlobalWaterSurface;
+            targetSurface = LevelVariableManager.Instance.GlobalWaterSurface;
         }
 
         previousPosition = transform.position;
@@ -56,7 +66,19 @@ public class CustomFitToWaterSurface : MonoBehaviour
         // Do the search
         if (targetSurface.ProjectPointOnWaterSurface(searchParameters, out searchResult))
         {
-            gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
+            if (!enableDamping)
+            {
+                gameObject.transform.position = searchResult.projectedPositionWS + floatingOffset;
+            }
+            else
+            {
+                transform.position = Vector3.SmoothDamp(
+                    transform.position,                   // current position
+                    (searchResult.projectedPositionWS + floatingOffset),     // target on-water position + floatingOffset
+                    ref _dampVelocity,                    // velocity state
+                    dampingTime);                         // smoothing time
+            }
+           
 
             //Align the boat to the water 
             if (alignToWaterNormal)

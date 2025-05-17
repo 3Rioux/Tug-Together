@@ -123,9 +123,36 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "KillPlayer",
+                    "type": "Button",
+                    "id": "1210c246-af84-44e7-8609-3595dc4bb5be",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleMap",
+                    "type": "PassThrough",
+                    "id": "77c4b708-66e2-492c-a110-0ad9f24f08e7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "AimHook",
                     "type": "Button",
                     "id": "a699ab68-850c-4748-b556-44e73110a4c1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Horn",
+                    "type": "Button",
+                    "id": "db55fb94-3689-4366-8988-4c732bcd0d29",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -564,12 +591,45 @@
                 },
                 {
                     "name": "",
+                    "id": "4bdd8a07-5f9a-4682-83d7-ea335dfda1c4",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "KillPlayer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d8a53fd-aa22-44cb-a420-8bdac09fd1ab",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ToggleMap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "5ce108d7-862e-437f-83dc-f814c2dd1081",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "AimHook",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f72c5416-7bdd-4184-b956-54822cb7f259",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Horn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

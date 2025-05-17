@@ -1,17 +1,31 @@
 using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Collider))] // needs a collider of any kind attached 
-public class UnitHealthController : MonoBehaviour, IDamageable
+public class UnitHealthController : NetworkBehaviour, IDamageable
 {
+    public NetworkObject PlayerNetObj;
+    [SerializeField] private GameObject boatModel;
+    [SerializeField] private GameObject boatEffect;
+    [SerializeField] private GameObject boatName;
+    [SerializeField] private TugboatMovementWFloat tugMovement;
+    [SerializeField] private SpringTugSystem tugSpringTugSystem;
+
+
     [Header("Player Health: ")]
-    public int maxHealth = 100;
-    [SerializeField] private int currentHealth;
-    [SerializeField] private TextMeshPro m_tempHealthText;
-    
-    public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit *** Can change to private 
+    public int MaxHealth = 100;
+    public GameObject HealthParent;
+    [SerializeField] private int CurrentUnitHeath = 100;
+    //[SerializeField] private int currentHealth;
+    [SerializeField] private TextMeshProUGUI healthText;
+    [SerializeField] private Slider healthBar;
+
+    //public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
+    //public NetworkVariable<int> CurrentUnitHeath = new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     // public HealthBar _playerHealthBar; //reference to the healthBar or your damaged parts script stuff 
 
@@ -25,11 +39,84 @@ public class UnitHealthController : MonoBehaviour, IDamageable
     private float timeSinceLastDamage = 0f; // Tracks time since last damage
     private bool isUnitHealing = false; // Tracks if healing coroutine is running
 
+    [Header("Invincible State")]
+    [SerializeField] private float invincibilityDuration = 2f; // seconds
+    private bool isInvincible = false;
+
+
+    private BoatInputActions controls;
+    private bool isDead = false;
+
+
     private void Awake()
     {
-        currentHealth = maxHealth;
-        CurrentUnitHeath = new UnitHealth(currentHealth, maxHealth); 
+       
+        //currentHealth = MaxHealth;
+        //CurrentUnitHeath.Value = new UnitHealth(MaxHealth, MaxHealth);
+
+        //lets simplify things lol:
+        healthBar.maxValue = MaxHealth;
+        OnHealthChanged();
+
+
+        controls = new BoatInputActions();
+
+        // Bind the KillPlayer action
+        //controls.Boat.KillPlayer.performed += ctx => OnKillPlayer();
+
+
     }
+
+    private void OnEnable()
+    {
+        // Disable the action map
+        controls.Boat.Enable();
+    }
+
+    private void OnDisable()
+    {
+        controls.Boat.Disable();
+    }
+
+    //public override void OnNetworkSpawn()
+    //{
+    //    base.OnNetworkSpawn();
+
+    //    //Get set the local net object to this gameobject:
+    //    if (IsOwner)
+    //    {
+    //        PlayerNetObj = GetComponent<NetworkObject>();
+    //        PlayerRespawn.Instance.LocalPlayerHealthController = this;
+    //    }
+    //}
+
+    void Start()
+    {
+        //Get set the local net object to this gameobject:
+        if (IsOwner && IsLocalPlayer)
+        {
+            PlayerNetObj = GetComponent<NetworkObject>();
+            tugMovement = GetComponent<TugboatMovementWFloat>();
+            tugSpringTugSystem = GetComponent<SpringTugSystem>();
+
+            if (PlayerRespawn.Instance != null)
+            {
+                PlayerRespawn.Instance.LocalPlayerHealthController = this;
+                Debug.Log("Set LocalPlayerHealthController", this);
+            }
+            else
+            {
+                Debug.LogError("PlayerRespawn.Instance is null", this);
+            }
+        }
+        else
+        {
+            Debug.LogError($"Not owner{IsOwner} or player{IsLocalPlayer} LocalPlayerHealthController", this);
+        }
+        // Initialize health and checkpoint on server
+        CurrentUnitHeath = MaxHealth;
+    }
+
 
 
     private void Update()
@@ -44,36 +131,25 @@ public class UnitHealthController : MonoBehaviour, IDamageable
             StartCoroutine(UnitTimeHeal());
         }
 
-
-        //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
-        if (CurrentUnitHeath.CurrentHealth <= 0)
-        {
-            //Player is Dead 
-            //LevelManager.Instance.PlayerDeath();//call the player death method from the GM when players HP less than or equal 0
-
-        }else
-        {
-            m_tempHealthText.text = "HP => " + CurrentUnitHeath.CurrentHealth.ToString();
-        }
-        //Player DEAD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Trigger Unit Death
-
         //------------------TESTING--------------------------
+
+#if UNITY_EDITOR
         //test taking damage current key == q
-        if (Keyboard.current.qKey.wasPressedThisFrame)
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
             UnitTakeDamage(20);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
         }
 
         //test healing damage current key == e
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
             UnitHeal(10);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
         }
+#endif
         //------------------TESTING--------------------------
-    }//end update 
-
+    }//end update
 
     /// <summary>
     /// Auto Heals the Unit gradually if not damaged for a set amount of time.
@@ -82,18 +158,22 @@ public class UnitHealthController : MonoBehaviour, IDamageable
     {
         isUnitHealing = true;
 
-        //While Healt is not = Max Health && apply heal delay 
-        while (CurrentUnitHeath.CurrentHealth < CurrentUnitHeath.MaxHealth && timeSinceLastDamage >= healDelay)
+        //While Healt is not = Max Health && apply heal delay
+        while (CurrentUnitHeath < MaxHealth && timeSinceLastDamage >= healDelay)
         {
             //healt Unit
             UnitHeal(healAmountPerSecond);
             yield return new WaitForSeconds(healTimeDelay); // Heal every second
         }
 
-
-
         //Done healing -> change state 
         isUnitHealing = false;
+    }
+
+    public void OnKillPlayer()
+    {
+        //Kill the player by making damage = MaxHealth * 2 (Just to be safe)
+        UnitTakeDamage(MaxHealth * 2);
     }
 
     /// <summary>
@@ -103,26 +183,49 @@ public class UnitHealthController : MonoBehaviour, IDamageable
     /// <param name="damage"></param>
     public void UnitTakeDamage(int damage)
     {
+        if (isInvincible) return; // Ignore damage if invincible
+
         // Reset the damage timer
         timeSinceLastDamage = 0f;
 
-        //change current player health
-        CurrentUnitHeath.DamageUnits(damage);
+        /// Apply damage
+        CurrentUnitHeath = Mathf.Max(CurrentUnitHeath - damage, 0);
+        OnHealthChanged();
+        
+
+        // Start invincibility period
+        StartCoroutine(InvincibilityCoroutine());
 
         //display current health to the user 
-        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.CurrentHealth);
-        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath.CurrentHealth}.");
+        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
+        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath}.");
 
-        // Debug.Log(LevelManager.Instance.PlayerHeath.CurrentHealth.ToString());
+        // Debug.Log(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth.ToString());
 
-        if (currentHealth <= 0) Die();
+        if (CurrentUnitHeath <= 0)
+        {
+            Die();
+            CurrentUnitHeath = MaxHealth; //reset Health 
+            OnHealthChanged();
+        }
     }
 
-    void Die()
+
+    private IEnumerator InvincibilityCoroutine()
     {
-        // Your death logic here...
-        Debug.Log($"{name} died!");
+        isInvincible = true;
+        yield return new WaitForSeconds(invincibilityDuration);
+        isInvincible = false;
     }
+
+    // Public ServerRpc for taking damage (clients request server to apply damage)
+    //[ServerRpc(RequireOwnership = false)]
+    //public void TakeDamageServerRpc(int damage)
+    //{
+    //    if (!IsServer) return;
+    //    CurrentUnitHeath.Value = Mathf.Max(CurrentUnitHeath.Value - damage, 0);
+    //}
+
 
     /// <summary>
     /// Method to handle the player healing. 
@@ -133,27 +236,95 @@ public class UnitHealthController : MonoBehaviour, IDamageable
     private void UnitHeal(int healing)
     {
         //change current player health
-       CurrentUnitHeath.HealUnits(healing);
+
+        //HealServerRpc(healing);
+        CurrentUnitHeath = Mathf.Min(CurrentUnitHeath + healing, MaxHealth);
+        OnHealthChanged();
 
         //display current health to the user 
-        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.CurrentHealth);
+        //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
 
-        Debug.Log("Current Health" + CurrentUnitHeath.CurrentHealth.ToString());
+        Debug.Log("Current Health" + CurrentUnitHeath.ToString());
     }
 
-    /// <summary>
-    /// method called when player Uses a medkit in the inventory 
-    /// </summary>
-    /// <param name="healing"></param>
-    /// <returns></returns>
-    public bool TryHealthItemPlayerHeal(int healing)
+    //[ServerRpc(RequireOwnership = false)]
+    //public void HealServerRpc(int healing)
+    //{
+    //    if (!IsServer) return;
+    //    CurrentUnitHeath.Value = Mathf.Min(CurrentUnitHeath.Value + healing, MaxHealth);
+    //}
+
+    public void RespawnHealthSet(Transform respawnPos)
     {
-        if (!CurrentUnitHeath.IsUnitHealthFull())
-        {
-            UnitHeal(healing);
-            return true;//item was used 
-        }
-        else return false; // item not used health was already full 
+        //if (!IsOwner) return;
+        this.isDead = false;
+
+        this.gameObject.transform.position = respawnPos.position;
+
+        CurrentUnitHeath = MaxHealth;
+        //Show boat: 
+        boatModel.SetActive(true);
+        boatEffect.SetActive(true);
+
+        tugSpringTugSystem.isDead = this.isDead;
+
+        OnHealthChanged();
     }
+
+
+    private void OnHealthChanged()
+    {
+        healthBar.value = CurrentUnitHeath;
+    }
+
+  
+
+    public void Die()
+    {
+       
+        if (IsLocalPlayer)
+        {
+            if (PlayerRespawn.Instance.LocalPlayerHealthController == null)
+            {
+                PlayerRespawn.Instance.LocalPlayerHealthController = this;
+            }
+            this.isDead = true;
+
+            //hide boat: 
+            boatModel.SetActive(false);
+            boatEffect.SetActive(false);
+
+            this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+
+            //Make sure to Detach the player when dead 
+            this.gameObject.GetComponent<SpringTugSystem>().Detach();
+            this.gameObject.GetComponent<SpringTugSystem>().isDead = this.isDead;
+
+
+            LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
+            // Your death logic here...
+            Debug.Log($"{name} died!");
+        }else
+        {
+            Debug.Log($"{name} Cant die here not local player!");
+        }
+    }
+
+    //===============Not yet part of the game===============
+
+    ///// <summary>
+    ///// method called when player Uses a medkit in the inventory 
+    ///// </summary>
+    ///// <param name="healing"></param>
+    ///// <returns></returns>
+    //public bool TryHealthItemPlayerHeal(int healing)
+    //{
+    //    if (!CurrentUnitHeath.IsUnitHealthFull())
+    //    {
+    //        UnitHeal(healing);
+    //        return true;//item was used 
+    //    }
+    //    else return false; // item not used health was already full 
+    //}
 
 }
