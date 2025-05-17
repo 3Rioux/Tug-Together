@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent (typeof(Collider))]
 public class HideHealthBar : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
