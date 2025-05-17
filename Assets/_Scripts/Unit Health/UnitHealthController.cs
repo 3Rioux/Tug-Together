@@ -20,6 +20,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     [Header("Player Health: ")]
     public int MaxHealth = 100;
+    public GameObject HealthParent;
     [SerializeField] private int CurrentUnitHeath = 100;
     //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;

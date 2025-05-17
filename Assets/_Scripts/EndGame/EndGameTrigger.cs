@@ -16,7 +16,9 @@ public class EndGameTrigger : NetworkBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private CinemachineCamera endGameCamera; // stores the end game camera
     [SerializeField] private CinemachineSequencerCamera endGameSequenceCamera; // stores the end game Sequencer camera
-                                                                               
+
+    [SerializeField]
+    private List<GameObject> disableObjects = new List<GameObject>();
 
 
     [SerializeField] private MatchTimer timer;
@@ -29,6 +31,16 @@ public class EndGameTrigger : NetworkBehaviour
     {
         gameOverCanvasPrefab.SetActive(false); // off by default
         endGameSequenceCamera.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+#if UNITY_EDITOR
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            TriggerGameOverClientRpc();
+        }
+#endif
     }
 
     private void OnTriggerEnter(Collider other)
@@ -56,6 +68,13 @@ public class EndGameTrigger : NetworkBehaviour
         {
             StartCoroutine(ShowGameOverSequence());
             //gameOverCanvasPrefab.SetActive(true);
+
+            //hide all wanted objects 
+            foreach (GameObject go in disableObjects)
+            {
+                go.SetActive(false);
+            }
+
 
             //stop timer 
             timer.EndMatch();
