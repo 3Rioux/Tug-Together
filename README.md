@@ -20,3 +20,4 @@
  * PolyToots / Shaders
  * georgiyhazankin / lobster omar
  * Austin Beaulier / Rocks Scan
+ * Regina Ajes / Light House x 3 / Boat Models / Wood Debris / Crates / Barge 
