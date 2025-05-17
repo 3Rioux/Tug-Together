@@ -1,28 +1,35 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Video;
 using TMPro;
 using Unity.Netcode;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(Collider), typeof(NetworkObject))]
 public class TutorialStageOne : NetworkBehaviour, ITutorialStage
 {
     public event Action StageCompleted;
 
-    [SerializeField] private VideoPlayer _videoPlayer;
-    [SerializeField] private RawImage    _rawImage;
     [SerializeField] private TextMeshProUGUI _counterText;
-    [SerializeField] private Collider     _triggerCollider;
+    [SerializeField] private Collider _triggerCollider;
+    [SerializeField] private SpawnManager _spawnManager; // Reference to SpawnManager
 
     private HashSet<ulong> _inside = new();
+    private bool _playersEnabled = false;
+    
     private int TotalPlayers => NetworkManager.Singleton.ConnectedClientsIds.Count;
+    private bool AllPlayersInside => _inside.Count == TotalPlayers && TotalPlayers > 0;
 
     public void ActivateStage()
     {
         gameObject.SetActive(true);
-        _rawImage.gameObject.SetActive(false);
+        _playersEnabled = false;
+        
+        if (IsServer)
+        {
+            // Disable all player controls initially
+            DisablePlayerControlsClientRpc();
+        }
+        
         UpdateCounterText();
     }
 
@@ -31,24 +38,43 @@ public class TutorialStageOne : NetworkBehaviour, ITutorialStage
         gameObject.SetActive(false);
     }
 
+    private void Update()
+    {
+        if (IsServer && !_playersEnabled && AllPlayersInside)
+        {
+            _playersEnabled = true;
+            EnablePlayerControlsClientRpc();
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!IsServer || !other.CompareTag("Player")) return;
-        var id = other.GetComponent<NetworkObject>().OwnerClientId;
+        
+        var networkObject = other.GetComponent<NetworkObject>();
+        if (networkObject == null) return;
+        
+        var id = networkObject.OwnerClientId;
         _inside.Add(id);
         UpdateCounterClientRpc();
-        if (_inside.Count == TotalPlayers)
-            StartStageClientRpc();
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!IsServer || !other.CompareTag("Player")) return;
-        var id = other.GetComponent<NetworkObject>().OwnerClientId;
+        
+        var networkObject = other.GetComponent<NetworkObject>();
+        if (networkObject == null) return;
+        
+        var id = networkObject.OwnerClientId;
         _inside.Remove(id);
         UpdateCounterClientRpc();
-        if (_inside.Count == 0)
-            EndStageOnServer();
+        
+        // If all players have exited the trigger and players were enabled
+        if (_inside.Count == 0 && _playersEnabled)
+        {
+            StageCompleted?.Invoke();
+        }
     }
 
     [ClientRpc]
@@ -58,30 +84,19 @@ public class TutorialStageOne : NetworkBehaviour, ITutorialStage
     }
 
     [ClientRpc]
-    private void StartStageClientRpc()
+    private void DisablePlayerControlsClientRpc()
     {
-        _rawImage.gameObject.SetActive(true);
-        _videoPlayer.Play();
-        TutorialController tc = FindObjectOfType<TutorialController>();
-        tc.DisableAllPlayerControls();
+        FindObjectOfType<TutorialController>()?.DisableAllPlayerControls();
     }
 
     [ClientRpc]
-    private void StopStageClientRpc()
+    private void EnablePlayerControlsClientRpc()
     {
-        _videoPlayer.Stop();
-        _rawImage.gameObject.SetActive(false);
-        FindObjectOfType<TutorialController>().EnableAllPlayerControls();
-    }
-
-    private void EndStageOnServer()
-    {
-        if (!IsServer)
-            return;
-        StopStageClientRpc();
-        StageCompleted?.Invoke();
+        FindObjectOfType<TutorialController>()?.EnableAllPlayerControls();
     }
 
     private void UpdateCounterText()
-        => _counterText.text = $"{_inside.Count} of {TotalPlayers} players here";
+    {
+        _counterText.text = $"{_inside.Count} of {TotalPlayers} players here";
+    }
 }

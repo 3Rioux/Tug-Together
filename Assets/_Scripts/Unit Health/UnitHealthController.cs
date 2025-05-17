@@ -93,7 +93,6 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     void Start()
     {
-       
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
         {
@@ -101,9 +100,17 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             tugMovement = GetComponent<TugboatMovementWFloat>();
             tugSpringTugSystem = GetComponent<SpringTugSystem>();
 
-            PlayerRespawn.Instance.LocalPlayerHealthController = this;
-            Debug.Log("Set LocalPlayerHealthController", this);
-        }else
+            if (PlayerRespawn.Instance != null)
+            {
+                PlayerRespawn.Instance.LocalPlayerHealthController = this;
+                Debug.Log("Set LocalPlayerHealthController", this);
+            }
+            else
+            {
+                Debug.LogError("PlayerRespawn.Instance is null", this);
+            }
+        }
+        else
         {
             Debug.LogError($"Not owner{IsOwner} or player{IsLocalPlayer} LocalPlayerHealthController", this);
         }
