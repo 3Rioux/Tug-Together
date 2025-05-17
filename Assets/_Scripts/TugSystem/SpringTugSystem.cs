@@ -880,6 +880,9 @@ public class SpringTugSystem : NetworkBehaviour
 
             //Destroy the spring on the server copy 
             Destroy(spring);
+
+            playerNet.GetComponent<SpringTugSystem>().Detach();
+            playerNet.GetComponent<SpringTugSystem>().visualRope.gameObject.SetActive(false);
         }
     }
 

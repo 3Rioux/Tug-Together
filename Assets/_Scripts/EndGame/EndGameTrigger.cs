@@ -55,7 +55,7 @@ public class EndGameTrigger : NetworkBehaviour
         if (gameOverCanvasPrefab != null)
         {
             StartCoroutine(ShowGameOverSequence());
-            gameOverCanvasPrefab.SetActive(true);
+            //gameOverCanvasPrefab.SetActive(true);
 
             //stop timer 
             timer.EndMatch();
@@ -73,7 +73,7 @@ public class EndGameTrigger : NetworkBehaviour
     private IEnumerator ShowGameOverSequence()
     {
         endGameSequenceCamera.gameObject.SetActive(true);
-        gameOverCanvasPrefab.SetActive(true);
+       // gameOverCanvasPrefab.SetActive(true);
 
 
         // Hook up the button
@@ -81,7 +81,7 @@ public class EndGameTrigger : NetworkBehaviour
 
 
         float startTime = Time.time;
-        float timeout = 5f;
+        float timeout = 2f;
 
 
         // Wait until the button is pressed OR 5 seconds have passed 

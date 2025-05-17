@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -43,6 +44,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     [SerializeField] private float invincibilityDuration = 2f; // seconds
     private bool isInvincible = false;
 
+
+    private BoatInputActions controls;
     private bool isDead = false;
 
 
@@ -54,10 +57,26 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         //lets simplify things lol:
         healthBar.maxValue = MaxHealth;
-
         OnHealthChanged();
 
-       
+
+        controls = new BoatInputActions();
+
+        // Bind the KillPlayer action
+        //controls.Boat.KillPlayer.performed += ctx => OnKillPlayer();
+
+
+    }
+
+    private void OnEnable()
+    {
+        // Disable the action map
+        controls.Boat.Enable();
+    }
+
+    private void OnDisable()
+    {
+        controls.Boat.Disable();
     }
 
     //public override void OnNetworkSpawn()
@@ -143,6 +162,12 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         //Done healing -> change state 
         isUnitHealing = false;
+    }
+
+    public void OnKillPlayer()
+    {
+        //Kill the player by making damage = MaxHealth * 2 (Just to be safe)
+        UnitTakeDamage(MaxHealth * 2);
     }
 
     /// <summary>
