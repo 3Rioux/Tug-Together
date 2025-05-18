@@ -45,7 +45,7 @@ MonoBehaviour:
     m_Value: 0
   type:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   atmosphericScattering:
     m_OverrideState: 1
     m_Value: 1
@@ -161,7 +161,7 @@ MonoBehaviour:
     m_Value: 1
   triangleSize:
     m_OverrideState: 1
-    m_Value: 50
+    m_Value: 100
   ambientProbeDimmer:
     m_OverrideState: 1
     m_Value: 0.5
@@ -192,7 +192,7 @@ MonoBehaviour:
     m_Value: {r: 0.8307701, g: 0.98225087, b: 1, a: 1}
   tint:
     m_OverrideState: 1
-    m_Value: {r: 1.2610587, g: 1.299112, b: 1.304119, a: 1}
+    m_Value: {r: 1.5460163, g: 1.743142, b: 2.3245068, a: 1}
   maxFogDistance:
     m_OverrideState: 1
     m_Value: 5000
@@ -216,9 +216,9 @@ MonoBehaviour:
     m_Value: 3000
   enableVolumetricFog:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   albedo:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {r: 0.92156863, g: 0.99215686, b: 1, a: 1}
   globalLightProbeDimmer:
     m_OverrideState: 0
@@ -288,7 +288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e9e4ed5a6f56fb4ebd693e39684f36f, type: 3}
   m_Name: VolumetricClouds
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enable:
     m_OverrideState: 1
     m_Value: 1
@@ -569,7 +569,7 @@ MonoBehaviour:
     m_Value: 1
   shadows:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   shadowResolution:
     m_OverrideState: 1
     m_Value: 256
@@ -674,8 +674,8 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0.1
   limitMin:
-    m_OverrideState: 0
-    m_Value: -1
+    m_OverrideState: 1
+    m_Value: 13.158138
   limitMax:
     m_OverrideState: 1
     m_Value: 14
@@ -823,7 +823,7 @@ MonoBehaviour:
     m_Value: 2048
   shadowMultiplier:
     m_OverrideState: 1
-    m_Value: 13
+    m_Value: 1
   shadowTint:
     m_OverrideState: 0
     m_Value: {r: 0, g: 0, b: 0, a: 1}
@@ -889,13 +889,13 @@ MonoBehaviour:
       m_Value: 6
     thickness:
       m_OverrideState: 1
-      m_Value: 0.33
+      m_Value: 1
     ambientProbeDimmer:
       m_OverrideState: 0
       m_Value: 1
     castShadows:
       m_OverrideState: 1
-      m_Value: 1
+      m_Value: 0
   layerB:
     cloudMap:
       m_OverrideState: 0

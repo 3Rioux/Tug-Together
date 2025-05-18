@@ -371,9 +371,15 @@ private void AnimateButtonEnable()
     public void OnProceedButtonClick()
     {
         ClickSound();
-        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Complete_Level_1");
-
-        //SwitchToState(MenuState.Tutorial);
+        //SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Complete_Level_1");
+        //SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/NEWLevelONE");
+        SwitchToState(MenuState.Tutorial);
+    }
+    
+    public void LevelONE()
+    {
+        ClickSound();
+        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/NEWLevelONE");
     }
     
     public void Lobby()
