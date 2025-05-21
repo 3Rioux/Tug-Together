@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
@@ -16,16 +17,49 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     [SerializeField] private SpringTugSystem tugSpringTugSystem;
 
 
+    [Header("Network Player Info Sync: ")]
+    [SerializeField] private NetworkPlayerInfo netPlayerInfo;
+
     [Header("Player Health: ")]
     public int MaxHealth = 100;
     public GameObject HealthParent;
-    [SerializeField] private int CurrentUnitHeath = 100;
+    
     //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private Slider healthBar;
 
-    //public UnitHealth CurrentUnitHeath = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
-    //public NetworkVariable<int> CurrentUnitHeath = new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public event Action<int> OnHealthChanged;
+
+    [SerializeField] private int currentUnitHealth = 100;
+    // Property to encapsulate the field
+    public int CurrentUnitHealth
+    {
+        get => currentUnitHealth;
+        set
+        {
+            if (currentUnitHealth != value)
+            {
+                currentUnitHealth = value;
+                OnHealthChanged?.Invoke(currentUnitHealth);
+            }
+        }
+    }
+
+    //public int CurrentUnitScore
+    //{
+    //    get => _currentUnitScore;
+    //    set
+    //    {
+    //        if (_currentUnitScore != value)
+    //        {
+    //            _currentUnitScore = value;
+    //            OnScoreChanged?.Invoke(_currentUnitScore);
+    //        }
+    //    }
+    //}
+
+    //public UnitHealth CurrentUnitHealth = new UnitHealth(100, 100); //make it public so that the other scripts can damage this unit
+    //public NetworkVariable<int> CurrentUnitHealth = new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     // public HealthBar _playerHealthBar; //reference to the healthBar or your damaged parts script stuff 
 
@@ -52,30 +86,34 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     {
        
         //currentHealth = MaxHealth;
-        //CurrentUnitHeath.Value = new UnitHealth(MaxHealth, MaxHealth);
+        //CurrentUnitHealth.Value = new UnitHealth(MaxHealth, MaxHealth);
 
         //lets simplify things lol:
         healthBar.maxValue = MaxHealth;
-        OnHealthChanged();
-
 
         controls = new BoatInputActions();
 
         // Bind the KillPlayer action
         //controls.Boat.KillPlayer.performed += ctx => OnKillPlayer();
-
+        netPlayerInfo = this.GetComponent<NetworkPlayerInfo>();
 
     }
 
     private void OnEnable()
     {
-        // Disable the action map
-        controls.Boat.Enable();
+        if (controls != null)
+        {//it was turning off this script sometimes (Dont know why so im just adding this check)
+            // Disable the action map
+            controls.Boat.Enable();
+        }
     }
 
     private void OnDisable()
     {
-        controls.Boat.Disable();
+        if (controls != null)
+        {
+            controls.Boat.Disable();
+        }
     }
 
     //public override void OnNetworkSpawn()
@@ -92,9 +130,13 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     void Start()
     {
+
+
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
         {
+            OnHealthChanged += HandleHealthChanged;
+
             PlayerNetObj = GetComponent<NetworkObject>();
             tugMovement = GetComponent<TugboatMovementWFloat>();
             tugSpringTugSystem = GetComponent<SpringTugSystem>();
@@ -111,13 +153,16 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         }
         else
         {
-            Debug.LogError($"Not owner{IsOwner} or player{IsLocalPlayer} LocalPlayerHealthController", this);
+            Debug.LogError($"Not owner{IsOwner} or player{IsLocalPlayer} LocalPlayerHealthController {name}", this);
         }
+        
         // Initialize health and checkpoint on server
-        CurrentUnitHeath = MaxHealth;
+        CurrentUnitHealth = MaxHealth;
+
+
+
+        //    if (netPlayerInfo.IsNetworkPlayerInfoInitialised) OnHealthChanged();
     }
-
-
 
     private void Update()
     {
@@ -135,14 +180,14 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
 #if UNITY_EDITOR
         //test taking damage current key == q
-        if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        if (Keyboard.current.digit1Key.wasPressedThisFrame && IsOwner)
         {
             UnitTakeDamage(20);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
         }
 
         //test healing damage current key == e
-        if (Keyboard.current.digit2Key.wasPressedThisFrame)
+        if (Keyboard.current.digit2Key.wasPressedThisFrame && IsOwner)
         {
             UnitHeal(10);
             //Debug.Log(gm_reference.PlayerHeath.Health.ToString());
@@ -159,7 +204,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         isUnitHealing = true;
 
         //While Healt is not = Max Health && apply heal delay
-        while (CurrentUnitHeath < MaxHealth && timeSinceLastDamage >= healDelay)
+        while (CurrentUnitHealth < MaxHealth && timeSinceLastDamage >= healDelay)
         {
             //healt Unit
             UnitHeal(healAmountPerSecond);
@@ -189,8 +234,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         timeSinceLastDamage = 0f;
 
         /// Apply damage
-        CurrentUnitHeath = Mathf.Max(CurrentUnitHeath - damage, 0);
-        OnHealthChanged();
+        CurrentUnitHealth = Mathf.Max(CurrentUnitHealth - damage, 0);
+        //OnHealthChanged();
         
 
         // Start invincibility period
@@ -198,15 +243,15 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
-        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHeath}.");
+        Debug.Log($"{name} took {damage} damage, health now {CurrentUnitHealth}.");
 
         // Debug.Log(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth.ToString());
 
-        if (CurrentUnitHeath <= 0)
+        if (CurrentUnitHealth <= 0)
         {
             Die();
-            CurrentUnitHeath = MaxHealth; //reset Health 
-            OnHealthChanged();
+            CurrentUnitHealth = MaxHealth; //reset Health 
+            //OnHealthChanged();
         }
     }
 
@@ -223,7 +268,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     //public void TakeDamageServerRpc(int damage)
     //{
     //    if (!IsServer) return;
-    //    CurrentUnitHeath.Value = Mathf.Max(CurrentUnitHeath.Value - damage, 0);
+    //    CurrentUnitHealth.Value = Mathf.Max(CurrentUnitHealth.Value - damage, 0);
     //}
 
 
@@ -238,20 +283,20 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         //change current player health
 
         //HealServerRpc(healing);
-        CurrentUnitHeath = Mathf.Min(CurrentUnitHeath + healing, MaxHealth);
-        OnHealthChanged();
+        CurrentUnitHealth = Mathf.Min(CurrentUnitHealth + healing, MaxHealth);
+        //OnHealthChanged();
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
 
-        Debug.Log("Current Health" + CurrentUnitHeath.ToString());
+        Debug.Log("Current Health" + CurrentUnitHealth.ToString());
     }
 
     //[ServerRpc(RequireOwnership = false)]
     //public void HealServerRpc(int healing)
     //{
     //    if (!IsServer) return;
-    //    CurrentUnitHeath.Value = Mathf.Min(CurrentUnitHeath.Value + healing, MaxHealth);
+    //    CurrentUnitHealth.Value = Mathf.Min(CurrentUnitHealth.Value + healing, MaxHealth);
     //}
 
     public void RespawnHealthSet(Transform respawnPos)
@@ -261,23 +306,53 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         this.gameObject.transform.position = respawnPos.position;
 
-        CurrentUnitHeath = MaxHealth;
+        CurrentUnitHealth = MaxHealth;
         //Show boat: 
         boatModel.SetActive(true);
         boatEffect.SetActive(true);
 
         tugSpringTugSystem.isDead = this.isDead;
 
-        OnHealthChanged();
+        //OnHealthChanged();
     }
 
+    private UnitInfoReporter unitInfoReporter;
 
-    private void OnHealthChanged()
+    private void HandleHealthChanged(int newHealth)
     {
-        healthBar.value = CurrentUnitHeath;
+        healthBar.value = newHealth;
+
+        if (unitInfoReporter == null)
+        {
+            unitInfoReporter = GetComponent<UnitInfoReporter>();
+        }
+
+        unitInfoReporter.CurrentUnitHealth = newHealth;
+            
+        SendHealthToServerRpc(CurrentUnitHealth);
+
+        //Also update the Network Health tracker for the player.
+        //SyncHealthServerRpc();
     }
 
-  
+
+    [ServerRpc]
+    private void SendHealthToServerRpc(int newHealth, ServerRpcParams rpcParams = default)
+    {
+        BroadcastHealthClientRpc(newHealth);
+    }
+
+    [ClientRpc]
+    private void BroadcastHealthClientRpc(int newHealth)
+    {
+        netPlayerInfo.UpdateHealth(CurrentUnitHealth);
+    }
+
+    //[ServerRpc(RequireOwnership = false)]
+    //private void SyncHealthServerRpc()
+    //{
+    //    netPlayerInfo.UpdateHealth(CurrentUnitHealth);
+    //}
 
     public void Die()
     {
@@ -301,7 +376,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             this.gameObject.GetComponent<SpringTugSystem>().isDead = this.isDead;
 
 
-            LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHeath);
+            LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHealth);
             // Your death logic here...
             Debug.Log($"{name} died!");
         }else
@@ -319,7 +394,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     ///// <returns></returns>
     //public bool TryHealthItemPlayerHeal(int healing)
     //{
-    //    if (!CurrentUnitHeath.IsUnitHealthFull())
+    //    if (!CurrentUnitHealth.IsUnitHealthFull())
     //    {
     //        UnitHeal(healing);
     //        return true;//item was used 
