@@ -5,14 +5,25 @@ using UnityEngine;
 
 public class UnitInfoReporter : NetworkBehaviour
 {
+    [SerializeField] private PlayerNameDisplay playerNameDisplay;
+
+    //These have no use in the end just debugging but i want to leave them due to seeing how its used + can call death logic this way from here as well if i want -> 
     public event Action<string> OnNameChanged;
     public event Action<int> OnHealthChanged;
     public event Action<int> OnScoreChanged;
+    //public event Action<bool> OnDisconnectChanged;
 
 
     private string _currentUnitName;
     private int _currentUnitHealth;
     private int _currentUnitScore;
+    private bool _currentUnitDisconnect;
+
+    //so ugly but im not able to trigger the get name for the host if hes alone without it + more efficient then GetName every time its pressed:
+    private bool gotName = false;
+
+    private BoatInputActions controls;
+
 
     #region PublicVariableAccessors
     public string CurrentUnitName
@@ -24,6 +35,9 @@ public class UnitInfoReporter : NetworkBehaviour
             {
                 _currentUnitName = value;
                 OnNameChanged?.Invoke(_currentUnitName);
+
+                print($"name Changed!!! ++ Name: {_currentUnitName}");
+
 
                 // Notify the server of score change
                 ReportNameServerRpc(_currentUnitName);
@@ -62,10 +76,105 @@ public class UnitInfoReporter : NetworkBehaviour
             }
         }
     }
-#endregion
 
 
-   
+    //public bool CurrentUnitDisconnect
+    //{
+    //    //get => _currentUnitDisconnect;
+    //    set
+    //    {
+    //        if (_currentUnitDisconnect != value)
+    //        {
+    //            _currentUnitDisconnect = value;
+    //            OnScoreChanged?.Invoke(_currentUnitDisconnect);
+
+    //            // Notify the server of score change
+    //            ReportDisconnectServerRpc(_currentUnitDisconnect);
+    //        }
+    //    }
+    //}
+
+
+    #endregion
+
+    private void Awake()
+    {
+        controls = new BoatInputActions();
+        controls.Enable();
+
+        controls.Boat.Attack.performed += ctx => TogglePlayerList();
+        //controls.Boat.Attack.canceled += _ => TogglePlayerList();
+    }
+
+    public void SetControlEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            controls.Enable();
+
+           
+        }
+        else
+        {
+            controls.Disable();
+        }
+    }
+
+
+    /// <summary>
+    /// Only done for the ---Local Player--- don't need RPC to toggle all players stuff
+    /// public so that the controls trigger can be moved to the 
+    /// </summary>
+    public void TogglePlayerList()
+    {
+        if (IsOwner)
+        {
+            Debug.Log("Is Owner !!!");
+            //set player name if not done already 
+            if (!gotName)
+            {
+                CurrentUnitName = playerNameDisplay.GetPlayerName();
+
+                gotName = true;
+            }
+
+            //Toggle the UI On/Off
+            PlayerListUI.Instance?.ToggleUIDisplay();
+        }
+        else
+        {
+            Debug.Log("Is Not Owner !!!");
+        }
+    }
+
+    private void Start()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback += ReportDisconnectServerRpc;
+    }
+
+    void OnEnable() 
+    {
+        controls.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Disable();
+    }
+
+    private void OnDestroy()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback -= ReportDisconnectServerRpc;
+    }
+
+
+    private void OnClientDisconnect(ulong disconnectClientID)
+    {
+        ReportDisconnectServerRpc(disconnectClientID);
+    }
+
+    
+
 
     #region ServerRPCS
 
@@ -105,6 +214,12 @@ public class UnitInfoReporter : NetworkBehaviour
         BroadcastScoreClientRpc(OwnerClientId, newScore);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    void ReportDisconnectServerRpc(ulong disconnectClientID)
+    {
+        BroadcastDisconnectClientRpc(disconnectClientID, true);
+    }
+
     #endregion
 
     #region ClientBroadcastRPCS
@@ -120,8 +235,9 @@ public class UnitInfoReporter : NetworkBehaviour
     {
         Debug.Log($"Player {OwnerClientId}'s Name is Now {playerName}");
 
-        // Store or update Name
-        PlayerListUI.Instance?.UpdatePlayerNames(playerClientId, playerName, OwnerClientId == playerClientId);
+        // Store or update Name - OwnerClientId == playerClientId 
+        PlayerListUI.Instance?.UpdatePlayerNames(playerClientId, playerName, IsLocalPlayer);
+        
     }
 
     /// <summary>
@@ -150,6 +266,16 @@ public class UnitInfoReporter : NetworkBehaviour
 
         // Store or update score
         PlayerListUI.Instance?.UpdatePlayerScore(playerClientId, score);
+
+    }
+
+    [ClientRpc]
+    void BroadcastDisconnectClientRpc(ulong playerClientId, bool disconnect)
+    {
+        Debug.Log($"{playerClientId} is now Disconnected: {disconnect}");
+
+        // Store or update score
+        PlayerListUI.Instance?.RemovePlayerFromList(playerClientId, disconnect);
 
     }
 

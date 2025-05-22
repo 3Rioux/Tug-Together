@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.Services.Relay.Models;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
@@ -12,13 +13,20 @@ public class PlayerListUI : MonoBehaviour
     public static PlayerListUI Instance;
 
     [SerializeField] private GameObject playerInfoPrefab;
+    [SerializeField] private GameObject displayList;
     [SerializeField] private Transform contentParent;
 
-    private Dictionary<ulong, LeaderboardEntry> listItems = new();
+    public Dictionary<ulong, LeaderboardEntry> listItems = new();
 
     private Dictionary<ulong, string> playerNames = new();
     private Dictionary<ulong, int> playerScores = new();
     private Dictionary<ulong, int> playerHealths = new();
+
+    //Visual Variables:
+    private RectTransform displayListRectTransform;
+    private float defaultWidth = 250f;
+    private float defaultHeight = 250f;
+    private float playerInfoPrefabHeight;
 
     private void Awake()
     {
@@ -32,34 +40,40 @@ public class PlayerListUI : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    //void Update()
-    //{
-    //    var infos = NetworkPlayerInfoManager.Instance?.GetAllPlayerInfos();
-    //    if (infos == null)
-    //    {
-    //        Debug.Log("Player List Empty", this);
-    //        return;
-    //    }
+    private void Start()
+    {
+       
+        displayListRectTransform = displayList.GetComponent<RectTransform>();
 
-    //    foreach (var pair in infos)
-    //    {
-    //        ulong id = pair.Key;
-    //        NetworkPlayerInfo info = pair.Value;
+        //Get teh player info height
+        playerInfoPrefabHeight = playerInfoPrefab.GetComponent<RectTransform>().sizeDelta.y; // Get its Height 
 
-    //        if (!listItems.ContainsKey(id))
-    //        {
-    //            var go = Instantiate(playerInfoPrefab, contentParent);
-    //            listItems[id] = go;
-    //        }
+        displayList.SetActive(false);
+    }
 
-    //        var item = listItems[id];
-    //        item.GetComponentInChildren<TextMeshProUGUI>().text =
-    //            $"Name: {info.PlayerName.Value}\n" +
-    //            $"|Health: {info.Health.Value}|Score: {info.Score.Value}";
-    //    }//end foreach 
-    // }
+    /// <summary>
+    /// changes the 
+    /// </summary>
+    public void ToggleUIDisplay()
+    {
+        print("Toggle UI");
+        displayListRectTransform.sizeDelta = new Vector2(defaultWidth, (playerInfoPrefabHeight * listItems.Count) + 2f); // displayListRectTransform = # players being displayed + 2 
+        displayList.SetActive(!displayList.activeSelf);
+    }
 
+    /// <summary>
+    /// Override with bool to set the UI on / off with a bool 
+    /// </summary>
+    /// <param name="setOnOff"></param>
+    public void ToggleUIDisplay(bool setOnOff)
+    {
+        print("Toggle UI");
+        displayListRectTransform.sizeDelta = new Vector2(defaultWidth, (playerInfoPrefabHeight * listItems.Count) + 2f); // displayListRectTransform = # players being displayed + 2 
+        displayList.SetActive(setOnOff);
+    }
+
+
+    #region AddRemovePlayers
 
     /// <summary>
     /// Called by the spawn Manager to update the players in the game 
@@ -80,8 +94,9 @@ public class PlayerListUI : MonoBehaviour
         //get needed entry script
         LeaderboardEntry entry = player.GetComponent<LeaderboardEntry>();
         //Set initial values:
+        //string playerName = 
         entry.Init($"Player #{playerClientId}", playerMaxHealth, 0);
-        //Add to tracking Dictionnary
+        //Add to tracking Dictionary
         listItems.Add(playerClientId, entry);
 
         // Optionally print or display
@@ -90,6 +105,34 @@ public class PlayerListUI : MonoBehaviour
         return listItems.ContainsKey(playerClientId);
     }
 
+    public bool RemovePlayerFromList(ulong playerClientId, bool disconnect)
+    {
+        if (!listItems.ContainsKey(playerClientId) || !disconnect)
+        {
+            //return false if player NOT already in the list
+            return false;
+        }
+
+       
+
+        //Remove from UI
+        Destroy(listItems[playerClientId].gameObject);
+
+        // Optionally print or display
+        Debug.Log($"{playerClientId} Remove from List View.");
+
+
+        bool removalSuccess = listItems.Remove(playerClientId);//Remove from tracking Dictionary
+        
+        ToggleUIDisplay(true);//think of this like a refresh for the UI 
+
+        //return if removal success
+        return removalSuccess;
+
+    }
+
+
+    #endregion
 
     #region Name
 
@@ -117,7 +160,6 @@ public class PlayerListUI : MonoBehaviour
     }
 
     #endregion
-
 
     #region Health
 
@@ -149,8 +191,6 @@ public class PlayerListUI : MonoBehaviour
         return new Dictionary<ulong, int>(playerHealths);
     }
     #endregion
-
-
 
     #region Score
 

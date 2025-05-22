@@ -261,7 +261,10 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (enabled)
         {
             controls.Enable();
-        
+
+            //Also disable /enable UnitInfoReporter Inputs
+            this.gameObject.GetComponent<UnitInfoReporter>().SetControlEnabled(enabled);
+
             // Enable Cinemachine input
             if (inputProvider != null)
                 inputProvider.enabled = true;
@@ -269,6 +272,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
         else
         {
             controls.Disable();
+            //Also disable /enable UnitInfoReporter Inputs
+            this.gameObject.GetComponent<UnitInfoReporter>().SetControlEnabled(enabled);
+
             moveVector = Vector2.zero;
             lookVector = Vector2.zero;
         

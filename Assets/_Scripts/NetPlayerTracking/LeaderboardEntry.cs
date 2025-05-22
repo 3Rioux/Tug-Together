@@ -27,13 +27,16 @@ public class LeaderboardEntry : MonoBehaviour
 
     public void UpdateName(string newName, bool isLocalPlayer)
     {
+        nameText.text = $"{newName}";
+
         //Change the color of the text for the local player 
-        if(isLocalPlayer)
+        if (isLocalPlayer)
         {
             nameText.color = Color.green;
             healthText.color = Color.green;
             scoreText.color = Color.green;
-        }else
+        }
+        else
         {
             //just to be safe 
             nameText.color = Color.white;
@@ -41,7 +44,6 @@ public class LeaderboardEntry : MonoBehaviour
             scoreText.color = Color.white;
         }
 
-        nameText.text = $"{newName}";
     }
 
     public void UpdateHealth(int newHealth)
