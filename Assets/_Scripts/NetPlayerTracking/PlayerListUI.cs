@@ -96,11 +96,11 @@ public class PlayerListUI : MonoBehaviour
     /// <summary>
     /// Updates the given players score 
     /// </summary>
-    public void UpdatePlayerNames(ulong playerClientId, string name)
+    public void UpdatePlayerNames(ulong playerClientId, string name, bool isLocalPlayer)
     {
         playerNames[playerClientId] = name;
 
-        listItems[playerClientId].UpdateName(name);
+        listItems[playerClientId].UpdateName(name, isLocalPlayer);
 
         // Optionally print or display
         Debug.Log($"{playerClientId} Name is now: {name}");

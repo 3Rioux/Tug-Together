@@ -121,7 +121,7 @@ public class UnitInfoReporter : NetworkBehaviour
         Debug.Log($"Player {OwnerClientId}'s Name is Now {playerName}");
 
         // Store or update Name
-        PlayerListUI.Instance?.UpdatePlayerNames(playerClientId, playerName);
+        PlayerListUI.Instance?.UpdatePlayerNames(playerClientId, playerName, OwnerClientId == playerClientId);
     }
 
     /// <summary>

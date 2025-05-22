@@ -97,6 +97,14 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         //controls.Boat.KillPlayer.performed += ctx => OnKillPlayer();
         netPlayerInfo = this.GetComponent<NetworkPlayerInfo>();
 
+        //Make sure the Health bar is only active if they are the owner (overlap problems)
+        if (IsOwner)
+        {
+            this.healthBar.gameObject.SetActive(true);
+        }else
+        {
+            this.healthBar.gameObject.SetActive(false);
+        }
     }
 
     private void OnEnable()
@@ -135,6 +143,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
         {
+            this.healthBar.gameObject.SetActive(true);
             OnHealthChanged += HandleHealthChanged;
 
             PlayerNetObj = GetComponent<NetworkObject>();
@@ -329,24 +338,24 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         unitInfoReporter.CurrentUnitHealth = newHealth;
             
-        SendHealthToServerRpc(CurrentUnitHealth);
+        //SendHealthToServerRpc(CurrentUnitHealth);
 
         //Also update the Network Health tracker for the player.
         //SyncHealthServerRpc();
     }
 
 
-    [ServerRpc]
-    private void SendHealthToServerRpc(int newHealth, ServerRpcParams rpcParams = default)
-    {
-        BroadcastHealthClientRpc(newHealth);
-    }
+    //[ServerRpc]
+    //private void SendHealthToServerRpc(int newHealth, ServerRpcParams rpcParams = default)
+    //{
+    //    BroadcastHealthClientRpc(newHealth);
+    //}
 
-    [ClientRpc]
-    private void BroadcastHealthClientRpc(int newHealth)
-    {
-        netPlayerInfo.UpdateHealth(CurrentUnitHealth);
-    }
+    //[ClientRpc]
+    //private void BroadcastHealthClientRpc(int newHealth)
+    //{
+    //    netPlayerInfo.UpdateHealth(CurrentUnitHealth);
+    //}
 
     //[ServerRpc(RequireOwnership = false)]
     //private void SyncHealthServerRpc()
