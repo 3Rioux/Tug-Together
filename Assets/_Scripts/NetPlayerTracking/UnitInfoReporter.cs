@@ -120,6 +120,12 @@ public class UnitInfoReporter : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkDespawn();
+            CurrentUnitName = playerNameDisplay.GetPlayerName();
+
+    }
 
     /// <summary>
     /// Only done for the ---Local Player--- don't need RPC to toggle all players stuff
@@ -131,12 +137,13 @@ public class UnitInfoReporter : NetworkBehaviour
         {
             Debug.Log("Is Owner !!!");
             //set player name if not done already 
-            if (!gotName)
-            {
-                CurrentUnitName = playerNameDisplay.GetPlayerName();
+            //if (!gotName)
+            //{
+            //    CurrentUnitName = playerNameDisplay.GetPlayerName();
 
-                gotName = true;
-            }
+            //    gotName = true;
+            //}
+            CurrentUnitName = playerNameDisplay.GetPlayerName();
 
             //Toggle the UI On/Off
             PlayerListUI.Instance?.ToggleUIDisplay();

@@ -20,8 +20,8 @@ public class LeaderboardEntry : MonoBehaviour
     public void Init(string name, int health, int score)
     {
         nameText.text = name;
-        healthText.text = health.ToString();
-        scoreText.text = score.ToString();
+        healthText.text = $"Health:{health}";
+        scoreText.text = $"{score}points";
     }
 
 
@@ -48,7 +48,7 @@ public class LeaderboardEntry : MonoBehaviour
 
     public void UpdateHealth(int newHealth)
     {
-        healthText.text = $"{newHealth}Hp";
+        healthText.text = $"Health:{newHealth}";
     }
 
     public void UpdateScore(int newScore)
