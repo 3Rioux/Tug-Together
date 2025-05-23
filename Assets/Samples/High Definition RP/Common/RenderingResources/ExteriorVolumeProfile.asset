@@ -314,25 +314,6 @@ MonoBehaviour:
     castShadows:
       m_OverrideState: 0
       m_Value: 0
---- !u!114 &-6975776770395274358
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32b6af8f7ad32324cb6941c3290e5895, type: 3}
-  m_Name: MicroShadowing
-  m_EditorClassIdentifier: 
-  active: 1
-  enable:
-    m_OverrideState: 1
-    m_Value: 1
-  opacity:
-    m_OverrideState: 1
-    m_Value: 1
 --- !u!114 &-5853923668859720466
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -418,7 +399,6 @@ MonoBehaviour:
   - {fileID: 1469905032442258176}
   - {fileID: 4624770114631576748}
   - {fileID: 254486641261711594}
-  - {fileID: -6975776770395274358}
   - {fileID: 1918416040923684496}
   - {fileID: -5853923668859720466}
   - {fileID: 4302018370519120706}
@@ -903,7 +883,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 953beb541740ddc499d005ee80c9ff29, type: 3}
   m_Name: Fog
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   quality:
     m_OverrideState: 1
     m_Value: 1
