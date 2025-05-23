@@ -102,7 +102,7 @@ public class UnitInfoReporter : NetworkBehaviour
         controls = new BoatInputActions();
         controls.Enable();
 
-        controls.Boat.Attack.performed += ctx => TogglePlayerList();
+        controls.Boat.PlayerInfoToggle.performed += ctx => TogglePlayerList();
         //controls.Boat.Attack.canceled += _ => TogglePlayerList();
     }
 
@@ -137,13 +137,13 @@ public class UnitInfoReporter : NetworkBehaviour
         {
             Debug.Log("Is Owner !!!");
             //set player name if not done already 
-            //if (!gotName)
-            //{
-            //    CurrentUnitName = playerNameDisplay.GetPlayerName();
+            if (!gotName)
+            {//just incase 
+                CurrentUnitName = playerNameDisplay.GetPlayerName();
 
-            //    gotName = true;
-            //}
-            CurrentUnitName = playerNameDisplay.GetPlayerName();
+                gotName = true;
+            }
+            //CurrentUnitName = playerNameDisplay.GetPlayerName();
 
             //Toggle the UI On/Off
             PlayerListUI.Instance?.ToggleUIDisplay();

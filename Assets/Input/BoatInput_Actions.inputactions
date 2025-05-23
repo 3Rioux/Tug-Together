@@ -96,6 +96,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "PlayerInfoToggle",
+                    "type": "Button",
+                    "id": "d2daf892-efd1-462b-8a23-473512229f34",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "BoostLeft",
                     "type": "Button",
                     "id": "4a456690-841b-4431-bc8e-9a0842502593",
@@ -553,6 +562,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "BoostRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a823f3e5-d2af-4a79-989a-80cdc4c2aa1f",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "PlayerInfoToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
