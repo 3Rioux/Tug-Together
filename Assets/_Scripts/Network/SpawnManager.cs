@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class SpawnManager : NetworkBehaviour
@@ -96,9 +97,52 @@ public class SpawnManager : NetworkBehaviour
 
         go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
         _spawnedClients.Add(clientId);
-        
-        LeaderboardManager.Instance?.UpdateLeaderboard();
+
+        //Add Player to Server + added Client RPC to add players to Clients as well
+        int maxHealth = go.GetComponent<UnitHealthController>().MaxHealth; // get the units max health 
+        AddPlayerToClientsServerRpc(clientId, maxHealth);
     }
+
+
+    #region AddPlayerToTrackingList
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddPlayerToClientsServerRpc(ulong clientId, int playerMaxHealth, ServerRpcParams rpcParams = default)
+    {
+        if (PlayerListUI.Instance?.AddPlayerToList(clientId, playerMaxHealth) == true)
+        {
+            BroadcastAddPlayerClientIDClientRpc(clientId, playerMaxHealth);
+            print("Added Player Server");
+        }
+        else
+        {
+            print("failed to add player to UI");
+        }
+    }
+
+    [ClientRpc]
+    void BroadcastAddPlayerClientIDClientRpc(ulong playerClientId, int playerMaxHealth)
+    {
+        //Loop through already spawned players to make sure the other players are also added 
+        foreach (ulong playerID in NetworkManager.Singleton?.ConnectedClientsIds)
+        {
+            if (PlayerListUI.Instance?.AddPlayerToList(playerID, playerMaxHealth) == true)
+            {
+                print("Added Player Client");
+
+                //Debug.Log($"{playerClientId} score is now: {score}");
+
+                //// Store or update score
+                //PlayerListUI.Instance?.UpdatePlayerScore(playerClientId, score);
+            }
+            else
+            {
+                print("failed to add Player On Client");
+            }
+        }
+    }
+    #endregion
+
 
     private int GetUnusedPrefabVariant()
     {
