@@ -372,7 +372,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         if (playerObjectId == this.PlayerNetObj.OwnerClientId)
         {
             healthBarGlobal.value = newHealth;
-            OnOverHeadHealthBarEffect(newHealth);
+            OnOverHeadHealthBarEffect(newHealth); // *** Always running might want to add a bool to only run to turn on/off 
         }
     }
 
@@ -390,17 +390,17 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         // If health is full, fade out the health bar (alpha to 0)
         if (newHealth >= MaxHealth)
         {
-            StartCoroutine(HideShowGlobalHealthBar(0f));
+            StartCoroutine(HideShowGlobalHealthBar(0f, closeAnimationDuration)); 
         }
         else
         {
             // Otherwise, fade in the health bar (alpha to 1)
-            StartCoroutine(HideShowGlobalHealthBar(1f));
+            StartCoroutine(HideShowGlobalHealthBar(1f, 0f)); // instantly turn it on when damaged 
         }
     }
 
 
-    private IEnumerator HideShowGlobalHealthBar(float alphaGoal)
+    private IEnumerator HideShowGlobalHealthBar(float alphaGoal, float animationDuration)
     {
         CanvasGroup canvasGroup = healthBarGlobal.gameObject.GetComponent<CanvasGroup>();
         if (canvasGroup == null)
@@ -411,10 +411,10 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         float startAlpha = canvasGroup.alpha;
         float elapsedTime = 0f;
 
-        while (elapsedTime < closeAnimationDuration)
+        while (elapsedTime < animationDuration)
         {
             elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / closeAnimationDuration);
+            float t = Mathf.Clamp01(elapsedTime / animationDuration);
             canvasGroup.alpha = Mathf.Lerp(startAlpha, alphaGoal, t);
             yield return null;
         }
