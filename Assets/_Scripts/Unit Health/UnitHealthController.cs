@@ -17,16 +17,19 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     [SerializeField] private SpringTugSystem tugSpringTugSystem;
 
 
-    [Header("Network Player Info Sync: ")]
-    [SerializeField] private NetworkPlayerInfo netPlayerInfo;
+    //[Header("Network Player Info Sync: ")]
+    //[SerializeField] private NetworkPlayerInfo netPlayerInfo;
 
     [Header("Player Health: ")]
     public int MaxHealth = 100;
     public GameObject HealthParent;
-    
+
     //[SerializeField] private int currentHealth;
     [SerializeField] private TextMeshProUGUI healthText;
+    [Tooltip("This variable will store the UI health bar that only the local player will be able to see.")]
     [SerializeField] private Slider healthBar;
+    [Tooltip("This variable will store the above head health bar that other players will be able to see each players health.")]
+    [SerializeField] private Slider healthBarGlobal;
 
     public event Action<int> OnHealthChanged;
 
@@ -77,6 +80,9 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     [SerializeField] private float invincibilityDuration = 2f; // seconds
     private bool isInvincible = false;
 
+    [Header("Animation")]
+    [SerializeField] private float closeAnimationDuration = 1.5f; // Duration of the alpha transition
+
 
     private BoatInputActions controls;
     private bool isDead = false;
@@ -84,26 +90,34 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     private void Awake()
     {
-       
+
         //currentHealth = MaxHealth;
         //CurrentUnitHealth.Value = new UnitHealth(MaxHealth, MaxHealth);
 
         //lets simplify things lol:
         healthBar.maxValue = MaxHealth;
+        healthBar.value = MaxHealth;
+
+        healthBarGlobal.maxValue = MaxHealth;
+        healthBarGlobal.value = MaxHealth;
 
         controls = new BoatInputActions();
 
         // Bind the KillPlayer action
-        //controls.Boat.KillPlayer.performed += ctx => OnKillPlayer();
-        netPlayerInfo = this.GetComponent<NetworkPlayerInfo>();
+        controls.Boat.KillPlayer.performed += ctx => OnKillPlayer();
+        //netPlayerInfo = this.GetComponent<NetworkPlayerInfo>();
 
         //Make sure the Health bar is only active if they are the owner (overlap problems)
         if (IsOwner)
         {
             this.healthBar.gameObject.SetActive(true);
+            //hide overhead bar if owner 
+            this.healthBarGlobal.gameObject.SetActive(false);
         }else
         {
             this.healthBar.gameObject.SetActive(false);
+            //show overhead bar if NOT owner 
+            this.healthBarGlobal.gameObject.SetActive(true);
         }
     }
 
@@ -138,7 +152,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     void Start()
     {
-
+        //All Players need to set this
+        PlayerNetObj = GetComponent<NetworkObject>();
 
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
@@ -146,7 +161,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             this.healthBar.gameObject.SetActive(true);
             OnHealthChanged += HandleHealthChanged;
 
-            PlayerNetObj = GetComponent<NetworkObject>();
+            
             tugMovement = GetComponent<TugboatMovementWFloat>();
             tugSpringTugSystem = GetComponent<SpringTugSystem>();
 
@@ -164,7 +179,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         {
             Debug.LogError($"Not owner{IsOwner} or player{IsLocalPlayer} LocalPlayerHealthController {name}", this);
         }
-        
+
         // Initialize health and checkpoint on server
         CurrentUnitHealth = MaxHealth;
 
@@ -245,7 +260,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         /// Apply damage
         CurrentUnitHealth = Mathf.Max(CurrentUnitHealth - damage, 0);
         //OnHealthChanged();
-        
+
 
         // Start invincibility period
         StartCoroutine(InvincibilityCoroutine());
@@ -331,41 +346,86 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     {
         healthBar.value = newHealth;
 
+
+
         if (unitInfoReporter == null)
         {
             unitInfoReporter = GetComponent<UnitInfoReporter>();
         }
 
         unitInfoReporter.CurrentUnitHealth = newHealth;
-            
-        //SendHealthToServerRpc(CurrentUnitHealth);
 
-        //Also update the Network Health tracker for the player.
-        //SyncHealthServerRpc();
+        //Update the Health Bar on all copies of this player in the other clients games.
+        UpdateHealthBarServerRpc(CurrentUnitHealth, PlayerNetObj.OwnerClientId);
     }
 
 
-    //[ServerRpc]
-    //private void SendHealthToServerRpc(int newHealth, ServerRpcParams rpcParams = default)
-    //{
-    //    BroadcastHealthClientRpc(newHealth);
-    //}
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateHealthBarServerRpc(int newHealth, ulong playerObjectId,  ServerRpcParams rpcParams = default)
+    {
+        BroadcastHealthBarClientRpc(newHealth, playerObjectId);
+    }
 
-    //[ClientRpc]
-    //private void BroadcastHealthClientRpc(int newHealth)
-    //{
-    //    netPlayerInfo.UpdateHealth(CurrentUnitHealth);
-    //}
+    [ClientRpc]
+    private void BroadcastHealthBarClientRpc(int newHealth, ulong playerObjectId)
+    {
+        if (playerObjectId == this.PlayerNetObj.OwnerClientId)
+        {
+            healthBarGlobal.value = newHealth;
+            OnOverHeadHealthBarEffect(newHealth);
+        }
+    }
 
-    //[ServerRpc(RequireOwnership = false)]
-    //private void SyncHealthServerRpc()
-    //{
-    //    netPlayerInfo.UpdateHealth(CurrentUnitHealth);
-    //}
+    /// <summary>
+    /// Add an effect to the health bar thats changed values, such as getting an outline + being enabled 
+    /// </summary>
+    private void OnOverHeadHealthBarEffect(int newHealth)
+    {
+        // Make sure the health bar is active for the fade effect
+        if (!healthBarGlobal.gameObject.activeSelf)
+        {
+            healthBarGlobal.gameObject.SetActive(true);
+        }
+
+        // If health is full, fade out the health bar (alpha to 0)
+        if (newHealth >= MaxHealth)
+        {
+            StartCoroutine(HideShowGlobalHealthBar(0f));
+        }
+        else
+        {
+            // Otherwise, fade in the health bar (alpha to 1)
+            StartCoroutine(HideShowGlobalHealthBar(1f));
+        }
+    }
+
+
+    private IEnumerator HideShowGlobalHealthBar(float alphaGoal)
+    {
+        CanvasGroup canvasGroup = healthBarGlobal.gameObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = healthBarGlobal.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        float startAlpha = canvasGroup.alpha;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < closeAnimationDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / closeAnimationDuration);
+            canvasGroup.alpha = Mathf.Lerp(startAlpha, alphaGoal, t);
+            yield return null;
+        }
+
+        // Ensure we reach the exact target alpha
+        canvasGroup.alpha = alphaGoal;
+    }
 
     public void Die()
     {
-       
+
         if (IsLocalPlayer)
         {
             if (PlayerRespawn.Instance.LocalPlayerHealthController == null)

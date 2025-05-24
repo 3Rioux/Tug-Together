@@ -654,7 +654,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""a823f3e5-d2af-4a79-989a-80cdc4c2aa1f"",
-                    ""path"": ""<Keyboard>/p"",
+                    ""path"": ""<Keyboard>/v"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
