@@ -158,6 +158,7 @@ public class PlayerRespawn : MonoBehaviour
             remaining -= 1f;
         }
         countdownText.text = "Respawning...";
+        yield return new WaitForSeconds(1f);
     }
 
 
@@ -168,7 +169,7 @@ public class PlayerRespawn : MonoBehaviour
         ShowRespawnUI();
 
         // Schedule actual respawn after delay
-        Invoke(nameof(Respawn), respawnDelay);
+        Invoke(nameof(Respawn), respawnDelay + 1);
     }
 
    

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -9,6 +10,13 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Collider))] // needs a collider of any kind attached 
 public class UnitHealthController : NetworkBehaviour, IDamageable
 {
+#if UNITY_EDITOR
+    private bool toggleInvincibility = false; // bool to allow me to change the Invincibility on/off during testing without changing the player Prefab (merge conflicts) 
+#else
+//in build will always be ON as a safety mesure incase we forget to change it back 
+    private bool toggleInvincibility = true; // bool to allow me to change the Invincibility on/off during testing without changing the player Prefab (merge conflicts) 
+#endif
+
     public NetworkObject PlayerNetObj;
     [SerializeField] private GameObject boatModel;
     [SerializeField] private GameObject boatEffect;
@@ -84,6 +92,10 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     [SerializeField] private float closeAnimationDuration = 1.5f; // Duration of the alpha transition
 
 
+    [Header("Colliders")]
+    [SerializeField] private Collider[] allColliders = new Collider[3]; // max 3 colliders 
+    public bool IsColliderActive = true;
+
     private BoatInputActions controls;
     private bool isDead = false;
 
@@ -154,6 +166,11 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     {
         //All Players need to set this
         PlayerNetObj = GetComponent<NetworkObject>();
+
+        //allColliders = this.GetComponentsInChildren<Collider>(); // <-- All the children colliders as well 
+        allColliders = this.GetComponents<Collider>(); // just the colliders on this gameobject 
+        Debug.Log("Found " + allColliders.Length + " colliders.");
+
 
         //Get set the local net object to this gameobject:
         if (IsOwner && IsLocalPlayer)
@@ -252,7 +269,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     /// <param name="damage"></param>
     public void UnitTakeDamage(int damage)
     {
-        if (isInvincible) return; // Ignore damage if invincible
+        if (isInvincible || isDead) return; // Ignore damage if invincible or already Dead
 
         // Reset the damage timer
         timeSinceLastDamage = 0f;
@@ -263,7 +280,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
 
         // Start invincibility period
-        StartCoroutine(InvincibilityCoroutine());
+        if(toggleInvincibility) StartCoroutine(InvincibilityCoroutine());
 
         //display current health to the user 
         //LevelManager.Instance._playerHealthBar.SetHealth(LevelManager.Instance.PlayerHeath.NetworkUnitCurrentHealth);
@@ -286,15 +303,6 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         yield return new WaitForSeconds(invincibilityDuration);
         isInvincible = false;
     }
-
-    // Public ServerRpc for taking damage (clients request server to apply damage)
-    //[ServerRpc(RequireOwnership = false)]
-    //public void TakeDamageServerRpc(int damage)
-    //{
-    //    if (!IsServer) return;
-    //    CurrentUnitHealth.Value = Mathf.Max(CurrentUnitHealth.Value - damage, 0);
-    //}
-
 
     /// <summary>
     /// Method to handle the player healing. 
@@ -322,23 +330,6 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
     //    if (!IsServer) return;
     //    CurrentUnitHealth.Value = Mathf.Min(CurrentUnitHealth.Value + healing, MaxHealth);
     //}
-
-    public void RespawnHealthSet(Transform respawnPos)
-    {
-        //if (!IsOwner) return;
-        this.isDead = false;
-
-        this.gameObject.transform.position = respawnPos.position;
-
-        CurrentUnitHealth = MaxHealth;
-        //Show boat: 
-        boatModel.SetActive(true);
-        boatEffect.SetActive(true);
-
-        tugSpringTugSystem.isDead = this.isDead;
-
-        //OnHealthChanged();
-    }
 
     private UnitInfoReporter unitInfoReporter;
 
@@ -423,9 +414,10 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         canvasGroup.alpha = alphaGoal;
     }
 
+    #region DEATH
+
     public void Die()
     {
-
         if (IsLocalPlayer)
         {
             if (PlayerRespawn.Instance.LocalPlayerHealthController == null)
@@ -434,16 +426,32 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             }
             this.isDead = true;
 
+            GetComponent<NetworkTransform>().PositionLerpSmoothing = false;
+
+            //disable all colliders on the player
+            foreach (Collider col in allColliders)
+            {
+                col.enabled = false;
+            }
+            this.IsColliderActive = false;
+
+            //Tell all copies of the object to also hide
+            PlayerDiedServerRpc(CurrentUnitHealth, PlayerNetObj.OwnerClientId);
+
             //hide boat: 
             boatModel.SetActive(false);
             boatEffect.SetActive(false);
 
-            this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+            
+
 
             //Make sure to Detach the player when dead 
             this.gameObject.GetComponent<SpringTugSystem>().Detach();
             this.gameObject.GetComponent<SpringTugSystem>().isDead = this.isDead;
 
+
+            //this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+            StartCoroutine(MovePlayerAfterDelay(2f));
 
             LevelVariableManager.Instance.GlobalPlayerRespawnController.TriggerDeath(CurrentUnitHealth);
             // Your death logic here...
@@ -453,6 +461,106 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
             Debug.Log($"{name} Cant die here not local player!");
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayerDiedServerRpc(int newHealth, ulong playerObjectId, ServerRpcParams rpcParams = default)
+    {
+        BroadcastPlayerDeathClientRpc(newHealth, playerObjectId);
+    }
+
+    [ClientRpc]
+    private void BroadcastPlayerDeathClientRpc(int newHealth, ulong playerObjectId)
+    {
+        if (playerObjectId == this.PlayerNetObj.OwnerClientId)
+        {
+            //disable all colliders on the player
+            foreach (Collider col in allColliders)
+            {
+                col.enabled = false;
+            }
+            this.IsColliderActive = false;
+
+            //hide boat: 
+            this.boatModel.SetActive(false);
+            this.boatEffect.SetActive(false);
+
+            //this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+            StartCoroutine(MovePlayerAfterDelay(1f));
+        }
+    }
+
+    //Respawn ----------------------------------------------
+
+    public void RespawnHealthSet(Transform respawnPos)
+    {
+        //if (!IsOwner) return;
+        this.isDead = false;
+        
+
+        this.gameObject.transform.position = respawnPos.position;
+
+        CurrentUnitHealth = MaxHealth;
+
+        //Enable all colliders on the player
+        // Start coroutine to delay collider enabling
+        StartCoroutine(EnableCollidersAfterDelay(2f, respawnPos.position));
+        //foreach (Collider col in allColliders)
+        //{
+        //    col.enabled = true;
+        //}
+
+        PlayerRespawnServerRpc(PlayerNetObj.OwnerClientId, respawnPos.position);
+
+        GetComponent<NetworkTransform>().PositionLerpSmoothing = true;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayerRespawnServerRpc(ulong playerObjectId, Vector3 respawnPos, ServerRpcParams rpcParams = default)
+    {
+        BroadcastPlayerRespawnClientRpc(playerObjectId, respawnPos);
+    }
+
+    [ClientRpc]
+    private void BroadcastPlayerRespawnClientRpc(ulong playerObjectId, Vector3 respawnPos)
+    {
+        if (playerObjectId == this.PlayerNetObj.OwnerClientId)
+        {
+            StartCoroutine(EnableCollidersAfterDelay(2f, respawnPos));
+        }
+    }
+
+    public IEnumerator EnableCollidersAfterDelay(float delay, Vector3 respawnPos)
+    {
+        yield return new WaitForSeconds(delay);
+
+        //while (this.transform.position.x <= respawnPos.x + 2f || this.transform.position.x >= respawnPos.x - 2f)
+        //{
+        //    yield return new WaitForSeconds(0.2f);
+        //}
+
+        // Enable all colliders on the player
+        foreach (Collider col in allColliders)
+        {
+            col.enabled = true;
+        }
+        this.IsColliderActive = true;
+
+        //Show boat: 
+        boatModel.SetActive(true);
+        boatEffect.SetActive(true);
+
+        tugSpringTugSystem.isDead = this.isDead;
+    }
+
+
+    private IEnumerator MovePlayerAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        this.gameObject.transform.position = LevelVariableManager.Instance.GlobalRespawnTempMovePoint.position;
+    }
+
+
+    #endregion
 
     //===============Not yet part of the game===============
 
