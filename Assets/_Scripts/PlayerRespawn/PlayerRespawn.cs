@@ -4,6 +4,8 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
+using UnityEditor.PackageManager;
+using System.Linq;
 
 public class PlayerRespawn : MonoBehaviour
 {
@@ -61,8 +63,20 @@ public class PlayerRespawn : MonoBehaviour
     {
         //LocalPlayerHealthController = this.gameObject.GetComponent<UnitHealthController>();
         deathTempPosition = LevelVariableManager.Instance.GlobalRespawnTempMovePoint;
+       
+        ////Fix the problem of every time a client quits and returns Index is x++ so it can exceed the total points max of 4 (0->3):
+        //int localID = (int)NetworkManager.Singleton.LocalClientId;
+        //if (localID >= 4)
+        //{
+        //    localID = 3;
+        //}
 
-        respawnPosition = listRespawnPosition[Random.Range(0, listRespawnPosition.Count)];  // default spawn
+        //// default spawn point is the local ID 
+        //respawnPosition = listRespawnPosition[localID];  
+        ////Bad because every player can get index 3 if they all quit enough lol
+
+        //Instead just get the local player Index in the connected clients list
+        this.respawnPosition = this.GetLocalPlayerIndex(LocalPlayerHealthController.PlayerNetObj.OwnerClientId);
 
         spectatorCamera.enabled = false;
         respawnUICanvas.SetActive(false);
@@ -168,19 +182,24 @@ public class PlayerRespawn : MonoBehaviour
         // Invoke ClientRpc to show UI/spectator for owner (using TargetClientIds):contentReference[oaicite:3]{index=3}
         ShowRespawnUI();
 
+        //Update the Respawn point
+        //RespawnPointManager.Instance.RespawnPointRequest();
+
         // Schedule actual respawn after delay
-        Invoke(nameof(Respawn), respawnDelay + 1);
+        Invoke(nameof(Respawn), respawnDelay);
     }
 
    
     // Server-side respawn: move player and restore health
     private void Respawn()
     {
-        //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
+        if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
 
         // Teleport to last checkpoint and reset health
-        respawnPosition = listRespawnPosition[Random.Range(0, listRespawnPosition.Count)];
-        respawnPosition = listRespawnPosition[0];
+        this.respawnPosition = this.GetLocalPlayerIndex(LocalPlayerHealthController.PlayerNetObj.OwnerClientId);
+        //respawnPosition = listRespawnPosition[Random.Range(0, listRespawnPosition.Count)];
+        //respawnPosition = RespawnPointManager.Instance.GetAvailableSpawnPointServerRpc(LocalPlayerHealthController.PlayerNetObj.OwnerClientId);
+        //respawnPosition = listRespawnPosition[0];
         //_localPlayerGameObject.transform.position = respawnPosition.position;
 
         //allow user to control the boat again 
@@ -207,9 +226,24 @@ public class PlayerRespawn : MonoBehaviour
 
     // Update the checkpoint/respawn position (called from client trigger)
 
-    public void UpdateSpawnPoint(Transform newPosition)
+    public void UpdateSpawnPoint(Vector3 newPosition)
     {
-        respawnPosition = newPosition;
+        respawnPosition.position = newPosition;
+    }
+
+    private Transform GetLocalPlayerIndex(ulong localClientId)
+    {
+        List<ulong> localConnectedPlayers = NetworkManager.Singleton.ConnectedClientsIds.ToList<ulong>();
+        for (int clientIndex = 0; clientIndex < localConnectedPlayers.Count; clientIndex++)
+        {
+            if (localClientId == localConnectedPlayers[clientIndex])
+            {
+                //stop if local player found set position to the index in the list
+                return listRespawnPosition[clientIndex];
+            }
+        }
+
+        return listRespawnPosition[0];
     }
 
 }

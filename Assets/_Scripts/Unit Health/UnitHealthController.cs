@@ -93,7 +93,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
 
     [Header("Colliders")]
-    [SerializeField] private Collider[] allColliders = new Collider[3]; // max 3 colliders 
+    [SerializeField] private Collider[] allColliders = new Collider[4]; // max 3 colliders 
     public bool IsColliderActive = true;
 
     private BoatInputActions controls;
@@ -169,6 +169,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
         //allColliders = this.GetComponentsInChildren<Collider>(); // <-- All the children colliders as well 
         allColliders = this.GetComponents<Collider>(); // just the colliders on this gameobject 
+        Debug.Log("Found " + allColliders.Length + " colliders.");
+        allColliders = this.GetComponentsInChildren<Collider>();
         Debug.Log("Found " + allColliders.Length + " colliders.");
 
 
@@ -509,6 +511,8 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         //    col.enabled = true;
         //}
 
+        
+
         PlayerRespawnServerRpc(PlayerNetObj.OwnerClientId, respawnPos.position);
 
         GetComponent<NetworkTransform>().PositionLerpSmoothing = true;
@@ -531,7 +535,11 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
 
     public IEnumerator EnableCollidersAfterDelay(float delay, Vector3 respawnPos)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(delay/2);
+        //Show boat: 
+        boatModel.SetActive(true);
+        boatEffect.SetActive(true);
+        yield return new WaitForSeconds(delay/2);
 
         //while (this.transform.position.x <= respawnPos.x + 2f || this.transform.position.x >= respawnPos.x - 2f)
         //{
@@ -545,9 +553,7 @@ public class UnitHealthController : NetworkBehaviour, IDamageable
         }
         this.IsColliderActive = true;
 
-        //Show boat: 
-        boatModel.SetActive(true);
-        boatEffect.SetActive(true);
+       
 
         tugSpringTugSystem.isDead = this.isDead;
     }
