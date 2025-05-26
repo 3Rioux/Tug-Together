@@ -12,7 +12,7 @@ public class Compass : MonoBehaviour
     [SerializeField] private float rotationSpeed = 5f;    // Smoothing factor
 
     //UI
-    [SerializeField] private TextMeshPro distanceText; // Text to show distance
+    [SerializeField] private TextMeshProUGUI distanceText; // Text to show distance
 
     //Private
     private Vector3 _targetDirection;                        // Save the direction of the target
@@ -22,6 +22,10 @@ public class Compass : MonoBehaviour
         if (LevelVariableManager.Instance != null)
         {
             target = LevelVariableManager.Instance.GlobalEndGameTrigger.transform;
+        }
+        else
+        {
+            Debug.LogWarning("LevelVariableManager instance not found. Please assign the target manually.");
         }
     }
 
@@ -38,11 +42,11 @@ public class Compass : MonoBehaviour
 
         // Apply rotation to the needle's Y-axis to point toward the target
         // Using Slerp for smooth rotation
-        Quaternion targetRotation = Quaternion.Euler(0, angle, 0);
+        Quaternion targetRotation = Quaternion.Euler(0, 0,angle);
         needle.localRotation = Quaternion.Slerp(needle.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
 
         // Update distance text
         float distance = Vector3.Distance(player.position, target.position);
-        distanceText.text = $"{distance:F1}m";
+        distanceText.text = $"{distance:F0} m";
     }
 }

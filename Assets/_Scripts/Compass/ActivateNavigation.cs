@@ -1,18 +1,22 @@
-using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using DG.Tweening;
-using System.Collections;
 
 /// <summary>
 /// This script will activate/Deactivate the Navigation components (Compass, Map...)
-/// with smooth animations using DoTween
+/// with smooth animations using DoTween and make them face the camera
 /// </summary>
 public class ActivateNavigation : NetworkBehaviour
 {
     [SerializeField] private Transform navigationParent;
-    [SerializeField] private CinemachineCamera navCamera;
     [SerializeField] private Canvas worldSpaceCanvas;
+    
+    [Header("Billboard Settings")]
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private bool lockYAxis = true;
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private bool useSmoothing = true;
+    [SerializeField] private bool useLateUpdate = true;
 
     [Header("Compass Components")]
     [SerializeField] private Transform compassBase;       // The base of the compass
@@ -37,6 +41,10 @@ public class ActivateNavigation : NetworkBehaviour
 
     private void Awake()
     {
+        // Find main camera if not assigned
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+            
         // Store original scales before setting to zero
         navigationOriginalScale = navigationParent.localScale;
         if (compassBase != null)
@@ -77,8 +85,6 @@ public class ActivateNavigation : NetworkBehaviour
             worldSpaceCanvas.gameObject.SetActive(false);
         }
 
-        navCamera.gameObject.SetActive(false);
-
         controls = new BoatInputActions();
 
         if (isToggle)
@@ -89,6 +95,77 @@ public class ActivateNavigation : NetworkBehaviour
         {
             controls.Boat.ToggleMap.performed += ctx => HoldNavigation(true);
             controls.Boat.ToggleMap.canceled += _ => HoldNavigation(false);
+        }
+    }
+
+    private void Update()
+    {
+        // Only handle rotation here if not using LateUpdate
+        if (!useLateUpdate && navigationParent.gameObject.activeInHierarchy && mainCamera != null)
+        {
+            RotateToFaceCamera();
+        }
+    }
+    
+    private void LateUpdate()
+    {
+        // Handle rotation in LateUpdate for smoother following
+        if (useLateUpdate && navigationParent.gameObject.activeInHierarchy && mainCamera != null)
+        {
+            RotateToFaceCamera();
+        }
+    }
+
+     /// <summary>
+    /// Makes the navigation UI face the camera like a billboard
+    /// </summary>
+    private void RotateToFaceCamera()
+    {
+        if (lockYAxis)
+        {
+            // Y-axis only rotation (classic billboard)
+            Vector3 directionToCamera = mainCamera.transform.position - navigationParent.position;
+            directionToCamera.y = 0; // Remove vertical component to only rotate on Y axis
+
+            if (directionToCamera != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(-directionToCamera);
+                
+                if (useSmoothing)
+                {
+                    navigationParent.rotation = Quaternion.Slerp(
+                        navigationParent.rotation,
+                        targetRotation,
+                        rotationSpeed * Time.deltaTime);
+                }
+                else
+                {
+                    // Direct rotation without smoothing
+                    navigationParent.rotation = targetRotation;
+                }
+            }
+        }
+        else
+        {
+            // Full billboard rotation
+            if (useSmoothing)
+            {
+                // Get direction to camera
+                Vector3 directionToCamera = mainCamera.transform.position - navigationParent.position;
+                if (directionToCamera != Vector3.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(-directionToCamera);
+                    navigationParent.rotation = Quaternion.Slerp(
+                        navigationParent.rotation,
+                        targetRotation,
+                        rotationSpeed * Time.deltaTime);
+                }
+            }
+            else
+            {
+                // Direct look at camera
+                navigationParent.forward = -(mainCamera.transform.position - navigationParent.position).normalized;
+            }
         }
     }
 
@@ -147,7 +224,6 @@ private void ShowNavigationWithAnimation()
 
     // Enable objects
     navigationParent.gameObject.SetActive(true);
-    navCamera.gameObject.SetActive(true);
 
     // Create animation sequence
     animationSequence = DOTween.Sequence();
@@ -161,45 +237,45 @@ private void ShowNavigationWithAnimation()
     {
         // 2. Start compass base animation
         compassBase.localScale = Vector3.zero;
-        
+
         // Calculate base animation duration
         float baseAnimDuration = animationDuration * 1.2f;
-        
+
         // Insert base animation at the start
-        animationSequence.Insert(animationDuration * 0.2f, 
+        animationSequence.Insert(animationDuration * 0.2f,
             compassBase.DOScale(compassBaseOriginalScale, baseAnimDuration)
             .SetEase(appearEase));
-        
+
         // 3. Calculate when to start arrows (when base is at ~80%)
         float arrowsStartTime = animationDuration * 0.2f + (baseAnimDuration * 0.7f);
-        
+
         // 4. Then animate each arrow with overlap
         if (compassArrows != null && compassArrows.Length > 0)
         {
             float arrowAnimDuration = animationDuration * 0.7f;
             float totalArrowsTime = arrowAnimDuration + (compassArrows.Length - 1) * arrowDelay;
-            
+
             for (int i = 0; i < compassArrows.Length; i++)
             {
                 if (compassArrows[i] != null)
                 {
                     float thisArrowStartTime = arrowsStartTime + (i * arrowDelay);
                     compassArrows[i].localScale = Vector3.zero;
-                    
-                    animationSequence.Insert(thisArrowStartTime, 
+
+                    animationSequence.Insert(thisArrowStartTime,
                         compassArrows[i].DOScale(compassArrowsOriginalScales[i], arrowAnimDuration)
                         .SetEase(appearEase));
                 }
             }
-            
+
             // 5. Start canvas animation when last arrow is at ~80% (if canvas exists)
             if (worldSpaceCanvas != null)
             {
                 float canvasStartTime = arrowsStartTime + totalArrowsTime * 0.8f;
-                
+
                 worldSpaceCanvas.gameObject.SetActive(true);
                 worldSpaceCanvas.transform.localScale = Vector3.zero;
-                
+
                 animationSequence.Insert(canvasStartTime,
                     worldSpaceCanvas.transform.DOScale(canvasOriginalScale, animationDuration)
                     .SetEase(appearEase));
@@ -208,10 +284,10 @@ private void ShowNavigationWithAnimation()
         else if (worldSpaceCanvas != null) // If no arrows, start canvas after base
         {
             float canvasStartTime = arrowsStartTime;
-            
+
             worldSpaceCanvas.gameObject.SetActive(true);
             worldSpaceCanvas.transform.localScale = Vector3.zero;
-            
+
             animationSequence.Insert(canvasStartTime,
                 worldSpaceCanvas.transform.DOScale(canvasOriginalScale, animationDuration)
                 .SetEase(appearEase));
@@ -221,10 +297,16 @@ private void ShowNavigationWithAnimation()
     {
         worldSpaceCanvas.gameObject.SetActive(true);
         worldSpaceCanvas.transform.localScale = Vector3.zero;
-        
+
         animationSequence.Insert(animationDuration * 0.8f,
             worldSpaceCanvas.transform.DOScale(canvasOriginalScale, animationDuration)
             .SetEase(appearEase));
+    }
+    
+    // Immediately align to camera when shown
+    if (mainCamera != null)
+    {
+        RotateToFaceCamera();
     }
 }
 
@@ -251,7 +333,7 @@ private void HideNavigationWithAnimation()
     if (compassArrows != null && compassArrows.Length > 0)
     {
         float arrowAnimDuration = animationDuration * 0.5f;
-        
+
         for (int i = compassArrows.Length - 1; i >= 0; i--)
         {
             if (compassArrows[i] != null)
@@ -262,7 +344,7 @@ private void HideNavigationWithAnimation()
                     .SetEase(disappearEase));
             }
         }
-        
+
         // Add time but account for overlap
         totalDuration += arrowDelay * 0.5f * (compassArrows.Length - 1) + arrowAnimDuration * 0.6f;
     }
@@ -273,7 +355,7 @@ private void HideNavigationWithAnimation()
         animationSequence.Insert(totalDuration,
             compassBase.DOScale(Vector3.zero, animationDuration)
             .SetEase(disappearEase));
-            
+
         totalDuration += animationDuration * 0.6f;
     }
 
@@ -283,7 +365,6 @@ private void HideNavigationWithAnimation()
         .SetEase(disappearEase))
         .OnComplete(() => {
             navigationParent.gameObject.SetActive(false);
-            navCamera.gameObject.SetActive(false);
             if (worldSpaceCanvas != null)
                 worldSpaceCanvas.gameObject.SetActive(false);
         });
