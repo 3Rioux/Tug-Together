@@ -908,8 +908,6 @@ private void TransitionCrosshair(bool toAttached)
 
             playerNet.GetComponent<SpringTugSystem>().Detach();
             playerNet.GetComponent<SpringTugSystem>().visualRope.gameObject.SetActive(false);
-
-            HideRopeClientRpc(playerNet);
         }
     }
 
@@ -959,6 +957,12 @@ private void TransitionCrosshair(bool toAttached)
     //===================================================END SHOW ROPE ON ALL CLIENT INSTANCES================================================================================
 
     //===================================================START HIDE ROPE ON ALL CLIENT INSTANCES================================================================================
+    [ServerRpc]
+    public void DetachRopeServerRpc(NetworkObjectReference ropeOwnerRef)
+    {
+        HideRopeClientRpc(ropeOwnerRef);
+    }
+
     [ClientRpc]
     void HideRopeClientRpc(NetworkObjectReference ropeOwnerRef)
     {
@@ -1174,6 +1178,9 @@ private void TransitionCrosshair(bool toAttached)
         AudioManager.Instance.StopLoop();
 
         boatHook.SetActive(true); // make sure it active 
+
+        
+        DetachRopeServerRpc(NetworkObject);
     }
 
     #endregion
