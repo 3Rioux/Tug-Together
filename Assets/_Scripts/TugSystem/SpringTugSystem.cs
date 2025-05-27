@@ -116,7 +116,9 @@ public class SpringTugSystem : NetworkBehaviour
 #endif
         }
     }
-#endregion
+
+    public float DistanceToTowedObject { get => distanceToTowedObject; set => distanceToTowedObject = value; }
+    #endregion
 
 
     private void Awake()
@@ -405,10 +407,10 @@ private void TransitionCrosshair(bool toAttached)
         
         
         //Visual Rope Length
-        distanceToTowedObject = Vector3.Distance(transform.position, towedObject.position);
+        DistanceToTowedObject = Vector3.Distance(transform.position, towedObject.position + new Vector3(0,0,12f)); // + 12 z because the center is not the center of the boat 
 
         //Display the distance between the Player and the Barge (For tweeking sprint settings)
-        if (distanceText != null) distanceText.text = distanceToTowedObject.ToString() + " m";
+        if (distanceText != null) distanceText.text = DistanceToTowedObject.ToString() + " m";
 
         // ====== 
         // ===Hooking Mechanic Start=== 
@@ -446,7 +448,7 @@ private void TransitionCrosshair(bool toAttached)
             //targetAttachPoint.forward = Camera.main.transform.position;//  aimDirection - Camera.main.transform.position;// Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 20.0f);
 
 
-            if (distanceToTowedObject <= maxTowDistance && !isAttached)
+            if (DistanceToTowedObject <= maxTowDistance && !isAttached)
             {
                 //Logic to determine the closest hook to the camera center 
                 FindVisibleHooks();
@@ -455,7 +457,7 @@ private void TransitionCrosshair(bool toAttached)
                 SelectClosestVisibleHook();
 
 
-                if (!isAttached && visibleHooks.Count > 0)
+                if (!isAttached && visibleHooks.Count > 0 && IsOwner)
                 {
                     //draw a line 
                     lineRenderer.enabled = true;
@@ -505,7 +507,7 @@ private void TransitionCrosshair(bool toAttached)
         }
 
         //Auto Mode (Only active while close)
-        if (distanceToTowedObject <= maxTowDistance) 
+        if (DistanceToTowedObject <= maxTowDistance) 
         {
 
             
@@ -517,7 +519,7 @@ private void TransitionCrosshair(bool toAttached)
                 //aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
 
                 //only draw the line if not already attached
-                if (!isAttached)
+                if (!isAttached && IsOwner)
                 {
                     lineRenderer.enabled = true;
                     //draw a line 
@@ -672,7 +674,7 @@ private void TransitionCrosshair(bool toAttached)
     private void OnAimTriggered(InputAction.CallbackContext context)
     {
         //check if we are close enough to hook to the barge 
-        if (distanceToTowedObject > maxTowDistance)
+        if (DistanceToTowedObject > maxTowDistance)
         {
             //aimCamera.enabled = false;
             isAimMode = false; //jsut to be safe 
@@ -906,6 +908,8 @@ private void TransitionCrosshair(bool toAttached)
 
             playerNet.GetComponent<SpringTugSystem>().Detach();
             playerNet.GetComponent<SpringTugSystem>().visualRope.gameObject.SetActive(false);
+
+            HideRopeClientRpc(playerNet);
         }
     }
 
@@ -954,6 +958,26 @@ private void TransitionCrosshair(bool toAttached)
 
     //===================================================END SHOW ROPE ON ALL CLIENT INSTANCES================================================================================
 
+    //===================================================START HIDE ROPE ON ALL CLIENT INSTANCES================================================================================
+    [ClientRpc]
+    void HideRopeClientRpc(NetworkObjectReference ropeOwnerRef)
+    {
+        Debug.Log($"==={ropeOwnerRef}=== Attach Rope Client");
+
+        if (ropeOwnerRef.TryGet(out NetworkObject playerNet))
+        {
+            SpringTugSystem pTugSystem = playerNet.GetComponent<SpringTugSystem>();
+
+            var towPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
+
+            //// Set endpoint and activate the rope
+            //pTugSystem.VisualRope.EndPoint = towPoints[attachPositionIndex];
+            pTugSystem.VisualRope.gameObject.SetActive(false);
+        }
+    }
+
+    //===================================================END HIDE ROPE ON ALL CLIENT INSTANCES================================================================================
+
     #endregion
 
     #region Hook-Attach/Detach
@@ -993,7 +1017,7 @@ private void TransitionCrosshair(bool toAttached)
             Destroy(springJoint);
 
         //Check if the boat is close enough to attach to the towedObject:
-        if (distanceToTowedObject <= maxTowDistance)
+        if (DistanceToTowedObject <= maxTowDistance)
         {
             
             TransitionCrosshair(true);  // Transition to attached crosshair
