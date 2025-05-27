@@ -878,6 +878,7 @@ private void TransitionCrosshair(bool toAttached)
             spring.spring = springAmount;
             spring.damper = 1;
             spring.maxDistance = springMaxDistance;
+            spring.enableCollision = true;
         }
     }
 
@@ -1043,6 +1044,7 @@ private void TransitionCrosshair(bool toAttached)
             springJoint.spring = springAmount;
             springJoint.damper = 1;
             springJoint.maxDistance = springMaxDistance;
+            springJoint.enableCollision = true;
 
 
             //Set attached state 
