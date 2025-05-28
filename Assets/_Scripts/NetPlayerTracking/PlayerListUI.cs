@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using TMPro;
 using Unity.Services.Relay.Models;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 
 /// <summary>
-/// Basic player UI that shows all players’ names, health, and scores in a scrollable UI.
+/// Basic player UI that shows all playersï¿½ names, health, and scores in a scrollable UI.
 /// </summary>
 public class PlayerListUI : MonoBehaviour
 {

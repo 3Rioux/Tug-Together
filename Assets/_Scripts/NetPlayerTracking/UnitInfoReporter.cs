@@ -1,6 +1,5 @@
 using System;
 using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class UnitInfoReporter : NetworkBehaviour

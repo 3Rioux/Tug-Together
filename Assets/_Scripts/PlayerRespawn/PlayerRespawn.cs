@@ -4,7 +4,6 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
-using UnityEditor.PackageManager;
 using System.Linq;
 using UnityEngine.Rendering.HighDefinition;
 
@@ -39,7 +38,7 @@ public class PlayerRespawn : MonoBehaviour
     [Header("References")]
     public GameObject playerModel;                                      // the root/model GameObject to hide
     // public MonoBehaviour playerController;                           // the input/movement script to disable
-    //public Camera playerCamera;                                       // the player’s main camera
+    //public Camera playerCamera;                                       // the playerï¿½s main camera
     [SerializeField] private CinemachineCamera spectatorCamera;         // a spectator/free camera
     [SerializeField] private GameObject respawnUICanvas;                // UI prefab with a countdown TextMeshProUGUI
     [SerializeField] private TextMeshProUGUI countdownText;
