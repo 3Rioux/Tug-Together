@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using DG.Tweening;
+using Unity.Netcode;
 
 public class CreditsController : MonoBehaviour
 {
@@ -195,7 +196,8 @@ public class CreditsController : MonoBehaviour
             skipButton = null;
             thankYouCanvasGroup = null;
         }
-
+        
+        NetworkManager.Singleton.Shutdown();
         DOTween.KillAll();
     }
 }
