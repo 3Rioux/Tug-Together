@@ -72,10 +72,10 @@ MonoBehaviour:
     m_Value: 55261.973
   aerosolDensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.008
   aerosolTint:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_Value: {r: 0.5568628, g: 0.74509805, b: 0.8000001, a: 1}
   aerosolMaximumAltitude:
     m_OverrideState: 0
     m_Value: 8289.296
@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Value: 20000
   groundTint:
     m_OverrideState: 1
-    m_Value: {r: 0.16533832, g: 0.16533832, b: 0.16533832, a: 1}
+    m_Value: {r: 0.16533822, g: 0.16533822, b: 0.16533822, a: 1}
   groundColorTexture:
     m_OverrideState: 0
     m_Value: {fileID: 0}
@@ -125,13 +125,13 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 1
   horizonTint:
-    m_OverrideState: 0
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_OverrideState: 1
+    m_Value: {r: 0.6179246, g: 0.9811126, b: 1, a: 1}
   zenithTint:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   horizonZenithShift:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   m_SkyVersion: 2
   m_ObsoleteEarthPreset:
@@ -192,7 +192,7 @@ MonoBehaviour:
     m_Value: {r: 0.8307701, g: 0.98225087, b: 1, a: 1}
   tint:
     m_OverrideState: 1
-    m_Value: {r: 1.5460163, g: 1.743142, b: 2.3245068, a: 1}
+    m_Value: {r: 1.1325952, g: 2.1828988, b: 2.468827, a: 1}
   maxFogDistance:
     m_OverrideState: 1
     m_Value: 5000
@@ -213,7 +213,7 @@ MonoBehaviour:
     m_Value: 138.78
   meanFreePath:
     m_OverrideState: 1
-    m_Value: 3000
+    m_Value: 1500
   enableVolumetricFog:
     m_OverrideState: 1
     m_Value: 1
@@ -856,7 +856,7 @@ MonoBehaviour:
   active: 1
   opacity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   upperHemisphereOnly:
     m_OverrideState: 1
     m_Value: 1
@@ -867,7 +867,7 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 2048
   shadowMultiplier:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   shadowTint:
     m_OverrideState: 0
@@ -934,7 +934,7 @@ MonoBehaviour:
       m_Value: 6
     thickness:
       m_OverrideState: 1
-      m_Value: 1
+      m_Value: 0.5
     ambientProbeDimmer:
       m_OverrideState: 0
       m_Value: 1

@@ -431,7 +431,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 73c176f402d2c2f4d929aa5da7585d17, type: 2}
+  - {fileID: 2100000, guid: 3ee3035a607b9584dba8387918d4c82e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -995,6 +995,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 96786b6e88c0d80478276440d0161cff, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8293856577463696651}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 96786b6e88c0d80478276440d0161cff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4297770607887447424}
   m_SourcePrefab: {fileID: 100100000, guid: 96786b6e88c0d80478276440d0161cff, type: 3}
 --- !u!23 &142455776843265337 stripped
 MeshRenderer:
@@ -1118,7 +1121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   floatingOffset:
     x: 0
-    y: -1.5
+    y: -2
     z: 0
   enableDamping: 0
   dampingTime: 0.2
@@ -1129,6 +1132,29 @@ MonoBehaviour:
   orientationSmoothSpeed: 5
   pitchAngleMultiplier: 2
   rollAngleMultiplier: 3
+--- !u!114 &4297770607887447424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2439346726546626334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0050ecd2d32680645848edd91f37442d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleMode: 1
+  regionSize: {x: 6, y: 6}
+  amplitude: 0.5
+  surfaceFoamDimmer: 1
+  deepFoamDimmer: 1
+  resolution: {x: 256, y: 256}
+  updateMode: 1
+  material: {fileID: -876546973899608171, guid: 7e2c0d424490bfc4698c37245b8c63ed, type: 3}
+  type: 3
+  texture: {fileID: 0}
+  m_Version: 2
 --- !u!4 &3067404624024735140 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 96786b6e88c0d80478276440d0161cff, type: 3}
