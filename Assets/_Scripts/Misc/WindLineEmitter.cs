@@ -264,47 +264,35 @@ public class WindLineEmitter : MonoBehaviour
         return transform.TransformPoint(boxCenter + randomPos);
     }
     
-    private void OnDrawGizmos()
-    {
-        if (triggerBox == null) triggerBox = GetComponent<BoxCollider>();
-        if (triggerBox == null) return;
+private void OnDrawGizmos()
+{
+    if (triggerBox == null) triggerBox = GetComponent<BoxCollider>();
+    if (triggerBox == null) return;
 
-        // Draw the box
-        Gizmos.color = new Color(0, 0.8f, 1f, 0.3f);
-        Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawCube(triggerBox.center, triggerBox.size);
-        
-        // Draw arrow for wind direction
-        Vector3 center = transform.TransformPoint(triggerBox.center);
-        
-        // Determine which direction to draw
-        Vector3 directionToShow;
-        if (Application.isPlaying && useTargetDirection && windDirection.magnitude > 0.01f)
-        {
-            directionToShow = windDirection;
-        }
-        else
-        {
-            directionToShow = transform.forward;
-        }
-        
-        Vector3 arrowEnd = center + directionToShow * 25f;
+    // Get center point
+    Vector3 center = transform.TransformPoint(triggerBox.center);
+    
+    Vector3 directionToShow = transform.right;
 
-        // Main arrow line
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(center, arrowEnd);
+    // Make a bigger arrow
+    float arrowLength = 30f;
+    Vector3 arrowEnd = center + directionToShow * arrowLength;
 
-        // Arrow head
-        float arrowHeadSize = 6f;
-        Vector3 right = transform.right * arrowHeadSize;
-        Vector3 up = transform.up * arrowHeadSize;
-        Vector3 back = -directionToShow.normalized * arrowHeadSize;
+    // Main arrow line
+    Gizmos.color = new Color(1, 1f, 1f, 0.8f); // Blue for the arrow
+    Gizmos.DrawLine(center, arrowEnd);
 
-        Gizmos.DrawLine(arrowEnd, arrowEnd + back + up);
-        Gizmos.DrawLine(arrowEnd, arrowEnd + back - up);
-        Gizmos.DrawLine(arrowEnd, arrowEnd + back + right);
-        Gizmos.DrawLine(arrowEnd, arrowEnd + back - right);
-    }
+    // Arrow head - correctly aligned with the direction
+    float arrowHeadSize = 8f;
+    Vector3 right = Vector3.Cross(directionToShow, Vector3.up).normalized * arrowHeadSize;
+    Vector3 up = Vector3.Cross(right, directionToShow).normalized * arrowHeadSize;
+    Vector3 back = -directionToShow.normalized * arrowHeadSize;
+
+    Gizmos.DrawLine(arrowEnd, arrowEnd + back + right);
+    Gizmos.DrawLine(arrowEnd, arrowEnd + back - right);
+    Gizmos.DrawLine(arrowEnd, arrowEnd + back + up);
+    Gizmos.DrawLine(arrowEnd, arrowEnd + back - up);
+}
     
     private void OnDestroy()
     {
