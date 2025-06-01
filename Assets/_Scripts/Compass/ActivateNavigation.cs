@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 
 /// <summary>
 /// This script will activate/Deactivate the Navigation components (Compass, Map...)
@@ -21,6 +22,9 @@ public class ActivateNavigation : NetworkBehaviour
     [Header("Compass Components")]
     [SerializeField] private Transform compassBase;       // The base of the compass
     [SerializeField] private Transform[] compassArrows;   // Array of compass arrow elements
+
+    [Header("Clipboard Mission Description")]
+    [SerializeField] private TextMeshProUGUI missionText; // Text to input the current Goal for the players 
 
     [Header("Animation Settings")]
     [SerializeField] private float animationDuration = 0.3f;
@@ -172,11 +176,13 @@ public class ActivateNavigation : NetworkBehaviour
     void OnEnable()
     {
         controls.Enable();
+        LevelProgressionManager.OnMissionGoalUpdated += UpdateMissionText;
     }
 
     void OnDisable()
     {
         controls.Disable();
+        LevelProgressionManager.OnMissionGoalUpdated -= UpdateMissionText;
     }
 
     /// <summary>
@@ -215,7 +221,16 @@ public class ActivateNavigation : NetworkBehaviour
         }
     }
 
-private void ShowNavigationWithAnimation()
+    /// <summary>
+    /// Update the Message in the clipboard when the OnMissionGoalUpdated is Invoked
+    /// </summary>
+    /// <param name="newGoal"></param>
+    private void UpdateMissionText(string newGoal)
+    {
+        missionText.text = newGoal;
+    }
+
+    private void ShowNavigationWithAnimation()
 {
     // Kill any running animations
     DOTween.Kill(navigationParent);

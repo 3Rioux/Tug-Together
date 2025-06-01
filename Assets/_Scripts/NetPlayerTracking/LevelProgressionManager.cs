@@ -44,6 +44,7 @@ public class LevelProgressionManager : NetworkBehaviour
 
     public void AdvanceToNextGoal()
     {
+        Debug.Log("AdvanceToNextGoal Triggered");
         if (!IsServer) return;
 
         if (currentGoalIndex.Value < missionGoals.Count - 1)
