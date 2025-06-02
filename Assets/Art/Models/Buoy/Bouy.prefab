@@ -696,7 +696,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 063e33d9ad82f40158ed5f0ebc843a2c, type: 2}
+  - {fileID: 2100000, guid: da0a4be568db21741b88cdacf29fe806, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1065,9 +1065,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2439346726546626334}
   serializedVersion: 4
-  m_Mass: 100
-  m_Drag: 5
-  m_AngularDrag: 5
+  m_Mass: 200
+  m_Drag: 4
+  m_AngularDrag: 4
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1123,7 +1123,7 @@ MonoBehaviour:
     x: 0
     y: -2
     z: 0
-  enableDamping: 0
+  enableDamping: 1
   dampingTime: 0.2
   targetSurface: {fileID: 0}
   includeDeformation: 1
