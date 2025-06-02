@@ -735,7 +735,7 @@ private void TransitionCrosshair(bool toAttached)
             //Debug.DrawRay(camPosition, direction, Color.red, 1f);
 
             // if(Physics.Linecast(camPosition, direction, out hit))
-            if (Physics.Raycast(camPosition, direction, out hit, maxTowDistance + 5f, aimColliderLayerMask))
+            if (Physics.Raycast(camPosition, direction, out hit, (maxTowDistance * 2f), aimColliderLayerMask))
             {
                 Debug.DrawRay(camPosition, direction, Color.magenta, 1f);
                 if (hit.collider != null)

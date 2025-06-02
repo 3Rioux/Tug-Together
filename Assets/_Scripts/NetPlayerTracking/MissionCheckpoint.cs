@@ -19,4 +19,5 @@ public class MissionCheckpoint : MonoBehaviour
             _isTriggered = true;
         }
     }
+   
 }
