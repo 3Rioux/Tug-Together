@@ -55,8 +55,11 @@ Material:
     - _AlphaDstBlend: 0
     - _AlphaSrcBlend: 1
     - _Ambient_Occlusion: 1
+    - _Blend: 0
+    - _BlendHeight: 1
     - _BlendMode: 0
-    - _CameraDissolve: 0
+    - _BlendSmoothness: 1
+    - _CameraDissolve: 1
     - _ConservativeDepthOffsetEnable: 0
     - _Contrast: 1
     - _CullMode: 2
@@ -119,6 +122,7 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
+    - _BlendColor: {r: 1, g: 1, b: 1, a: 0}
     - _Bottom_Color: {r: 0.333, g: 0.333, b: 0.333, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
