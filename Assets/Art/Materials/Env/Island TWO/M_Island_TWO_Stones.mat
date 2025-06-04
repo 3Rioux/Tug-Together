@@ -67,7 +67,7 @@ Material:
     - _DepthOffsetEnable: 0
     - _DoubleSidedEnable: 0
     - _DoubleSidedGIMode: 0
-    - _DoubleSidedNormalMode: 2
+    - _DoubleSidedNormalMode: 0
     - _DstBlend: 0
     - _DstBlend2: 0
     - _EnableBlendModePreserveSpecularLighting: 1
@@ -92,7 +92,9 @@ Material:
     - _RequireSplitLighting: 0
     - _Rotate: 0
     - _Rotate90: 0
+    - _Size: 10
     - _Smoothness: 0
+    - _Speed: 5
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 8
@@ -116,6 +118,10 @@ Material:
     - _TransparentZWrite: 1
     - _UseShadowThreshold: 0
     - _UseTexture: 0
+    - _Wiggle: 0.01
+    - _Wind: 0
+    - _WindHeight: 0
+    - _WindHeightSmoothness: 0
     - _WorldHeight: 1
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 3
@@ -124,7 +130,7 @@ Material:
     m_Colors:
     - _BlendColor: {r: 0.79607844, g: 0.57254905, b: 0.31764707, a: 0}
     - _Bottom_Color: {r: 0.233, g: 0.17792727, b: 0.112263635, a: 0}
-    - _DoubleSidedConstants: {r: 1, g: 1, b: 1, a: 0}
+    - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _Top_Color: {r: 0.78039217, g: 0.6658898, b: 0.51115686, a: 1}
   m_BuildTextureStacks: []
