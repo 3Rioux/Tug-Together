@@ -43,12 +43,12 @@ LODGroup:
   m_GameObject: {fileID: 103806}
   serializedVersion: 2
   m_LocalReferencePoint: {x: -0.000010073185, y: 2.4667401, z: 0.0000076293945}
-  m_Size: 18.89
+  m_Size: 4.5
   m_FadeMode: 1
   m_AnimateCrossFading: 1
   m_LastLODIsBillboard: 0
   m_LODs:
-  - screenRelativeHeight: 0.19610539
+  - screenRelativeHeight: 0.04033882
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 3945030005918420975}
@@ -114,11 +114,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   windDirection: {x: 35, y: 0, z: 25}
-  windSpeed: 1
+  windSpeed: 2
   windStrength: 1
   windFrequency: 1
   damping: 0.1
-  rotationStrength: 1
+  rotationStrength: 1.5
   rotationAxis: {x: 35, y: 0, z: 35}
   usePositionEffect: 0
 --- !u!23 &3945030005918420975
@@ -276,7 +276,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 49af6cf0921655247be05681805b7737, type: 2}
+  - {fileID: 2100000, guid: 90912c21fecfdc442ace50bdcb6576fb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

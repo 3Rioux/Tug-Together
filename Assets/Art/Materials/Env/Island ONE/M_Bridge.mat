@@ -7,21 +7,19 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Trees 1
+  m_Name: M_Bridge
   m_Shader: {fileID: -6465566751694194690, guid: ae3aa292c03d7434c82c3ab914457d12, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ALPHATEST_ON
   - _DISABLE_SSR_TRANSPARENT
   m_InvalidKeywords: []
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2475
+  m_CustomRenderQueue: 2225
   stringTagMap:
     MotionVector: User
-    RenderType: TransparentCutout
   disabledShaderPasses:
   - TransparentDepthPrepass
   - TransparentDepthPostpass
@@ -51,7 +49,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _AlphaCutoffEnable: 1
+    - _AlphaCutoffEnable: 0
     - _AlphaDstBlend: 0
     - _AlphaSrcBlend: 1
     - _Ambient_Occlusion: 1
@@ -59,7 +57,7 @@ Material:
     - _BlendHeight: 1
     - _BlendMode: 0
     - _BlendSmoothness: 1
-    - _CameraDissolve: 1
+    - _CameraDissolve: 0
     - _ConservativeDepthOffsetEnable: 0
     - _Contrast: 1
     - _CullMode: 2
@@ -118,7 +116,7 @@ Material:
     - _UseTexture: 1
     - _WorldHeight: 0
     - _ZTestDepthEqualForOpaque: 3
-    - _ZTestGBuffer: 3
+    - _ZTestGBuffer: 4
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
