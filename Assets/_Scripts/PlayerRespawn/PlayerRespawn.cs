@@ -87,7 +87,7 @@ public class PlayerRespawn : MonoBehaviour
         //Instead just get the local player Index in the connected clients list
         this.respawnPosition = this.GetLocalPlayerIndex(LocalPlayerHealthController.PlayerNetObj.OwnerClientId);
 
-        spectatorCamera.enabled = false;
+        spectatorCamera.gameObject.SetActive(false);
         respawnUICanvas.SetActive(false);
 
         //// Ensure spectator camera is off initially (on client)
@@ -132,6 +132,8 @@ public class PlayerRespawn : MonoBehaviour
         // Only the owning client executes this block
         //if (!LocalPlayerHealthController.PlayerNetObj.IsOwner) return;
 
+        Debug.Log("Show Respawn UI");
+
         // Hide player visuals and disable input locally
         //playerModel.SetActive(false);
         _tugboatMovement.SetControlEnabled(false);
@@ -141,6 +143,7 @@ public class PlayerRespawn : MonoBehaviour
         //playerCamera.enabled = false;
         //spectatorCamera.transform = cameraDefaultLocation;
         spectatorCamera.enabled = true;
+        spectatorCamera.gameObject.SetActive(true);
 
         // Instantiate and show respawn UI (with a TextMeshPro countdown)
         //respawnUI = Instantiate(respawnUICanvas);
@@ -166,6 +169,9 @@ public class PlayerRespawn : MonoBehaviour
 
         // Switch back to player camera
         spectatorCamera.enabled = false;
+        spectatorCamera.gameObject.SetActive(false);
+
+
         //playerCamera.enabled = true;
 
         // Re-enable player visuals and input locally
@@ -187,13 +193,17 @@ public class PlayerRespawn : MonoBehaviour
             remaining -= 1f;
         }
         countdownText.text = "Respawning...";
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
+
+        //allow user to control the boat again 
+        _tugboatMovement.SetControlEnabled(true);
     }
 
 
      // Server-side death handling: disable input and show UI on client
     private void HandleDeath()
     {
+        Debug.Log("Handle Death");
         // Invoke ClientRpc to show UI/spectator for owner (using TargetClientIds):contentReference[oaicite:3]{index=3}
         ShowRespawnUI();
 
@@ -217,8 +227,8 @@ public class PlayerRespawn : MonoBehaviour
         //respawnPosition = listRespawnPosition[0];
         //_localPlayerGameObject.transform.position = respawnPosition.position;
 
-        //allow user to control the boat again 
-        _tugboatMovement.SetControlEnabled(true);
+        ////allow user to control the boat again 
+        //_tugboatMovement.SetControlEnabled(true);
 
         // LocalPlayerHealthController.HealServerRpc(LocalPlayerHealthController.MaxHealth);
         //LocalPlayerHealthController.CurrentUnitHeath = LocalPlayerHealthController.MaxHealth;
@@ -229,6 +239,8 @@ public class PlayerRespawn : MonoBehaviour
 
         // Notify client to hide UI and re-enable player view
         HideRespawnUI();
+
+       
     }
 
 

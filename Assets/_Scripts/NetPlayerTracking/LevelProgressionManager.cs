@@ -1,10 +1,15 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class LevelProgressionManager : NetworkBehaviour
 {
     public static LevelProgressionManager Instance;
+
+    [SerializeField] private GameObject uiNotificationPopup;//store the exclamation mark GObj in local scene 
+    [SerializeField] private UIPulseBreath uiNotificationPopupEffect;  
 
     [Tooltip("Stores the Levels Goals Messages")]
     [SerializeField] private List<string> missionGoals = new();
@@ -28,12 +33,17 @@ public class LevelProgressionManager : NetworkBehaviour
     public static event MissionGoalUpdated OnMissionGoalUpdated;
 
 
+    private BoatInputActions controls;
+
     private void Awake()
     {
         if (Instance == null)
             Instance = this;
         else
             Destroy(gameObject);
+
+        controls = new BoatInputActions();
+        controls.Boat.ToggleMap.performed += ctx => HideNotification();
     }
 
     public override void OnNetworkSpawn()
@@ -47,10 +57,21 @@ public class LevelProgressionManager : NetworkBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        controls.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Disable();
+    }
+
     private void OnGoalIndexChanged(int previous, int current)
     {
         if (current >= 0 && current < missionGoals.Count)
         {
+            StartCoroutine("LetLocalPlayerKnowGoalChanged");
             OnMissionGoalUpdated?.Invoke(missionGoals[current]);
         }
     }
@@ -71,9 +92,31 @@ public class LevelProgressionManager : NetworkBehaviour
     }
 
 
+    private void HideNotification()
+    {
+        uiNotificationPopup.SetActive(false);
+    }
 
+    private IEnumerable LetLocalPlayerKnowGoalChanged()
+    {
+        Debug.Log("LetLocalPlayerKnowGoalChanged");
+        uiNotificationPopup.SetActive(true);
+        uiNotificationPopupEffect.enabled = true;
 
+        float timer = 0f;
+        float waitTime = 10f;
+        yield return Keyboard.current.tabKey.wasPressedThisFrame;
 
+        //while (timer < waitTime && !Keyboard.current.tabKey.wasPressedThisFrame)
+        //{
+        //    timer += Time.deltaTime;
+        //    yield return null;
+        //}
+
+        Debug.Log("Exit LetLocalPlayerKnowGoalChanged");
+
+        uiNotificationPopupEffect.enabled = false;
+    }
 
 
 

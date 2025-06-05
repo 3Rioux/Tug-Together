@@ -11,6 +11,8 @@ public class MissionCheckpoint : MonoBehaviour
 
     [SerializeField] private bool _isTriggered = false;
 
+   
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag(requiredTag) && NetworkManager.Singleton.IsServer && !_isTriggered)
@@ -19,5 +21,7 @@ public class MissionCheckpoint : MonoBehaviour
             _isTriggered = true;
         }
     }
+
+   
    
 }
