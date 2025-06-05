@@ -80,7 +80,7 @@ MonoBehaviour:
   active: 1
   quality:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 3
   focusMode:
     m_OverrideState: 1
     m_Value: 1
@@ -95,31 +95,31 @@ MonoBehaviour:
     m_Value: 0
   nearFocusEnd:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 5
   farFocusStart:
     m_OverrideState: 1
-    m_Value: 69.96
+    m_Value: 235
   farFocusEnd:
     m_OverrideState: 1
-    m_Value: 525.1
+    m_Value: 500
   m_NearSampleCount:
     m_OverrideState: 1
-    m_Value: 5
+    m_Value: 4
   m_NearMaxBlur:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 0
   m_FarSampleCount:
     m_OverrideState: 1
-    m_Value: 7
+    m_Value: 5
   m_FarMaxBlur:
     m_OverrideState: 1
-    m_Value: 8
+    m_Value: 0.001
   m_Resolution:
     m_OverrideState: 1
     m_Value: 2
   m_HighQualityFiltering:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   m_PhysicallyBased:
     m_OverrideState: 1
     m_Value: 0
@@ -132,28 +132,6 @@ MonoBehaviour:
   coCStabilization:
     m_OverrideState: 0
     m_Value: 1
---- !u!114 &-2506023575461122448
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0775cbb206825d541bf6c0297ee524ca, type: 3}
-  m_Name: SplitToning
-  m_EditorClassIdentifier: 
-  active: 0
-  shadows:
-    m_OverrideState: 0
-    m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  highlights:
-    m_OverrideState: 0
-    m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  balance:
-    m_OverrideState: 0
-    m_Value: 0
 --- !u!114 &-1749285631704397865
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -344,46 +322,6 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
   m_SelectedCurve: 0
---- !u!114 &-1740389418371484463
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7649d9368d3a5c4ab8ad01a63e04962, type: 3}
-  m_Name: ChannelMixer
-  m_EditorClassIdentifier: 
-  active: 0
-  redOutRedIn:
-    m_OverrideState: 0
-    m_Value: 100
-  redOutGreenIn:
-    m_OverrideState: 0
-    m_Value: 0
-  redOutBlueIn:
-    m_OverrideState: 0
-    m_Value: 0
-  greenOutRedIn:
-    m_OverrideState: 0
-    m_Value: 0
-  greenOutGreenIn:
-    m_OverrideState: 0
-    m_Value: 100
-  greenOutBlueIn:
-    m_OverrideState: 0
-    m_Value: 0
-  blueOutRedIn:
-    m_OverrideState: 0
-    m_Value: 0
-  blueOutGreenIn:
-    m_OverrideState: 0
-    m_Value: 0
-  blueOutBlueIn:
-    m_OverrideState: 0
-    m_Value: 100
 --- !u!114 &-1043174975015311780
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -507,8 +445,6 @@ MonoBehaviour:
   - {fileID: -4886922220450840781}
   - {fileID: 4359913574573045997}
   - {fileID: -1012132218784266484}
-  - {fileID: -2506023575461122448}
-  - {fileID: -1740389418371484463}
   - {fileID: -1749285631704397865}
   - {fileID: -3708591254981395121}
   - {fileID: 3910577540033964879}
