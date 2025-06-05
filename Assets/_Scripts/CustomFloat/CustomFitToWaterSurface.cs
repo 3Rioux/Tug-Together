@@ -1,9 +1,10 @@
 using Unity.Mathematics;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
 [ExecuteInEditMode]
-public class CustomFitToWaterSurface : MonoBehaviour
+public class CustomFitToWaterSurface : NetworkBehaviour
 {
     [SerializeField] private float3 floatingOffset;
 
@@ -51,7 +52,7 @@ public class CustomFitToWaterSurface : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (targetSurface == null)
+        if (targetSurface == null || !IsOwner)
             return;
 
 
