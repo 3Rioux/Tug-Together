@@ -182,7 +182,7 @@ private void AnimateButtonEnable()
         // Disable button while joining with animation
         if (proceedButton != null)
         {
-            AnimateButtonDisable();
+            //AnimateButtonDisable();
         }
     }
 
@@ -211,7 +211,7 @@ private void AnimateButtonEnable()
         if (proceedButton != null)
         {
             proceedButton.interactable = false;
-            AnimateButtonDisable();
+            //AnimateButtonDisable();
             StartCoroutine(DelayedButtonEnable());
         }
     }
@@ -399,7 +399,7 @@ private void AnimateButtonEnable()
         DOTween.KillAll();
         //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Tutorial", LoadSceneMode.Single);
         //SceneTransition.Instance.LoadNetworkedScene("_Scenes/Tutorial");
-        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Tutorial");
+        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/LevelONEONE");
 
     }
 
