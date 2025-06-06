@@ -166,7 +166,7 @@ public class CreditsController : MonoBehaviour
             }
             thankYouCanvasGroup.alpha = 0f;
         }
-
+        skipButton.onClick.Invoke();
         yield return StartCoroutine(LoadMenuAndFadeOut());
     }
 
@@ -187,6 +187,8 @@ public class CreditsController : MonoBehaviour
 
         yield return tween.WaitForCompletion();
 
+        NetworkManager.Singleton.Shutdown();
+        
         if (canvasInstance != null)
         {
             Destroy(canvasInstance);
@@ -197,7 +199,7 @@ public class CreditsController : MonoBehaviour
             thankYouCanvasGroup = null;
         }
         
-        NetworkManager.Singleton.Shutdown();
+       
         DOTween.KillAll();
     }
 }

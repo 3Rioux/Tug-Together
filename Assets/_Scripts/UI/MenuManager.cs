@@ -379,7 +379,7 @@ private void AnimateButtonEnable()
     public void LevelONE()
     {
         ClickSound();
-        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/NEWLevelONE");
+        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/LevelONEONE");
     }
     
     public void Lobby()
