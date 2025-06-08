@@ -182,7 +182,7 @@ private void AnimateButtonEnable()
         // Disable button while joining with animation
         if (proceedButton != null)
         {
-            //AnimateButtonDisable();
+            AnimateButtonDisable();
         }
     }
 
@@ -211,7 +211,7 @@ private void AnimateButtonEnable()
         if (proceedButton != null)
         {
             proceedButton.interactable = false;
-            //AnimateButtonDisable();
+            AnimateButtonDisable();
             StartCoroutine(DelayedButtonEnable());
         }
     }
