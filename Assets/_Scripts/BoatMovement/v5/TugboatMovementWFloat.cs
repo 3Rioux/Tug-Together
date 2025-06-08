@@ -78,11 +78,14 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     [Header("Orientation")]
     public bool alignToWaterNormal = true;
-    [Range(0f, 10f)] public float orientationSmoothSpeed = 5f;
+    [Range(0f, 10f)] public float OrientationSmoothSpeed = 5f;
+    [Range(0f, 10f)] public float OrientationDefaultSmoothSpeed = 5f;
 
     private Vector3 previousPosition;
     [SerializeField] private float pitchAngleMultiplier = 2f;
+    [SerializeField] private float pitchAngleDefaultMultiplier = 2f;
     [SerializeField] private float rollAngleMultiplier = 3f;
+    [SerializeField] private float rollAngleDefaultMultiplier = 3f;
     // Internal search params
     WaterSearchParameters searchParameters = new WaterSearchParameters();
     WaterSearchResult searchResult = new WaterSearchResult();
@@ -131,6 +134,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
     private float pitch;
     private float targetThrottle;
     private float currentThrottle;
+    private SpringTugSystem _sprintTugSystem;
 
     private BoatInputActions controls;
     
@@ -141,6 +145,13 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     void Awake()
     {
+        //Save the start OrientationSmoothSpeed
+        OrientationDefaultSmoothSpeed = OrientationSmoothSpeed;
+        pitchAngleDefaultMultiplier = pitchAngleMultiplier;
+        rollAngleDefaultMultiplier = rollAngleMultiplier;
+
+        _sprintTugSystem = GetComponent<SpringTugSystem>();
+
         rb = GetComponent<Rigidbody>();
         rb.angularDamping = angularDrag;
 
@@ -261,7 +272,10 @@ public class TugboatMovementWFloat : NetworkBehaviour
         if (enabled)
         {
             controls.Enable();
-        
+
+            //Also disable /enable UnitInfoReporter Inputs
+            this.gameObject.GetComponent<UnitInfoReporter>().SetControlEnabled(enabled);
+
             // Enable Cinemachine input
             if (inputProvider != null)
                 inputProvider.enabled = true;
@@ -269,6 +283,9 @@ public class TugboatMovementWFloat : NetworkBehaviour
         else
         {
             controls.Disable();
+            //Also disable /enable UnitInfoReporter Inputs
+            this.gameObject.GetComponent<UnitInfoReporter>().SetControlEnabled(enabled);
+
             moveVector = Vector2.zero;
             lookVector = Vector2.zero;
         
@@ -277,12 +294,33 @@ public class TugboatMovementWFloat : NetworkBehaviour
                 inputProvider.enabled = false;
         }
     }
+    
 
     private void Update()
     {
         // Local player logic
         if (IsOwner)
         {
+            //Change Max Speed + Tilt when close to barge:
+
+            if (_sprintTugSystem.DistanceToTowedObject <= 50f)
+            {
+                OrientationSmoothSpeed = 10f;
+                pitchAngleMultiplier = 0f; //stop pitch or even give it a -0.01
+                rollAngleMultiplier = 0f; // test this out
+            }
+            else
+            {
+                if (OrientationSmoothSpeed != OrientationDefaultSmoothSpeed)
+                {
+                    OrientationSmoothSpeed = OrientationDefaultSmoothSpeed;
+                    pitchAngleMultiplier = pitchAngleDefaultMultiplier;
+                    rollAngleMultiplier = rollAngleDefaultMultiplier;
+                }
+            }
+
+
+
             float speed = rb.linearVelocity.magnitude - 10f;
             if (speed <= 0.4f) speed = 0f;
         
@@ -441,7 +479,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
             //gameObject.transform.position = new Vector3(currentPositon.x, Mathf.Lerp(transform.position.y, searchResult.projectedPositionWS.y, surfaceStickLerpAmount), currentPositon.z); //
             // OLD WAY --->>>
             //gameObject.transform.position = searchResult.projectedPositionWS;
-            
+
             //damping fit to surface to filter small waves 
             transform.position = Vector3.SmoothDamp(
                       transform.position,                   // current position
@@ -578,7 +616,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // Combine boat tilt + wave normal
         Quaternion targetRotation = waterAligned * targetTilt;
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, OrientationSmoothSpeed * Time.deltaTime);
 
     }
 

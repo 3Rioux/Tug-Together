@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using DG.Tweening;
+using Unity.Netcode;
 
 public class CreditsController : MonoBehaviour
 {
@@ -165,7 +166,7 @@ public class CreditsController : MonoBehaviour
             }
             thankYouCanvasGroup.alpha = 0f;
         }
-
+        skipButton.onClick.Invoke();
         yield return StartCoroutine(LoadMenuAndFadeOut());
     }
 
@@ -186,6 +187,8 @@ public class CreditsController : MonoBehaviour
 
         yield return tween.WaitForCompletion();
 
+        NetworkManager.Singleton.Shutdown();
+        
         if (canvasInstance != null)
         {
             Destroy(canvasInstance);
@@ -195,7 +198,8 @@ public class CreditsController : MonoBehaviour
             skipButton = null;
             thankYouCanvasGroup = null;
         }
-
+        
+       
         DOTween.KillAll();
     }
 }

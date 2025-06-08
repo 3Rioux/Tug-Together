@@ -7,17 +7,14 @@ namespace _Scripts.Managers.UI
     /// </summary>
     public class FPSLimiter : MonoBehaviour
     {
-        // The target frames per second (FPS) for the application
-        [SerializeField] private int _targetFPS = 240;
-
         // Awake is called when the script instance is being loaded
         private void Awake()
         {
             // Disable vertical sync to allow manual control of the frame rate
-            QualitySettings.vSyncCount = 0;
+            QualitySettings.vSyncCount = 1;
 
             // Set the application's target frame rate to the specified value
-            Application.targetFrameRate = _targetFPS;
+            Application.targetFrameRate = -1;
         }
     }
 }
