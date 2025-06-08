@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
@@ -33,8 +32,6 @@ public class TowableObjectController : MonoBehaviour
 
     private void FixedUpdate()
     {
-       // if (!IsServer) return;
-
         if (_rigidbody == null) return;
 
         // Get current speed
@@ -79,37 +76,4 @@ public class TowableObjectController : MonoBehaviour
             ));
         }
     }
-    [SerializeField] private float debugRangeRadius = 25f;
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(transform.position + new Vector3(0, 0, 12f), debugRangeRadius);
-    }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.CompareTag("Player"))
-    //    {
-    //        TugboatMovementWFloat tugMovement = other.GetComponent<TugboatMovementWFloat>();
-    //        if (tugMovement != null)
-    //        {
-    //            tugMovement.OrientationSmoothSpeed = 10f;// Stop player boat front from tilting up
-    //        }
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (other.CompareTag("Player"))
-    //    {
-    //        TugboatMovementWFloat tugMovement = other.GetComponent<TugboatMovementWFloat>();
-    //        if (tugMovement != null)
-    //        {
-    //            tugMovement.OrientationSmoothSpeed = tugMovement.OrientationDefaultSmoothSpeed;// Return the player boats tilt to what is was 
-    //        }
-    //    }
-    //}
-
-
 }

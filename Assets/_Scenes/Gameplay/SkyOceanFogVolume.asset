@@ -21,7 +21,7 @@ MonoBehaviour:
     m_Value: 0
   exposure:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.6
   multiplier:
     m_OverrideState: 0
     m_Value: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 20000
   updateMode:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   updatePeriod:
     m_OverrideState: 1
@@ -45,7 +45,7 @@ MonoBehaviour:
     m_Value: 0
   type:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   atmosphericScattering:
     m_OverrideState: 1
     m_Value: 1
@@ -72,10 +72,10 @@ MonoBehaviour:
     m_Value: 55261.973
   aerosolDensity:
     m_OverrideState: 1
-    m_Value: 0.008
+    m_Value: 0.01192826
   aerosolTint:
     m_OverrideState: 1
-    m_Value: {r: 0.5568628, g: 0.74509805, b: 0.8000001, a: 1}
+    m_Value: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
   aerosolMaximumAltitude:
     m_OverrideState: 0
     m_Value: 8289.296
@@ -93,7 +93,7 @@ MonoBehaviour:
     m_Value: 20000
   groundTint:
     m_OverrideState: 1
-    m_Value: {r: 0.16533822, g: 0.16533822, b: 0.16533822, a: 1}
+    m_Value: {r: 0.16533832, g: 0.16533832, b: 0.16533832, a: 1}
   groundColorTexture:
     m_OverrideState: 0
     m_Value: {fileID: 0}
@@ -125,13 +125,13 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 1
   horizonTint:
-    m_OverrideState: 1
-    m_Value: {r: 0.6179246, g: 0.9811126, b: 1, a: 1}
+    m_OverrideState: 0
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
   zenithTint:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   horizonZenithShift:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   m_SkyVersion: 2
   m_ObsoleteEarthPreset:
@@ -164,7 +164,7 @@ MonoBehaviour:
     m_Value: 50
   ambientProbeDimmer:
     m_OverrideState: 1
-    m_Value: 0.6
+    m_Value: 0.5
 --- !u!114 &-4151792930034644520
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -192,7 +192,7 @@ MonoBehaviour:
     m_Value: {r: 0.8307701, g: 0.98225087, b: 1, a: 1}
   tint:
     m_OverrideState: 1
-    m_Value: {r: 1.1325952, g: 2.1828988, b: 2.468827, a: 1}
+    m_Value: {r: 1.2610587, g: 1.299112, b: 1.304119, a: 1}
   maxFogDistance:
     m_OverrideState: 1
     m_Value: 5000
@@ -213,12 +213,12 @@ MonoBehaviour:
     m_Value: 138.78
   meanFreePath:
     m_OverrideState: 1
-    m_Value: 1700
+    m_Value: 3000
   enableVolumetricFog:
     m_OverrideState: 1
     m_Value: 0
   albedo:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: {r: 0.92156863, g: 0.99215686, b: 1, a: 1}
   globalLightProbeDimmer:
     m_OverrideState: 0
@@ -276,7 +276,6 @@ MonoBehaviour:
   - {fileID: 7642060734654139733}
   - {fileID: -5258699885123226400}
   - {fileID: 11433769687056998}
-  - {fileID: 6478826845309024596}
 --- !u!114 &11433769687056998
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -289,7 +288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e9e4ed5a6f56fb4ebd693e39684f36f, type: 3}
   m_Name: VolumetricClouds
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   enable:
     m_OverrideState: 1
     m_Value: 1
@@ -570,7 +569,7 @@ MonoBehaviour:
     m_Value: 1
   shadows:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   shadowResolution:
     m_OverrideState: 1
     m_Value: 256
@@ -646,50 +645,6 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0
   m_Version: 1
---- !u!114 &6478826845309024596
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ddcec8a8eb2d684d833ac8f5d26aebd, type: 3}
-  m_Name: HDShadowSettings
-  m_EditorClassIdentifier: 
-  active: 1
-  interCascadeBorders: 1
-  maxShadowDistance:
-    m_OverrideState: 1
-    m_Value: 700
-  directionalTransmissionMultiplier:
-    m_OverrideState: 0
-    m_Value: 1
-  cascadeShadowSplitCount:
-    m_OverrideState: 1
-    m_Value: 3
-  cascadeShadowSplit0:
-    m_OverrideState: 0
-    m_Value: 0.05
-  cascadeShadowSplit1:
-    m_OverrideState: 0
-    m_Value: 0.15
-  cascadeShadowSplit2:
-    m_OverrideState: 0
-    m_Value: 0.3
-  cascadeShadowBorder0:
-    m_OverrideState: 0
-    m_Value: 0
-  cascadeShadowBorder1:
-    m_OverrideState: 0
-    m_Value: 0
-  cascadeShadowBorder2:
-    m_OverrideState: 0
-    m_Value: 0
-  cascadeShadowBorder3:
-    m_OverrideState: 0
-    m_Value: 0
 --- !u!114 &7642060734654139733
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -719,8 +674,8 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0.1
   limitMin:
-    m_OverrideState: 1
-    m_Value: 13.158138
+    m_OverrideState: 0
+    m_Value: -1
   limitMax:
     m_OverrideState: 1
     m_Value: 14
@@ -867,8 +822,8 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 2048
   shadowMultiplier:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 13
   shadowTint:
     m_OverrideState: 0
     m_Value: {r: 0, g: 0, b: 0, a: 1}
@@ -901,7 +856,7 @@ MonoBehaviour:
       m_OverrideState: 1
       m_Value: 153
     tint:
-      m_OverrideState: 1
+      m_OverrideState: 0
       m_Value: {r: 1, g: 1, b: 1, a: 1}
     exposure:
       m_OverrideState: 0
@@ -934,13 +889,13 @@ MonoBehaviour:
       m_Value: 6
     thickness:
       m_OverrideState: 1
-      m_Value: 0.5
+      m_Value: 0.33
     ambientProbeDimmer:
       m_OverrideState: 0
       m_Value: 1
     castShadows:
       m_OverrideState: 1
-      m_Value: 0
+      m_Value: 1
   layerB:
     cloudMap:
       m_OverrideState: 0

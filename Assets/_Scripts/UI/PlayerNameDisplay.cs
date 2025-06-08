@@ -21,17 +21,11 @@ public class PlayerNameDisplay : NetworkBehaviour
     [SerializeField]
     private string playerCustomName = "Unknown";
 
-    [Space(10)]
     public NetworkVariable<FixedString32Bytes> networkPlayerName = new NetworkVariable<FixedString32Bytes>(
         "Unknown", NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public event Action<string> OnNameChanged;
 
-    [Space(10)]
-    [Header("Multi Client Tracking")]
-    [SerializeField]
-    private UnitInfoReporter unitInfoReporter;//set the name in the Info
-
-    // C#
+// C#
     private async void Start()
     {
         ownerTransform = transform.parent;
@@ -114,16 +108,11 @@ public class PlayerNameDisplay : NetworkBehaviour
         OnNameChanged?.Invoke(networkPlayerName.Value.ToString());
     }
 
-  
     private void NetworkPlayerName_OnValueChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)
     {
         if (playerName != null)
         {
             playerName.text = newValue.Value;
-            if (unitInfoReporter != null)
-            {
-                unitInfoReporter.CurrentUnitName = newValue.Value;
-            }
         }
         OnNameChanged?.Invoke(newValue.Value);
     }

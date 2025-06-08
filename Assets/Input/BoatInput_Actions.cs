@@ -124,7 +124,7 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""id"": ""852140f2-7766-474d-8707-702459ba45f3"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": """",
+                    ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
                 },
                 {
@@ -176,15 +176,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""BoostRight"",
                     ""type"": ""Button"",
                     ""id"": ""ab76cbf5-8ad1-4deb-93ad-18f7753eda23"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""PlayerInfoToggle"",
-                    ""type"": ""Button"",
-                    ""id"": ""d2daf892-efd1-462b-8a23-473512229f34"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -653,17 +644,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""a823f3e5-d2af-4a79-989a-80cdc4c2aa1f"",
-                    ""path"": ""<Keyboard>/v"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Keyboard&Mouse"",
-                    ""action"": ""PlayerInfoToggle"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""170bafdc-98a0-466a-b735-d882e0e19cc4"",
                     ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
@@ -817,7 +797,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         m_Boat_Next = m_Boat.FindAction("Next", throwIfNotFound: true);
         m_Boat_Sprint = m_Boat.FindAction("Sprint", throwIfNotFound: true);
         m_Boat_BoostRight = m_Boat.FindAction("BoostRight", throwIfNotFound: true);
-        m_Boat_PlayerInfoToggle = m_Boat.FindAction("PlayerInfoToggle", throwIfNotFound: true);
         m_Boat_BoostLeft = m_Boat.FindAction("BoostLeft", throwIfNotFound: true);
         m_Boat_BoostNormal = m_Boat.FindAction("BoostNormal", throwIfNotFound: true);
         m_Boat_Hook = m_Boat.FindAction("Hook", throwIfNotFound: true);
@@ -915,7 +894,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Boat_Next;
     private readonly InputAction m_Boat_Sprint;
     private readonly InputAction m_Boat_BoostRight;
-    private readonly InputAction m_Boat_PlayerInfoToggle;
     private readonly InputAction m_Boat_BoostLeft;
     private readonly InputAction m_Boat_BoostNormal;
     private readonly InputAction m_Boat_Hook;
@@ -974,10 +952,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Boat/BoostRight".
         /// </summary>
         public InputAction @BoostRight => m_Wrapper.m_Boat_BoostRight;
-        /// <summary>
-        /// Provides access to the underlying input action "Boat/PlayerInfoToggle".
-        /// </summary>
-        public InputAction @PlayerInfoToggle => m_Wrapper.m_Boat_PlayerInfoToggle;
         /// <summary>
         /// Provides access to the underlying input action "Boat/BoostLeft".
         /// </summary>
@@ -1062,9 +1036,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @BoostRight.started += instance.OnBoostRight;
             @BoostRight.performed += instance.OnBoostRight;
             @BoostRight.canceled += instance.OnBoostRight;
-            @PlayerInfoToggle.started += instance.OnPlayerInfoToggle;
-            @PlayerInfoToggle.performed += instance.OnPlayerInfoToggle;
-            @PlayerInfoToggle.canceled += instance.OnPlayerInfoToggle;
             @BoostLeft.started += instance.OnBoostLeft;
             @BoostLeft.performed += instance.OnBoostLeft;
             @BoostLeft.canceled += instance.OnBoostLeft;
@@ -1127,9 +1098,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
             @BoostRight.started -= instance.OnBoostRight;
             @BoostRight.performed -= instance.OnBoostRight;
             @BoostRight.canceled -= instance.OnBoostRight;
-            @PlayerInfoToggle.started -= instance.OnPlayerInfoToggle;
-            @PlayerInfoToggle.performed -= instance.OnPlayerInfoToggle;
-            @PlayerInfoToggle.canceled -= instance.OnPlayerInfoToggle;
             @BoostLeft.started -= instance.OnBoostLeft;
             @BoostLeft.performed -= instance.OnBoostLeft;
             @BoostLeft.canceled -= instance.OnBoostLeft;
@@ -1326,13 +1294,6 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnBoostRight(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "PlayerInfoToggle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPlayerInfoToggle(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "BoostLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

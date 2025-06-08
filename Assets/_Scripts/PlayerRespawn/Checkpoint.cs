@@ -16,7 +16,7 @@ public class Checkpoint : MonoBehaviour
             // Tell server to set this as the new respawn point
             var player = other.GetComponent<PlayerRespawn>();
             //Set Spawn Point to one of the random Spawn points 
-            player.UpdateSpawnPoint(checkpointSpawnPoints[Random.Range(0, checkpointSpawnPoints.Count)].position);
+            player.UpdateSpawnPoint(checkpointSpawnPoints[Random.Range(0, checkpointSpawnPoints.Count)]);
         }
     }
 }

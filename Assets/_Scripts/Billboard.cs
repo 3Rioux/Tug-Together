@@ -36,7 +36,7 @@ public class Billboard : MonoBehaviour
 
             if (direction != Vector3.zero)
             {
-                transform.rotation = Quaternion.LookRotation(-direction);
+                transform.rotation = Quaternion.LookRotation(direction);
             }
         }
     }

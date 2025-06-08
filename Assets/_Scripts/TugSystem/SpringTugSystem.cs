@@ -54,17 +54,12 @@ public class SpringTugSystem : NetworkBehaviour
     
     [Header("UI Elements")]
     [SerializeField] private GameObject crosshair;
-    [SerializeField] private RectTransform crosshairRect;
-    [SerializeField] private UnityEngine.UI.Image crosshairImage;  // Reference to the Image component
-    [SerializeField] private Sprite normalCrosshairSprite;  // Normal state sprite
-    [SerializeField] private Sprite attachedCrosshairSprite;  // Attached state sprite
+    [SerializeField] private RectTransform crosshairRect;  // Reference to the RectTransform component
     [SerializeField] private float crosshairFadeDuration = 0.3f;  // Animation duration
-    [SerializeField] private float crosshairTransitionDuration = 0.4f;  // Transition animation duration
     [SerializeField] private Ease crosshairShowEase = Ease.OutBack;
     [SerializeField] private Ease crosshairHideEase = Ease.InQuad;
-    [SerializeField] private Ease crosshairGrowEase = Ease.OutElastic;  // For transition animation
-    [SerializeField] private Ease crosshairShrinkEase = Ease.InOutBack;  // For transition animation
     private Tween crosshairTween;  // To track and kill active animations
+
     //Stuff To Disable when Aiming:
     //[SerializeField] private GameObject sails;
     //[SerializeField] private GameObject flags;
@@ -116,9 +111,7 @@ public class SpringTugSystem : NetworkBehaviour
 #endif
         }
     }
-
-    public float DistanceToTowedObject { get => distanceToTowedObject; set => distanceToTowedObject = value; }
-    #endregion
+#endregion
 
 
     private void Awake()
@@ -220,18 +213,6 @@ public class SpringTugSystem : NetworkBehaviour
         }
     }
     
-    private void OnDisable()
-    {
-        //if (!IsOwner) return;
-        // Unregister event handlers
-        controls.Boat.Hook.performed -= OnHookTriggered;
-        controls.Boat.AimHook.performed -= OnHookTriggered;
-
-        // Disable the action map
-        controls.Boat.Disable();
-    }
-
-    
     private void OnAimModeEnter(InputAction.CallbackContext ctx)
     {
         isAimMode = true;
@@ -299,70 +280,65 @@ public class SpringTugSystem : NetworkBehaviour
     }
     
     private void ShowCrosshair()
-{
-    if (crosshair == null) return;
+    {
+        if (crosshair == null) return;
+    
+        // Kill any active animation
+        if (crosshairTween != null) crosshairTween.Kill();
+    
+        // Make sure the object is active
+        crosshair.SetActive(true);
+    
+        // Get RectTransform if not already set
+        if (crosshairRect == null)
+            crosshairRect = crosshair.GetComponent<RectTransform>();
+    
+        if (crosshairRect != null)
+        {
+            // Set initial scale to zero
+            crosshairRect.localScale = Vector3.zero;
+        
+            // Animate to full scale
+            crosshairTween = crosshairRect.DOScale(Vector3.one, crosshairFadeDuration)
+                .SetEase(crosshairShowEase);
+        }
+    }
 
-    // Kill any active animation
-    if (crosshairTween != null) crosshairTween.Kill();
+    private void HideCrosshair()
+    {
+        if (crosshair == null) return;
+    
+        // Kill any active animation
+        if (crosshairTween != null) crosshairTween.Kill();
+    
+        // Get RectTransform if not already set
+        if (crosshairRect == null)
+            crosshairRect = crosshair.GetComponent<RectTransform>();
+    
+        if (crosshairRect != null)
+        {
+            // Animate to zero scale
+            crosshairTween = crosshairRect.DOScale(Vector3.zero, crosshairFadeDuration)
+                .SetEase(crosshairHideEase)
+                .OnComplete(() => crosshair.SetActive(false));  // Hide after animation completes
+        }
+        else
+        {
+            // Fallback if no RectTransform
+            crosshair.SetActive(false);
+        }
+    }
 
-    // Make sure crosshair is active and has correct image
-    crosshair.SetActive(true);
-    crosshairImage.sprite = isAttached ? attachedCrosshairSprite : normalCrosshairSprite;
+    private void OnDisable()
+    {
+        //if (!IsOwner) return;
+        // Unregister event handlers
+        controls.Boat.Hook.performed -= OnHookTriggered;
+        controls.Boat.AimHook.performed -= OnHookTriggered;
 
-    // Set initial scale to zero
-    crosshairRect.localScale = Vector3.zero;
-
-    // Animate to full scale
-    crosshairTween = crosshairRect.DOScale(Vector3.one, crosshairFadeDuration)
-        .SetEase(crosshairShowEase);
-}
-
-private void HideCrosshair()
-{
-    if (crosshair == null) return;
-
-    // Kill any active animation
-    if (crosshairTween != null) crosshairTween.Kill();
-
-    // Animate to zero scale
-    crosshairTween = crosshairRect.DOScale(Vector3.zero, crosshairFadeDuration)
-        .SetEase(crosshairHideEase)
-        .OnComplete(() => crosshair.SetActive(false));  // Hide after animation completes
-}
-
-private void TransitionCrosshair(bool toAttached)
-{
-    if (crosshair == null) return;
-
-    // Kill any active animation
-    if (crosshairTween != null) crosshairTween.Kill();
-
-    // Create a sequence for smooth transition
-    Sequence sequence = DOTween.Sequence();
-
-    // Grow the crosshair
-    sequence.Append(crosshairRect.DOScale(Vector3.one * 1.25f, crosshairTransitionDuration * 0.4f)
-        .SetEase(crosshairGrowEase));
-
-    // Shrink to zero
-    sequence.Append(crosshairRect.DOScale(Vector3.zero, crosshairTransitionDuration * 0.3f)
-        .SetEase(crosshairHideEase)
-        .OnComplete(() => {
-            // Change sprite when fully scaled down
-            crosshairImage.sprite = toAttached ? attachedCrosshairSprite : normalCrosshairSprite;
-        }));
-
-    // Grow back with new image
-    sequence.Append(crosshairRect.DOScale(Vector3.one * 1.25f, crosshairTransitionDuration * 0.3f)
-        .SetEase(crosshairShowEase));
-
-    // Shrink to normal size
-    sequence.Append(crosshairRect.DOScale(Vector3.one, crosshairTransitionDuration * 0.3f)
-        .SetEase(crosshairShrinkEase));
-
-    crosshairTween = sequence;
-}
-
+        // Disable the action map
+        controls.Boat.Disable();
+    }
 
     private void Update()
     {
@@ -407,10 +383,10 @@ private void TransitionCrosshair(bool toAttached)
         
         
         //Visual Rope Length
-        DistanceToTowedObject = Vector3.Distance(transform.position, towedObject.position + new Vector3(0,0,12f)); // + 12 z because the center is not the center of the boat 
+        distanceToTowedObject = Vector3.Distance(transform.position, towedObject.position);
 
         //Display the distance between the Player and the Barge (For tweeking sprint settings)
-        if (distanceText != null) distanceText.text = DistanceToTowedObject.ToString() + " m";
+        if (distanceText != null) distanceText.text = distanceToTowedObject.ToString() + " m";
 
         // ====== 
         // ===Hooking Mechanic Start=== 
@@ -448,7 +424,7 @@ private void TransitionCrosshair(bool toAttached)
             //targetAttachPoint.forward = Camera.main.transform.position;//  aimDirection - Camera.main.transform.position;// Vector3.Lerp(transform.forward, aimDirection, Time.deltaTime * 20.0f);
 
 
-            if (DistanceToTowedObject <= maxTowDistance && !isAttached)
+            if (distanceToTowedObject <= maxTowDistance && !isAttached)
             {
                 //Logic to determine the closest hook to the camera center 
                 FindVisibleHooks();
@@ -457,7 +433,7 @@ private void TransitionCrosshair(bool toAttached)
                 SelectClosestVisibleHook();
 
 
-                if (!isAttached && visibleHooks.Count > 0 && IsOwner)
+                if (!isAttached && visibleHooks.Count > 0)
                 {
                     //draw a line 
                     lineRenderer.enabled = true;
@@ -507,7 +483,7 @@ private void TransitionCrosshair(bool toAttached)
         }
 
         //Auto Mode (Only active while close)
-        if (DistanceToTowedObject <= maxTowDistance) 
+        if (distanceToTowedObject <= maxTowDistance) 
         {
 
             
@@ -519,7 +495,7 @@ private void TransitionCrosshair(bool toAttached)
                 //aimCamera.gameObject.SetActive(false);// turn off aim when not aiming  
 
                 //only draw the line if not already attached
-                if (!isAttached && IsOwner)
+                if (!isAttached)
                 {
                     lineRenderer.enabled = true;
                     //draw a line 
@@ -674,7 +650,7 @@ private void TransitionCrosshair(bool toAttached)
     private void OnAimTriggered(InputAction.CallbackContext context)
     {
         //check if we are close enough to hook to the barge 
-        if (DistanceToTowedObject > maxTowDistance)
+        if (distanceToTowedObject > maxTowDistance)
         {
             //aimCamera.enabled = false;
             isAimMode = false; //jsut to be safe 
@@ -735,7 +711,7 @@ private void TransitionCrosshair(bool toAttached)
             //Debug.DrawRay(camPosition, direction, Color.red, 1f);
 
             // if(Physics.Linecast(camPosition, direction, out hit))
-            if (Physics.Raycast(camPosition, direction, out hit, (maxTowDistance * 2f), aimColliderLayerMask))
+            if (Physics.Raycast(camPosition, direction, out hit, maxTowDistance + 5f, aimColliderLayerMask))
             {
                 Debug.DrawRay(camPosition, direction, Color.magenta, 1f);
                 if (hit.collider != null)
@@ -880,7 +856,6 @@ private void TransitionCrosshair(bool toAttached)
             spring.spring = springAmount;
             spring.damper = 1;
             spring.maxDistance = springMaxDistance;
-            spring.enableCollision = true;
         }
     }
 
@@ -956,32 +931,6 @@ private void TransitionCrosshair(bool toAttached)
 
     //===================================================END SHOW ROPE ON ALL CLIENT INSTANCES================================================================================
 
-    //===================================================START HIDE ROPE ON ALL CLIENT INSTANCES================================================================================
-    [ServerRpc]
-    public void DetachRopeServerRpc(NetworkObjectReference ropeOwnerRef)
-    {
-        HideRopeClientRpc(ropeOwnerRef);
-    }
-
-    [ClientRpc]
-    void HideRopeClientRpc(NetworkObjectReference ropeOwnerRef)
-    {
-        Debug.Log($"==={ropeOwnerRef}=== Attach Rope Client");
-
-        if (ropeOwnerRef.TryGet(out NetworkObject playerNet))
-        {
-            SpringTugSystem pTugSystem = playerNet.GetComponent<SpringTugSystem>();
-
-            var towPoints = towedObject.GetComponent<TowableObjectController>().TowPointList;
-
-            //// Set endpoint and activate the rope
-            //pTugSystem.VisualRope.EndPoint = towPoints[attachPositionIndex];
-            pTugSystem.VisualRope.gameObject.SetActive(false);
-        }
-    }
-
-    //===================================================END HIDE ROPE ON ALL CLIENT INSTANCES================================================================================
-
     #endregion
 
     #region Hook-Attach/Detach
@@ -1021,11 +970,8 @@ private void TransitionCrosshair(bool toAttached)
             Destroy(springJoint);
 
         //Check if the boat is close enough to attach to the towedObject:
-        if (DistanceToTowedObject <= maxTowDistance)
+        if (distanceToTowedObject <= maxTowDistance)
         {
-            
-            TransitionCrosshair(true);  // Transition to attached crosshair
-
 
             //Find closest attach point 
             //targetAttachPoint = FindClosestAttachPoint();
@@ -1072,8 +1018,8 @@ private void TransitionCrosshair(bool toAttached)
             springJoint.spring = springAmount;
             springJoint.damper = 1;
             springJoint.maxDistance = springMaxDistance;
-            springJoint.enableCollision = true;
 
+            
 
             //Set attached state 
             isAttached = true;
@@ -1102,8 +1048,6 @@ private void TransitionCrosshair(bool toAttached)
     /// </summary>
     public void Detach()
     {
-        TransitionCrosshair(false);  // Transition to normal crosshair
-        
         if (springJoint != null)
         {
             //Disconnect local Joint
@@ -1114,10 +1058,12 @@ private void TransitionCrosshair(bool toAttached)
             //or just the gameobject itself 
             //visualRope.ropeLength = 5f; // this should create a cool effect 
             //visualRope.gameObject.SetActive(false);
-            
+
+
             DetatchRopeWEffect();
 
-            
+
+
             //Make sure the Spring joint is destroyed on the Server side copy of the player as well 
             if (!IsServer)
             {
@@ -1178,9 +1124,6 @@ private void TransitionCrosshair(bool toAttached)
         AudioManager.Instance.StopLoop();
 
         boatHook.SetActive(true); // make sure it active 
-
-        
-        DetachRopeServerRpc(NetworkObject);
     }
 
     #endregion

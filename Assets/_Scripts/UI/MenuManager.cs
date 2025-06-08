@@ -182,7 +182,7 @@ private void AnimateButtonEnable()
         // Disable button while joining with animation
         if (proceedButton != null)
         {
-            //AnimateButtonDisable();
+            AnimateButtonDisable();
         }
     }
 
@@ -211,7 +211,7 @@ private void AnimateButtonEnable()
         if (proceedButton != null)
         {
             proceedButton.interactable = false;
-            //AnimateButtonDisable();
+            AnimateButtonDisable();
             StartCoroutine(DelayedButtonEnable());
         }
     }
@@ -371,15 +371,9 @@ private void AnimateButtonEnable()
     public void OnProceedButtonClick()
     {
         ClickSound();
-        //SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Complete_Level_1");
-        //SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/NEWLevelONE");
-        SwitchToState(MenuState.Tutorial);
-    }
-    
-    public void LevelONE()
-    {
-        ClickSound();
-        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/LevelONEONE");
+        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Complete_Level_1");
+
+        //SwitchToState(MenuState.Tutorial);
     }
     
     public void Lobby()
@@ -399,7 +393,7 @@ private void AnimateButtonEnable()
         DOTween.KillAll();
         //NetworkManager.Singleton.SceneManager.LoadScene("_Scenes/Tutorial", LoadSceneMode.Single);
         //SceneTransition.Instance.LoadNetworkedScene("_Scenes/Tutorial");
-        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/LevelONEONE");
+        SceneTransition.Instance.LoadNetworkedSceneForAllClients("_Scenes/Tutorial");
 
     }
 

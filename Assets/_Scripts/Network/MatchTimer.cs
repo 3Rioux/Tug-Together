@@ -63,7 +63,6 @@ public class MatchTimer : NetworkBehaviour
     public void EndMatchServerRpc()
     {
         EndMatch();
-        TriggerGameOverClientRpc((int)totalTimePlayed);
     }
 
     public void EndMatch()

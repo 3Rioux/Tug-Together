@@ -14,7 +14,6 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] private GameObject optionsPanel;
     [SerializeField] private GameObject sessionPanel;
     [SerializeField] private GameObject quitPanel;
-    [SerializeField] private GameObject howToPlayPanel; 
 
     [Header("Options Submenus")]
     [SerializeField] private GameObject settingsMenu;
@@ -56,20 +55,9 @@ public class GameMenuManager : MonoBehaviour
 
     private void Start()
     {
-        // Show How to Play panel at start with cursor unlocked
-        if (howToPlayPanel != null)
-        {
-            howToPlayPanel.SetActive(true);
-            DisableLocalPlayerControls();
-            Cursor.lockState = CursorLockMode.None;
-        }
-        else
-        {
-            // Default cursor behavior if panel doesn't exist
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-    
+        Cursor.lockState = CursorLockMode.Locked;
         AudioManager.Instance.PlayAmbience(FMODEvents.Instance.Tutorial);
+
     }
 
     void OnDestroy()
@@ -347,17 +335,6 @@ public class GameMenuManager : MonoBehaviour
         AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIBack, transform.position);
         gameMenuPanel.SetActive(true);
         Debug.Log("Options closed.");
-    }
-    
-    public void OnCloseHelpClicked()
-    {
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.UIClick, transform.position);
-        if (howToPlayPanel != null)
-        {
-            howToPlayPanel.SetActive(false);
-        }
-        Cursor.lockState = CursorLockMode.Locked;
-        EnableLocalPlayerControls();
     }
 
     public void OnVideoButtonClicked()
