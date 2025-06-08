@@ -1188,7 +1188,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 812348049185974291}
   m_Enabled: 0
-  m_CastShadows: 0
+  m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -1203,7 +1203,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0601f5beb7899b14ca76f5d6e0184b55, type: 2}
+  - {fileID: 2100000, guid: e468974d5d699496196c6984e8a242dd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1984,7 +1984,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5569425656175734176}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: CompassNEW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2417,7 +2417,7 @@ GameObject:
   - component: {fileID: 2606555300270053471}
   - component: {fileID: 7232561950444414719}
   - component: {fileID: 8508906618095504129}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: CompassNeedle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4418,7 +4418,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2495278291614357519}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: Red-Arrow-AdjustRotationZ
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5108,7 +5108,7 @@ GameObject:
   - component: {fileID: 4446091308683430204}
   - component: {fileID: 3608824390536554385}
   - component: {fileID: 1054434273449323619}
-  m_Layer: 11
+  m_Layer: 5
   m_Name: DIstanceTEXT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5260,7 +5260,7 @@ GameObject:
   - component: {fileID: 3432564454946351193}
   - component: {fileID: 1603188072646734889}
   - component: {fileID: 7062497289137593508}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: DistanceText (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5578,7 +5578,7 @@ GameObject:
   - component: {fileID: 3731119276741361441}
   - component: {fileID: 1673825094486148754}
   - component: {fileID: 1403542065152506283}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: yellow-pointer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6273,7 +6273,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1905317552824279916}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: Yellow-Pointer-AdjustRotationZ
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6638,7 +6638,7 @@ GameObject:
   - component: {fileID: 4238361623520518789}
   - component: {fileID: 5479070585641303142}
   - component: {fileID: 2552832592945440725}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6834,7 +6834,7 @@ GameObject:
   - component: {fileID: 5163271975797357207}
   - component: {fileID: 6036008782426420551}
   - component: {fileID: 1437531581495449200}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: CompassObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7735,7 +7735,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3775074010675038979}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: CompassOLD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9319,7 +9319,7 @@ GameObject:
   - component: {fileID: 8439593503880586971}
   - component: {fileID: 5103598372958708917}
   - component: {fileID: 1287100853664773822}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: CompassBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11463,16 +11463,16 @@ MonoBehaviour:
   - {fileID: 1334213328208114135, guid: 2b38b4e1ea8f9f94baefaa90e16e02b8, type: 3}
   - {fileID: 2662271890776801378, guid: 7558df285723e04459ea05e6b974130e, type: 3}
   - {fileID: 1983564211144932389, guid: 8a39b5fc056e49745bbf3ccd28f592a2, type: 3}
-  simulationSpeed: 0.6
+  simulationSpeed: 0.5
   speedVariance: {x: 0.1, y: 0.6}
   detachFromMovement: 1
   useTargetDirection: 1
   lockYAxis: 1
   switchDistanceThreshold: 200
-  particlesPerSecond: 0.5
+  particlesPerSecond: 0.4
   particleLifetime: 4
-  minParticleSize: 0.14
-  maxParticleSize: 0.19
+  minParticleSize: 0.15
+  maxParticleSize: 0.2
   _target: {fileID: 0}
   _bargeTransform: {fileID: 0}
   windDirection: {x: 0, y: 0, z: 0}
@@ -11519,7 +11519,7 @@ GameObject:
   - component: {fileID: 4764049821431241638}
   - component: {fileID: 3133988299378800662}
   - component: {fileID: 6517154566057935951}
-  m_Layer: 11
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12888,20 +12888,8 @@ PrefabInstance:
       value: Navigation
       objectReference: {fileID: 0}
     - target: {fileID: 539837311935793065, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 539837311935793065, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_IsActive
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 793145851554136941, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 936660078931926293, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 1028230617193965640, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_Type
@@ -12963,10 +12951,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 85.784
       objectReference: {fileID: 0}
-    - target: {fileID: 1173093854924951875, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 1478058712145719521, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_SizeDelta.x
       value: -2038.2002
@@ -12982,10 +12966,6 @@ PrefabInstance:
     - target: {fileID: 1478058712145719521, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -182.13477
-      objectReference: {fileID: 0}
-    - target: {fileID: 2106201166478247768, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 2157863938579148690, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_LocalScale.x
@@ -13011,14 +12991,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 953
       objectReference: {fileID: 0}
-    - target: {fileID: 2336811264009977329, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 2348991618103531891, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 2728152948641948567, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_SizeDelta.x
       value: 5449
@@ -13026,10 +12998,6 @@ PrefabInstance:
     - target: {fileID: 2728152948641948567, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_SizeDelta.y
       value: 3611
-      objectReference: {fileID: 0}
-    - target: {fileID: 2828745550353026973, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 3588740828747935973, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_text
@@ -13066,22 +13034,6 @@ PrefabInstance:
       propertyPath: m_fontColor32.rgba
       value: 4282002473
       objectReference: {fileID: 0}
-    - target: {fileID: 3766175627399732671, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 3990133760348541018, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 5365543320432551529, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
-    - target: {fileID: 5388532210708775600, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 5437067025906642345, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
@@ -13114,18 +13066,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.x
       value: 1.14
       objectReference: {fileID: 0}
-    - target: {fileID: 5688033804217113248, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 5770513761889860629, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: navCamera
       value: 
       objectReference: {fileID: 5025426984819131914}
-    - target: {fileID: 6318066452072398461, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 6318066452072398461, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -13217,10 +13161,6 @@ PrefabInstance:
     - target: {fileID: 8568292789615860493, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8665578535213033513, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}
-      propertyPath: m_Layer
-      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5770513761889860629, guid: bc7caf35715419740a4d5e40f83b1233, type: 3}

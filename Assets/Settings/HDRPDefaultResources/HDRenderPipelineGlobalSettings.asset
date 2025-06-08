@@ -52,8 +52,8 @@ MonoBehaviour:
   lensAttenuationMode: 0
   colorGradingSpace: 0
   m_ObsoleteDiffusionProfileSettingsList:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 48e911a1e337b44e2b85dbc65b47a594, type: 2}
+  - {fileID: 11400000, guid: 879ffae44eefa4412bb327928f1a96dd, type: 2}
   specularFade: 0
   rendererListCulling: 0
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
@@ -193,7 +193,28 @@ MonoBehaviour:
       - rid: 7566656948525596695
       - rid: 7566656948525596696
     m_RuntimeSettings:
-      m_List: []
+      m_List:
+      - rid: 8556427327610290176
+      - rid: 8556427327610290180
+      - rid: 7566656948525596672
+      - rid: 7566656948525596673
+      - rid: 7566656948525596674
+      - rid: 7566656948525596675
+      - rid: 7566656948525596677
+      - rid: 7566656948525596678
+      - rid: 7566656948525596679
+      - rid: 7566656948525596681
+      - rid: 7566656948525596682
+      - rid: 7566656948525596683
+      - rid: 7566656948525596684
+      - rid: 7566656948525596685
+      - rid: 7566656948525596686
+      - rid: 7566656948525596689
+      - rid: 7566656948525596690
+      - rid: 7566656948525596692
+      - rid: 7566656948525596693
+      - rid: 7566656948525596694
+      - rid: 7566656948525596695
   renderingLayerNames:
   - Light Layer default
   - Light Layer 1
@@ -244,7 +265,7 @@ MonoBehaviour:
         m_Version: 0
         m_Camera:
           bitDatas:
-            data1: 72198260625768271
+            data1: 72198260625768301
             data2: 13799031440106553368
           lodBias: 1
           lodBiasMode: 0
@@ -324,7 +345,7 @@ MonoBehaviour:
       type: {class: DiffusionProfileDefaultSettings, ns: UnityEngine.Rendering.HighDefinition, asm: Unity.RenderPipelines.HighDefinition.Runtime}
       data:
         m_Version: 0
-        m_AutoRegisterDiffusionProfiles: 1
+        m_AutoRegisterDiffusionProfiles: 0
     - rid: 7566656948525596677
       type: {class: LensSettings, ns: UnityEngine.Rendering.HighDefinition, asm: Unity.RenderPipelines.HighDefinition.Runtime}
       data:
