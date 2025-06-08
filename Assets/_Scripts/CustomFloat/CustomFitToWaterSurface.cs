@@ -1,9 +1,10 @@
 using Unity.Mathematics;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
 [ExecuteInEditMode]
-public class CustomFitToWaterSurface : MonoBehaviour
+public class CustomFitToWaterSurface : NetworkBehaviour
 {
     [SerializeField] private float3 floatingOffset;
 
@@ -51,7 +52,7 @@ public class CustomFitToWaterSurface : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (targetSurface == null)
+        if (targetSurface == null || !IsOwner)
             return;
 
 
@@ -108,32 +109,49 @@ public class CustomFitToWaterSurface : MonoBehaviour
 
     private void AlignToWaterNormal(float3 waterNormal)
     {
-        Vector3 velocity = (transform.position - previousPosition) / Time.deltaTime;
+        // Calculate velocity with safeguards against timing issues
+        float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f); // Prevent division by zero
+        Vector3 velocity = (transform.position - previousPosition) / deltaTime;
         previousPosition = transform.position;
-
 
         // Flatten for horizontal velocity
         Vector3 localVelocity = transform.InverseTransformDirection(velocity);
-        float forwardSpeed = localVelocity.z;
-        float sideSpeed = localVelocity.x;
+    
+        // Clamp values to prevent extreme angles
+        float forwardSpeed = Mathf.Clamp(localVelocity.z, -10f, 10f);
+        float sideSpeed = Mathf.Clamp(localVelocity.x, -10f, 10f);
 
         // Simulate pitch (nose up/down from forward acceleration)
         float pitchAngle = -forwardSpeed * pitchAngleMultiplier;
 
         // Simulate roll (lean into turns / side drift)
         float rollAngle = sideSpeed * rollAngleMultiplier;
+    
+        // Clamp final angles to reasonable values
+        pitchAngle = Mathf.Clamp(pitchAngle, -45f, 45f);
+        rollAngle = Mathf.Clamp(rollAngle, -45f, 45f);
 
         Quaternion targetTilt = Quaternion.Euler(pitchAngle, 0f, rollAngle);
 
-        // Base upright rotation from water normal
-        Vector3 forwardProjected = Vector3.ProjectOnPlane(transform.forward, waterNormal).normalized;
-        Quaternion waterAligned = Quaternion.LookRotation(forwardProjected, waterNormal);
+        // Rest of the method remains the same...
+        Vector3 forwardProjected = Vector3.ProjectOnPlane(transform.forward, waterNormal);
 
-        // Combine boat tilt + wave normal
+        if (forwardProjected.sqrMagnitude < 0.001f)
+        {
+            forwardProjected = Vector3.ProjectOnPlane(Vector3.forward, waterNormal);
+            if (forwardProjected.sqrMagnitude < 0.001f)
+            {
+                forwardProjected = Vector3.Cross(waterNormal, Vector3.right);
+                if (forwardProjected.sqrMagnitude < 0.001f)
+                    forwardProjected = Vector3.Cross(waterNormal, Vector3.up);
+            }
+        }
+
+        forwardProjected.Normalize();
+        Quaternion waterAligned = Quaternion.LookRotation(forwardProjected, waterNormal);
         Quaternion targetRotation = waterAligned * targetTilt;
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, orientationSmoothSpeed * Time.deltaTime);
-
     }
 
 

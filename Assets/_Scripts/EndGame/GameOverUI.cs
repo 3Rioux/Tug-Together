@@ -28,4 +28,9 @@ public class GameOverUI : MonoBehaviour
         gameOverPanel.SetActive(true);
         timePlayedText.text = $"Time Played: {timePlayed}";
     }
+
+    public void HideGameOver()
+    {
+        gameOverPanel.SetActive(false);
+    }
 }

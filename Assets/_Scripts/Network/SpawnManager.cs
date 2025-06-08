@@ -12,6 +12,9 @@ public class SpawnManager : NetworkBehaviour
 
     // Track spawned client IDs
     private HashSet<ulong> _spawnedClients = new HashSet<ulong>();
+
+    //track spawn player Name objects
+    private List<PlayerNameDisplay> _spawnPlayerNameList = new List<PlayerNameDisplay>();
     
     // Track which client has which prefab variant
     private Dictionary<ulong, int> _clientPrefabVariants = new Dictionary<ulong, int>();
@@ -37,6 +40,9 @@ public class SpawnManager : NetworkBehaviour
             {
                 SpawnForClient(clientId);
             }
+
+            ////set all names locally after Spawning is Done
+            //AllPlayerNamesSetLocal();
         }
     }
 
@@ -94,11 +100,74 @@ public class SpawnManager : NetworkBehaviour
             boatMovement = go.AddComponent<TugboatMovementWFloat>();
         }
 
-        go.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+        NetworkObject netObj = go.GetComponent<NetworkObject>();
+        netObj.SpawnAsPlayerObject(clientId);
         _spawnedClients.Add(clientId);
-        
-        LeaderboardManager.Instance?.UpdateLeaderboard();
+
+        _spawnPlayerNameList.Add(go.GetComponent<PlayerNameDisplay>());
+
+        //Add Player to Server + added Client RPC to add players to Clients as well
+        int maxHealth = go.GetComponent<UnitHealthController>().MaxHealth; // get the units max health 
+        AddPlayerToClientsServerRpc(clientId, maxHealth);
+
+        //_spawnPlayerNameList[(int)clientId].GetPlayerName()
+
+        //PlayerListUI.Instance?.UpdatePlayerNames(clientId, go.GetComponent<PlayerNameDisplay>().GetPlayerName(), netObj.IsLocalPlayer);
     }
+
+
+    #region AddPlayerToTrackingList
+
+    ///// <summary>
+    ///// Get the other player names for late joinning players 
+    ///// </summary>
+    ///// <returns></returns>
+    //private void AllPlayerNamesSetLocal()
+    //{
+    //    foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+    //    {
+    //        PlayerListUI.Instance?.UpdatePlayerNames(clientId, _spawnPlayerNameList[(int)clientId].GetPlayerName(), _spawnPlayerNameList[(int)clientId].gameObject.GetComponent<NetworkObject>().IsLocalPlayer);
+    //    }
+    //}
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddPlayerToClientsServerRpc(ulong clientId, int playerMaxHealth, ServerRpcParams rpcParams = default)
+    {
+        if (PlayerListUI.Instance?.AddPlayerToList(clientId, playerMaxHealth) == true)
+        {
+            BroadcastAddPlayerClientIDClientRpc(clientId, playerMaxHealth);
+            print("Added Player Server");
+        }
+        else
+        {
+            print("failed to add player to UI");
+        }
+    }
+
+    [ClientRpc]
+    void BroadcastAddPlayerClientIDClientRpc(ulong playerClientId, int playerMaxHealth)
+    {
+        //Loop through already spawned players to make sure the other players are also added 
+        foreach (ulong playerID in NetworkManager.Singleton?.ConnectedClientsIds)
+        {
+            if (PlayerListUI.Instance?.AddPlayerToList(playerID, playerMaxHealth) == true)
+            {
+                print("Added Player Client");
+
+                //Debug.Log($"{playerClientId} score is now: {score}");
+
+                //// Store or update score
+                //PlayerListUI.Instance?.UpdatePlayerScore(playerClientId, score);
+            }
+            else
+            {
+                print("failed to add Player On Client");
+            }
+        }
+    }
+    #endregion
+
 
     private int GetUnusedPrefabVariant()
     {
