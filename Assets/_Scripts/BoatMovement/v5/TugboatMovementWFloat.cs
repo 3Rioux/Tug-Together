@@ -39,7 +39,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
     [SerializeField] WaterDecal[] bowWaveDecals; 
     [SerializeField] Material bowWaveMaterial; 
     [SerializeField] WaterFoamGenerator foamGenerator; 
-    [SerializeField] VisualEffect rearSplashVFX;
+    [SerializeField] ParticleSystem[] rearEffects;
     [SerializeField] private Material speedLinesMaterial;
     
     [Header("Ship Sails")]
@@ -369,39 +369,62 @@ public class TugboatMovementWFloat : NetworkBehaviour
                 decal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
             }
         }
-        // == Water Splash Effect ==
-        if (currentSpeed > 1.0f && targetSurface != null)
-        {
-            // Get current position of the splash effect
-            Vector3 splashPosition = rearSplashVFX.transform.position;
-    
-            // Create search parameters just for the splash
-            WaterSearchParameters splashParams = new WaterSearchParameters
-            {
-                startPositionWS = splashPosition + Vector3.up * 2f,
-                targetPositionWS = splashPosition,
-                includeDeformation = includeDeformation,
-                excludeSimulation = excludeSimulation,
-                error = 0.01f,
-                maxIterations = 4
-            };
+        
+        
 
-            // Find water height at splash position
-            if (targetSurface.ProjectPointOnWaterSurface(splashParams, out WaterSearchResult splashResult))
-            {
-                // Only update the Y position to match water height
-                splashPosition.y = splashResult.projectedPositionWS.y;
-                rearSplashVFX.transform.position = splashPosition;
-            }
-    
-            // Set VFX size based on speed
-            float splashSize = Mathf.Lerp(0.3f, 2.5f, normalizedSpeed);
-            rearSplashVFX.SetFloat("Size", splashSize);
-            rearSplashVFX.gameObject.SetActive(true);
-        }
-        else
+        // == Rear Effects (Splashes/Smoke) ==
+        if (currentSpeed > 5.0f && targetSurface != null && rearEffects != null && rearEffects.Length > 0)
         {
-            rearSplashVFX.gameObject.SetActive(false);
+            foreach (ParticleSystem effect in rearEffects)
+            {
+                if (effect == null) continue;
+        
+                // Get current position of the effect
+                Vector3 effectPosition = effect.transform.position;
+                
+                // Create search parameters for water height
+                WaterSearchParameters effectParams = new WaterSearchParameters
+                {
+                    startPositionWS = effectPosition + Vector3.up * 2f,
+                    targetPositionWS = effectPosition,
+                    includeDeformation = includeDeformation,
+                    excludeSimulation = excludeSimulation,
+                    error = 0.1f,
+                    maxIterations = 2
+                };
+                
+                // Find water height at effect position (for water-based effects)
+                if (targetSurface.ProjectPointOnWaterSurface(effectParams, out WaterSearchResult effectResult))
+                {
+                    // Only update the Y position to match water height
+                    effectPosition.y = effectResult.projectedPositionWS.y;
+                    effect.transform.position = effectPosition;
+                }
+
+                // Adjust emission rate based on speed
+                var emission = effect.emission;
+                var main = effect.main;
+        
+                // Scale emission rate with speed (higher speed = more particles)
+                emission.rateOverTimeMultiplier = normalizedSpeed * 25f + .5f;
+        
+                // Scale size with speed
+                float sizeMultiplier = Mathf.Lerp(1.5f, 3f, normalizedSpeed);
+                main.startSizeMultiplier = sizeMultiplier;
+        
+                // Ensure it's playing
+                if (!effect.isPlaying)
+                    effect.Play();
+            }
+        }
+        else if (rearEffects != null)
+        {
+            // Stop effects when speed is too low
+            foreach (ParticleSystem effect in rearEffects)
+            {
+                if (effect != null && effect.isPlaying)
+                    effect.Stop();
+            }
         }
 
         // == Sails Effect ==
