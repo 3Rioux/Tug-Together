@@ -23,7 +23,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shader Graphs_BoatWaterParticle
+  m_Name: M_BoatTrailPartiicle
   m_Shader: {fileID: -6465566751694194690, guid: 028039d0976562d4096a15f20309f72d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -79,11 +79,11 @@ Material:
     - _DoubleSidedNormalMode: 2
     - _DstBlend: 10
     - _DstBlend2: 10
-    - _Edge: 0.208
+    - _Edge: 0
     - _EnableBlendModePreserveSpecularLighting: 0
     - _EnableFogOnTransparent: 0
     - _ExcludeFromTUAndAA: 0
-    - _Feather: 0.146
+    - _Feather: 0.047
     - _Float: 0.246
     - _Float_1: 0
     - _GradientSmoothness: 14.87
@@ -91,7 +91,7 @@ Material:
     - _MaterialID: 1
     - _MaterialTypeMask: 2
     - _NoiseScale: 2
-    - _NoiseSpeed: 0.1
+    - _NoiseSpeed: 0.05
     - _OpaqueCullMode: 2
     - _PerPixelSorting: 0
     - _RayTracing: 0
@@ -124,7 +124,7 @@ Material:
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UseShadowThreshold: 0
-    - _WindSize: 2
+    - _WindSize: 1
     - _WindSpeed: 1
     - _WindWiggle: 0.15
     - _ZTestDepthEqualForOpaque: 4
