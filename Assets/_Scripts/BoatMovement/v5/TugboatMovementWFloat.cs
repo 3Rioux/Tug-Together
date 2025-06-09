@@ -236,6 +236,7 @@ public class TugboatMovementWFloat : NetworkBehaviour
         // Get or add impulse source
         if (impulseSource == null)
             impulseSource = GetComponent<CinemachineImpulseSource>() ?? gameObject.AddComponent<CinemachineImpulseSource>();
+        
     }
 
     public override void OnNetworkSpawn()
