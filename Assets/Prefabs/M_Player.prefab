@@ -929,8 +929,8 @@ Rigidbody:
   m_GameObject: {fileID: 812348049185974291}
   serializedVersion: 4
   m_Mass: 200
-  m_Drag: 1
-  m_AngularDrag: 0.5
+  m_Drag: 1.25
+  m_AngularDrag: 0.75
   m_CenterOfMass: {x: 0, y: -20, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1087,8 +1087,8 @@ MonoBehaviour:
   sailObjects:
   - {fileID: 843791269980516697}
   - {fileID: 4469540483690397810}
-  turnTorque: 1000000
-  turnResponsiveness: 5000
+  turnTorque: 950000
+  turnResponsiveness: 4500
   cameraRig: {fileID: 915205053341260719}
   lookSensitivity: 1.5
   minPitch: -30
@@ -2623,7 +2623,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1809828204959572730}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13052632, y: 0.00000006665252, z: -0.000000008774978, w: 0.9914449}
+  m_LocalRotation: {x: 0.1305262, y: -3.6872456e-11, z: 4.8543517e-12, w: 0.9914449}
   m_LocalPosition: {x: 0, y: 43.63497, z: -69.14666}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9317,7 +9317,6 @@ GameObject:
   - component: {fileID: 5224337202108340124}
   - component: {fileID: 4488666007716225312}
   - component: {fileID: 8439593503880586971}
-  - component: {fileID: 5103598372958708917}
   - component: {fileID: 1287100853664773822}
   m_Layer: 11
   m_Name: CompassBase
@@ -9400,26 +9399,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5103598372958708917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7288714570330982795}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24fb3eb29eeebd04d87475bbfb984a31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  createMultiMaterialMesh: 1
-  combineInactiveChildren: 0
-  deactivateCombinedChildren: 0
-  deactivateCombinedChildrenMeshRenderers: 0
-  generateUVMap: 0
-  destroyCombinedChildren: 0
-  folderPath: Prefabs/CombinedMeshes
-  meshFiltersToSkip: []
 --- !u!114 &1287100853664773822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12534,7 +12513,7 @@ MonoBehaviour:
   TransparentLayers:
     serializedVersion: 2
     m_Bits: 0
-  MinimumDistanceFromTarget: 0.4
+  MinimumDistanceFromTarget: 0.6
   AvoidObstacles:
     Enabled: 1
     DistanceLimit: 0

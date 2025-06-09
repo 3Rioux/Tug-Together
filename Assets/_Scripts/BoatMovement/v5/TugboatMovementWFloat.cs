@@ -622,17 +622,21 @@ public class TugboatMovementWFloat : NetworkBehaviour
 
     #region OnCollisionAndScreenShake
     
+    private float _lastImpactTime = 0f;
+    private const float ImpactCooldown = 0.5f; // seconds
+    private const float MinImpactVelocity = 1.5f; // minimum velocity to count as a real hit
+
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsOwner) return;
-    
-        // Calculate impact force based on relative velocity
+
         float impactForce = collision.relativeVelocity.magnitude;
-    
-        // Only shake if impact is significant
-        if (impactForce > collisionShakeThreshold)
+
+        // Only shake if impact is significant, not just touching, and cooldown elapsed
+        if (impactForce > collisionShakeThreshold && impactForce > MinImpactVelocity && Time.time - _lastImpactTime > ImpactCooldown)
         {
-            float shakeIntensity = Mathf.Min(impactForce * collisionShakeMultiplier, 1.3f); // Cap maximum shake
+            _lastImpactTime = Time.time;
+            float shakeIntensity = Mathf.Min(impactForce * collisionShakeMultiplier, 1.3f);
             AudioManager.Instance.PlayOneShot(FMODEvents.Instance.PlayerImpact, transform.position);
             GenerateScreenShake(shakeIntensity);
         }

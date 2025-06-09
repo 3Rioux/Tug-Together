@@ -697,6 +697,17 @@ public partial class @BoatInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""cef33a20-27ba-4c32-b973-a7118c027a59"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Hook"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""4bdd8a07-5f9a-4682-83d7-ea335dfda1c4"",
                     ""path"": ""<Keyboard>/k"",
                     ""interactions"": """",
