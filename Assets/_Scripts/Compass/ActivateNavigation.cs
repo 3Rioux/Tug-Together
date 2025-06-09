@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using DG.Tweening;
 using TMPro;
+using UnityEngine.Rendering.HighDefinition;
 
 /// <summary>
 /// This script will activate/Deactivate the Navigation components (Compass, Map...)
@@ -11,6 +12,7 @@ public class ActivateNavigation : NetworkBehaviour
 {
     [SerializeField] private Transform navigationParent;
     [SerializeField] private Canvas worldSpaceCanvas;
+    [SerializeField] private CustomPassVolume  renderOnTopCustomPass;
     
     [Header("Billboard Settings")]
     [SerializeField] private Camera mainCamera;
@@ -231,62 +233,76 @@ public class ActivateNavigation : NetworkBehaviour
     }
 
     private void ShowNavigationWithAnimation()
-{
-    // Kill any running animations
-    DOTween.Kill(navigationParent);
-    if (animationSequence != null && animationSequence.IsActive())
-        animationSequence.Kill();
-
-    // Enable objects
-    navigationParent.gameObject.SetActive(true);
-
-    // Create animation sequence
-    animationSequence = DOTween.Sequence();
-
-    // 1. First animate the navigation parent
-    navigationParent.localScale = Vector3.zero;
-    animationSequence.Append(navigationParent.DOScale(navigationOriginalScale, animationDuration)
-        .SetEase(appearEase));
-
-    if (compassBase != null)
     {
-        // 2. Start compass base animation
-        compassBase.localScale = Vector3.zero;
+        ToggleNavigationMenu(true);
+        
+        // Kill any running animations
+        DOTween.Kill(navigationParent);
+        if (animationSequence != null && animationSequence.IsActive())
+            animationSequence.Kill();
 
-        // Calculate base animation duration
-        float baseAnimDuration = animationDuration * 1.2f;
+        // Enable objects
+        navigationParent.gameObject.SetActive(true);
 
-        // Insert base animation at the start
-        animationSequence.Insert(animationDuration * 0.2f,
-            compassBase.DOScale(compassBaseOriginalScale, baseAnimDuration)
+        // Create animation sequence
+        animationSequence = DOTween.Sequence();
+
+        // 1. First animate the navigation parent
+        navigationParent.localScale = Vector3.zero;
+        animationSequence.Append(navigationParent.DOScale(navigationOriginalScale, animationDuration)
             .SetEase(appearEase));
 
-        // 3. Calculate when to start arrows (when base is at ~80%)
-        float arrowsStartTime = animationDuration * 0.2f + (baseAnimDuration * 0.7f);
-
-        // 4. Then animate each arrow with overlap
-        if (compassArrows != null && compassArrows.Length > 0)
+        if (compassBase != null)
         {
-            float arrowAnimDuration = animationDuration * 0.7f;
-            float totalArrowsTime = arrowAnimDuration + (compassArrows.Length - 1) * arrowDelay;
+            // 2. Start compass base animation
+            compassBase.localScale = Vector3.zero;
 
-            for (int i = 0; i < compassArrows.Length; i++)
+            // Calculate base animation duration
+            float baseAnimDuration = animationDuration * 1.2f;
+
+            // Insert base animation at the start
+            animationSequence.Insert(animationDuration * 0.2f,
+                compassBase.DOScale(compassBaseOriginalScale, baseAnimDuration)
+                .SetEase(appearEase));
+
+            // 3. Calculate when to start arrows (when base is at ~80%)
+            float arrowsStartTime = animationDuration * 0.2f + (baseAnimDuration * 0.7f);
+
+            // 4. Then animate each arrow with overlap
+            if (compassArrows != null && compassArrows.Length > 0)
             {
-                if (compassArrows[i] != null)
-                {
-                    float thisArrowStartTime = arrowsStartTime + (i * arrowDelay);
-                    compassArrows[i].localScale = Vector3.zero;
+                float arrowAnimDuration = animationDuration * 0.7f;
+                float totalArrowsTime = arrowAnimDuration + (compassArrows.Length - 1) * arrowDelay;
 
-                    animationSequence.Insert(thisArrowStartTime,
-                        compassArrows[i].DOScale(compassArrowsOriginalScales[i], arrowAnimDuration)
+                for (int i = 0; i < compassArrows.Length; i++)
+                {
+                    if (compassArrows[i] != null)
+                    {
+                        float thisArrowStartTime = arrowsStartTime + (i * arrowDelay);
+                        compassArrows[i].localScale = Vector3.zero;
+
+                        animationSequence.Insert(thisArrowStartTime,
+                            compassArrows[i].DOScale(compassArrowsOriginalScales[i], arrowAnimDuration)
+                            .SetEase(appearEase));
+                    }
+                }
+
+                // 5. Start canvas animation when last arrow is at ~80% (if canvas exists)
+                if (worldSpaceCanvas != null)
+                {
+                    float canvasStartTime = arrowsStartTime + totalArrowsTime * 0.8f;
+
+                    worldSpaceCanvas.gameObject.SetActive(true);
+                    worldSpaceCanvas.transform.localScale = Vector3.zero;
+
+                    animationSequence.Insert(canvasStartTime,
+                        worldSpaceCanvas.transform.DOScale(canvasOriginalScale, animationDuration)
                         .SetEase(appearEase));
                 }
             }
-
-            // 5. Start canvas animation when last arrow is at ~80% (if canvas exists)
-            if (worldSpaceCanvas != null)
+            else if (worldSpaceCanvas != null) // If no arrows, start canvas after base
             {
-                float canvasStartTime = arrowsStartTime + totalArrowsTime * 0.8f;
+                float canvasStartTime = arrowsStartTime;
 
                 worldSpaceCanvas.gameObject.SetActive(true);
                 worldSpaceCanvas.transform.localScale = Vector3.zero;
@@ -296,94 +312,89 @@ public class ActivateNavigation : NetworkBehaviour
                     .SetEase(appearEase));
             }
         }
-        else if (worldSpaceCanvas != null) // If no arrows, start canvas after base
+        else if (worldSpaceCanvas != null) // No compass base, show canvas after parent
         {
-            float canvasStartTime = arrowsStartTime;
-
             worldSpaceCanvas.gameObject.SetActive(true);
             worldSpaceCanvas.transform.localScale = Vector3.zero;
 
-            animationSequence.Insert(canvasStartTime,
+            animationSequence.Insert(animationDuration * 0.8f,
                 worldSpaceCanvas.transform.DOScale(canvasOriginalScale, animationDuration)
                 .SetEase(appearEase));
         }
-    }
-    else if (worldSpaceCanvas != null) // No compass base, show canvas after parent
-    {
-        worldSpaceCanvas.gameObject.SetActive(true);
-        worldSpaceCanvas.transform.localScale = Vector3.zero;
-
-        animationSequence.Insert(animationDuration * 0.8f,
-            worldSpaceCanvas.transform.DOScale(canvasOriginalScale, animationDuration)
-            .SetEase(appearEase));
-    }
-    
-    // Immediately align to camera when shown
-    if (mainCamera != null)
-    {
-        RotateToFaceCamera();
-    }
-}
-
-private void HideNavigationWithAnimation()
-{
-    // Kill any running animations
-    DOTween.Kill(navigationParent);
-    if (animationSequence != null && animationSequence.IsActive())
-        animationSequence.Kill();
-
-    // Create reverse animation sequence with overlapping elements
-    animationSequence = DOTween.Sequence();
-    float totalDuration = 0f;
-
-    // 1. First start hiding the canvas
-    if (worldSpaceCanvas != null)
-    {
-        animationSequence.Append(worldSpaceCanvas.transform.DOScale(Vector3.zero, animationDuration * 0.8f)
-            .SetEase(disappearEase));
-        totalDuration += animationDuration * 0.4f; // Only wait for 50% completion
-    }
-
-    // 2. Start hiding arrows in reverse order with overlap
-    if (compassArrows != null && compassArrows.Length > 0)
-    {
-        float arrowAnimDuration = animationDuration * 0.5f;
-
-        for (int i = compassArrows.Length - 1; i >= 0; i--)
+        
+        // Immediately align to camera when shown
+        if (mainCamera != null)
         {
-            if (compassArrows[i] != null)
-            {
-                // Insert at position with some overlap
-                animationSequence.Insert(totalDuration + (compassArrows.Length - 1 - i) * arrowDelay * 0.5f,
-                    compassArrows[i].DOScale(Vector3.zero, arrowAnimDuration)
-                    .SetEase(disappearEase));
-            }
+            RotateToFaceCamera();
+        }
+    }
+
+    private void HideNavigationWithAnimation()
+    {
+        ToggleNavigationMenu(false);
+        
+        // Kill any running animations
+        DOTween.Kill(navigationParent);
+        if (animationSequence != null && animationSequence.IsActive())
+            animationSequence.Kill();
+
+        // Create reverse animation sequence with overlapping elements
+        animationSequence = DOTween.Sequence();
+        float totalDuration = 0f;
+
+        // 1. First start hiding the canvas
+        if (worldSpaceCanvas != null)
+        {
+            animationSequence.Append(worldSpaceCanvas.transform.DOScale(Vector3.zero, animationDuration * 0.8f)
+                .SetEase(disappearEase));
+            totalDuration += animationDuration * 0.4f; // Only wait for 50% completion
         }
 
-        // Add time but account for overlap
-        totalDuration += arrowDelay * 0.5f * (compassArrows.Length - 1) + arrowAnimDuration * 0.6f;
-    }
+        // 2. Start hiding arrows in reverse order with overlap
+        if (compassArrows != null && compassArrows.Length > 0)
+        {
+            float arrowAnimDuration = animationDuration * 0.5f;
 
-    // 3. Hide compass base with slight overlap
-    if (compassBase != null)
-    {
+            for (int i = compassArrows.Length - 1; i >= 0; i--)
+            {
+                if (compassArrows[i] != null)
+                {
+                    // Insert at position with some overlap
+                    animationSequence.Insert(totalDuration + (compassArrows.Length - 1 - i) * arrowDelay * 0.5f,
+                        compassArrows[i].DOScale(Vector3.zero, arrowAnimDuration)
+                        .SetEase(disappearEase));
+                }
+            }
+
+            // Add time but account for overlap
+            totalDuration += arrowDelay * 0.5f * (compassArrows.Length - 1) + arrowAnimDuration * 0.6f;
+        }
+
+        // 3. Hide compass base with slight overlap
+        if (compassBase != null)
+        {
+            animationSequence.Insert(totalDuration,
+                compassBase.DOScale(Vector3.zero, animationDuration)
+                .SetEase(disappearEase));
+
+            totalDuration += animationDuration * 0.6f;
+        }
+
+        // 4. Finally hide navigation parent and disable objects
         animationSequence.Insert(totalDuration,
-            compassBase.DOScale(Vector3.zero, animationDuration)
-            .SetEase(disappearEase));
-
-        totalDuration += animationDuration * 0.6f;
+            navigationParent.DOScale(Vector3.zero, animationDuration)
+            .SetEase(disappearEase))
+            .OnComplete(() => {
+                navigationParent.gameObject.SetActive(false);
+                if (worldSpaceCanvas != null)
+                    worldSpaceCanvas.gameObject.SetActive(false);
+            });
     }
 
-    // 4. Finally hide navigation parent and disable objects
-    animationSequence.Insert(totalDuration,
-        navigationParent.DOScale(Vector3.zero, animationDuration)
-        .SetEase(disappearEase))
-        .OnComplete(() => {
-            navigationParent.gameObject.SetActive(false);
-            if (worldSpaceCanvas != null)
-                worldSpaceCanvas.gameObject.SetActive(false);
-        });
-}
+    void ToggleNavigationMenu(bool show)
+    {
+        renderOnTopCustomPass.enabled = show;
+    }
 
     private void OnDestroy()
     {
