@@ -13,7 +13,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _AFFECTS_DEFORMATION
-  - _AFFECTS_FOAM
   - _AFFECTS_MASK
   m_InvalidKeywords:
   - _DISABLE_SSR_TRANSPARENT
@@ -49,7 +48,7 @@ Material:
     m_Floats:
     - _AddPrecomputedVelocity: 0
     - _AffectDeformation: 1
-    - _AffectFoam: 1
+    - _AffectFoam: 0
     - _AffectLargeCurrent: 0
     - _AffectRipplesCurrent: 0
     - _AffectSimulationMask: 1

@@ -378,27 +378,30 @@ public class TugboatMovementWFloat : NetworkBehaviour
             foreach (ParticleSystem effect in rearEffects)
             {
                 if (effect == null) continue;
-        
-                // Get current position of the effect
-                Vector3 effectPosition = effect.transform.position;
-                
+    
+                // Get desired world position based on the boat's transform
+                Vector3 localPos = effect.transform.localPosition;
+                Vector3 desiredWorldPos = transform.TransformPoint(localPos);
+    
                 // Create search parameters for water height
                 WaterSearchParameters effectParams = new WaterSearchParameters
                 {
-                    startPositionWS = effectPosition + Vector3.up * 2f,
-                    targetPositionWS = effectPosition,
+                    startPositionWS = desiredWorldPos + Vector3.up * 2f,
+                    targetPositionWS = desiredWorldPos,
                     includeDeformation = includeDeformation,
                     excludeSimulation = excludeSimulation,
                     error = 0.1f,
                     maxIterations = 2
                 };
-                
-                // Find water height at effect position (for water-based effects)
+
+                // Find water height at effect position
                 if (targetSurface.ProjectPointOnWaterSurface(effectParams, out WaterSearchResult effectResult))
                 {
-                    // Only update the Y position to match water height
-                    effectPosition.y = effectResult.projectedPositionWS.y;
-                    effect.transform.position = effectPosition;
+                    // Only update the Y position while keeping X and Z aligned with the boat
+                    desiredWorldPos.y = effectResult.projectedPositionWS.y;
+        
+                    // Convert back to local position to maintain relationship with boat
+                    effect.transform.position = desiredWorldPos;
                 }
 
                 // Adjust emission rate based on speed
@@ -406,10 +409,10 @@ public class TugboatMovementWFloat : NetworkBehaviour
                 var main = effect.main;
         
                 // Scale emission rate with speed (higher speed = more particles)
-                emission.rateOverTimeMultiplier = normalizedSpeed * 25f + .5f;
+                emission.rateOverTimeMultiplier = normalizedSpeed * 15f + .5f;
         
                 // Scale size with speed
-                float sizeMultiplier = Mathf.Lerp(1.5f, 3f, normalizedSpeed);
+                float sizeMultiplier = Mathf.Lerp(2f, 5f, normalizedSpeed);
                 main.startSizeMultiplier = sizeMultiplier;
         
                 // Ensure it's playing
