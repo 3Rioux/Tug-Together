@@ -25,6 +25,16 @@ public class LevelProgressionManager : NetworkBehaviour
      *   Mission #5: Work together to get through the narrow dune corridor without getting stuck!  <--Fits better
      *   
      *   Mission #6: Bring the barge to the dock! Good work out there!
+     *   
+     *   LevelONEONE:
+     *   Mission #1: Find a your way to the barge. (Tip: Follow the compass Gold needle)
+     *  xxx Mission #1-1: Use the buoys to navigate to the next area. xxx
+     *   Mission #2: Get past the Debris field without taking to much damage!
+     *   Mission #3: Good work finding the barge! Now hook on to it by pressing "R" when in range.
+     *   Mission #4: Now that your connected pull the barge to the West Point Lighthouse to deliver the supplies. (Tip: Follow the compass Red needle)
+     *   Mission #5:  Nearly there! Just bring the barge into the dock indicated by the green box.
+     *   Mission #6:
+     *  
      */
 
     [SerializeField] private NetworkVariable<int> currentGoalIndex = new(0);

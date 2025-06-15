@@ -161,7 +161,7 @@ public class DebrisSpawner : MonoBehaviour
     /// <summary>
     /// Instantiate a floating debris prefab at a random horizontal position.
     /// </summary>
-    void SpawnFloatingDebris()
+    private void SpawnFloatingDebris()
     {
         if (floatingDebrisPools.Count == 0) return;
 
@@ -173,17 +173,22 @@ public class DebrisSpawner : MonoBehaviour
         //Get Object from Pool: 
         int index = Random.Range(0, floatingDebrisPools.Count);
         GameObject obj = floatingDebrisPools[index].Get();
-        
+
         //stop the original spawn spinning effect
         //Rigidbody rb = obj.GetComponent<Rigidbody>();
         //if (rb != null)
         //{
         //    rb.freezeRotation = true;
         //}
+        int randomRotation = Random.Range(0, 126);
 
         obj.transform.position = spawnPos;
-        int randomRotation = Random.Range(-90, 90 + 1);
-        obj.transform.rotation = new Quaternion(obj.transform.position.x, obj.transform.rotation.y + randomRotation, obj.transform.position.z, 1); //unsure about the w lol 
+        
+        if (obj.layer == 12)
+        {
+            Debug.Log(randomRotation.ToString()+ " " + obj.name);
+        }
+        obj.transform.rotation = new Quaternion(obj.transform.position.x, obj.transform.rotation.y + randomRotation, obj.transform.position.z +(randomRotation + randomRotation), 1); //unsure about the w lol 
 
         // Assign random horizontal drift direction and speed
         float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
