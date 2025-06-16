@@ -350,9 +350,21 @@ public class TugboatMovementWFloat : NetworkBehaviour
     
     private void ApplyMovementEffects(float currentSpeed)
     {
+        // Check if player is moving forward or backward
+        bool isMovingForward = true;
+    
+        if (IsOwner) {
+            // For owner, we can check the actual direction using rigidbody
+            float forwardSpeed = Vector3.Dot(rb.linearVelocity, transform.forward);
+            isMovingForward = forwardSpeed > 0;
+        } else {
+            // For network players, estimate from throttle
+            isMovingForward = currentThrottle > 0;
+        }
+    
         // Normalize speed to a value between 0 and 1
         float normalizedSpeed = Mathf.InverseLerp(0, maxSpeed - 10f, currentSpeed);
-
+    
         // == Wave Bow Effects (now handles array) ==
         if (bowWaveDecals != null && bowWaveDecals.Length > 0)
         {
@@ -360,20 +372,25 @@ public class TugboatMovementWFloat : NetworkBehaviour
             {
                 if (decal == null) continue;
             
-                // Smoothly transition amplitude between 0 and 3 based on normalized speed
-                decal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
-            
-                // Smoothly transition bow wave decal region size
-                Vector2 minSize = new(30.5f, 43f);
-                Vector2 maxSize = new(45f, 55f);
-                decal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
+                if (isMovingForward) {
+                    // Smoothly transition amplitude between 0 and 3 based on normalized speed
+                    decal.amplitude = Mathf.Lerp(0, 3, normalizedSpeed);
+                
+                    // Smoothly transition bow wave decal region size
+                    Vector2 minSize = new(30.5f, 43f);
+                    Vector2 maxSize = new(45f, 55f);
+                    decal.regionSize = Vector2.Lerp(minSize, maxSize, normalizedSpeed);
+                } else {
+                    // Disable bow waves when moving backward
+                    decal.amplitude = 0;
+                }
             }
         }
         
         
 
         // == Rear Effects (Splashes/Smoke) ==
-        if (currentSpeed > 5.0f && targetSurface != null && rearEffects != null && rearEffects.Length > 0)
+        if (currentSpeed > 10.0f && targetSurface != null && rearEffects != null && rearEffects.Length > 0 && isMovingForward)
         {
             foreach (ParticleSystem effect in rearEffects)
             {
@@ -409,10 +426,10 @@ public class TugboatMovementWFloat : NetworkBehaviour
                 var main = effect.main;
         
                 // Scale emission rate with speed (higher speed = more particles)
-                emission.rateOverTimeMultiplier = normalizedSpeed * 15f + .5f;
+                emission.rateOverTimeMultiplier = normalizedSpeed * 12f + .5f;
         
                 // Scale size with speed
-                float sizeMultiplier = Mathf.Lerp(2f, 5f, normalizedSpeed);
+                float sizeMultiplier = Mathf.Lerp(2f, 4f, normalizedSpeed);
                 main.startSizeMultiplier = sizeMultiplier;
         
                 // Ensure it's playing
@@ -431,31 +448,48 @@ public class TugboatMovementWFloat : NetworkBehaviour
         }
 
         // == Sails Effect ==
+        if (isMovingForward) {
+            // Calculate sail strength but round to 2 decimal places
+            float rawStrength = Mathf.Lerp(0.2f, 0.8f, normalizedSpeed);
+            float roundedStrength = Mathf.Round(rawStrength * 100) / 100f;
         
-        // Calculate sail strength but round to 2 decimal places
-        float rawStrength = Mathf.Lerp(0.2f, 0.8f, normalizedSpeed);
-        float roundedStrength = Mathf.Round(rawStrength * 100) / 100f; // Round to 2 decimal places (0.XX)
-    
-        // Only update if the rounded value actually changed
-        if (Mathf.Abs(_currentSailStrength - roundedStrength) > 0.001f)
-        {
-            _currentSailStrength = roundedStrength;
-        
-            if (_sailMaterials != null)
+            // Only update if the rounded value actually changed
+            if (Mathf.Abs(_currentSailStrength - roundedStrength) > 0.001f)
             {
-                foreach (Material sail in _sailMaterials)
+                _currentSailStrength = roundedStrength;
+            
+                if (_sailMaterials != null)
                 {
-                    if (sail != null)
+                    foreach (Material sail in _sailMaterials)
                     {
-                        sail.SetFloat("_Strength", _currentSailStrength);
+                        if (sail != null)
+                        {
+                            sail.SetFloat("_Strength", _currentSailStrength);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Set sails to minimum when moving backward
+            if (!Mathf.Approximately(_currentSailStrength, 0.2f)) {
+                _currentSailStrength = 0.2f;
+            
+                if (_sailMaterials != null)
+                {
+                    foreach (Material sail in _sailMaterials)
+                    {
+                        if (sail != null)
+                        {
+                            sail.SetFloat("_Strength", _currentSailStrength);
+                        }
                     }
                 }
             }
         }
         
-        // == Speed Lines Effect ==
         
-        // Handle speed lines material
+        
+        // == Speed Lines Effect ==
         if (speedLinesMaterial != null)
         {
             // Calculate density directly from sail strength rather than separately from speed
